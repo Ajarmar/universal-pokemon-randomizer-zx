@@ -233,7 +233,8 @@ public class NewRandomizerGUI {
         bundle = ResourceBundle.getBundle("com/dabomstew/pkrandom/newgui/Bundle");
         testForRequiredConfigs();
         checkHandlers = new RomHandler.Factory[] { new Gen1RomHandler.Factory(), new Gen2RomHandler.Factory(),
-                new Gen3RomHandler.Factory(), new Gen4RomHandler.Factory(), new Gen5RomHandler.Factory() };
+                new Gen3RomHandler.Factory(), new Gen4RomHandler.Factory(), new Gen5RomHandler.Factory(),
+                new Gen6RomHandler.Factory(), new Gen7RomHandler.Factory() };
 
         haveCheckedCustomNames = false;
         attemptReadConfig();
