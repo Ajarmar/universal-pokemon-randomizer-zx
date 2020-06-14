@@ -25,7 +25,6 @@ package com.dabomstew.pkrandom.romhandlers;
 /*----------------------------------------------------------------------------*/
 
 import com.dabomstew.pkrandom.FileFunctions;
-import com.dabomstew.pkrandom.ctr.CTRUtil;
 import com.dabomstew.pkrandom.ctr.NCCH;
 import com.dabomstew.pkrandom.exceptions.RandomizerIOException;
 
@@ -33,7 +32,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.RandomAccessFile;
-import java.nio.ByteOrder;
 import java.util.Random;
 
 public abstract class Abstract3DSRomHandler extends AbstractRomHandler {
@@ -117,10 +115,10 @@ public abstract class Abstract3DSRomHandler extends AbstractRomHandler {
 
                 // If this is *really* a CIA, we'll find our CXI at the beginning of the
                 // content section, which is after the certificate chain, ticket, and TMD
-                long certChainOffset = CTRUtil.alignLong(ciaHeaderSize, 64);
-                long ticketOffset = CTRUtil.alignLong(certChainOffset + certChainSize, 64);
-                long tmdOffset = CTRUtil.alignLong(ticketOffset + ticketSize, 64);
-                long contentOffset = CTRUtil.alignLong(tmdOffset + tmdFileSize, 64);
+                long certChainOffset = alignLong(ciaHeaderSize, 64);
+                long ticketOffset = alignLong(certChainOffset + certChainSize, 64);
+                long tmdOffset = alignLong(ticketOffset + ticketSize, 64);
+                long contentOffset = alignLong(tmdOffset + tmdFileSize, 64);
                 int magic = FileFunctions.readIntFromFile(rom, contentOffset + ncch_and_ncsd_magic_offset);
                 if (magic == ncch_magic) {
                     // This CIA's content contains a valid CXI!
@@ -199,5 +197,10 @@ public abstract class Abstract3DSRomHandler extends AbstractRomHandler {
             hexChars[i * 2 + 1] = HEX_ARRAY[unsignedByte & 0x0F];
         }
         return new String(hexChars);
+    }
+
+    public static long alignLong(long num, long alignment) {
+        long mask = ~(alignment - 1);
+        return (num + (alignment - 1)) & mask;
     }
 }

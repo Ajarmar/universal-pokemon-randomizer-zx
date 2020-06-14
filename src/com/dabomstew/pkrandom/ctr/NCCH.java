@@ -133,7 +133,7 @@ public class NCCH {
         }
         int masterHashSize = FileFunctions.readFullIntLittleEndian(romfsHeaderData, 0x08);
         int level3HashBlockSize = 1 << FileFunctions.readFullIntLittleEndian(romfsHeaderData, 0x4C);
-        long level3Offset = romfsOffset + CTRUtil.alignLong(0x60 + masterHashSize, level3HashBlockSize);
+        long level3Offset = romfsOffset + alignLong(0x60 + masterHashSize, level3HashBlockSize);
 
         byte[] level3HeaderData = new byte[level3_header_size];
         baseRom.seek(level3Offset);
@@ -267,6 +267,11 @@ public class NCCH {
 
     public boolean isWritingEnabled() {
         return writingEnabled;
+    }
+
+    public static long alignLong(long num, long alignment) {
+        long mask = ~(alignment - 1);
+        return (num + (alignment - 1)) & mask;
     }
 
     private class ExefsFileHeader {
