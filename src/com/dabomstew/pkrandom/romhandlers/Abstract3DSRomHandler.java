@@ -50,10 +50,34 @@ public abstract class Abstract3DSRomHandler extends AbstractRomHandler {
         return true;
     }
 
-    protected static String getProductCodeFromFile(String filename) {
+    protected static int getNCCHOffsetInFile(String filename) {
         try {
             FileInputStream fis = new FileInputStream(filename);
-            fis.skip(0x150);
+            fis.skip(0x100);
+            byte[] magic = FileFunctions.readFullyIntoBuffer(fis, 0x04);
+            fis.close();
+            if (magic[0] == 0x4E && magic[1] == 0x43 && magic[2] == 0x43 && magic[3] == 0x48) {
+                // Magic is NCCH, so this is an NCCH/CXI file; the NCCH Offset is at the start.
+                return 0;
+            } else if (magic[0] == 0x4E && magic[1] == 0x43 && magic[2] == 0x53 && magic[3] == 0x44) {
+                // Magic is NCSD, so the executable NCCH for this cart is located at 0x4000.
+                return 0x4000;
+            } else {
+                return -1;
+            }
+        } catch (IOException e) {
+            throw new RandomizerIOException(e);
+        }
+    }
+
+    protected static String getProductCodeFromFile(String filename) {
+        try {
+            int ncchStartingOffset = getNCCHOffsetInFile(filename);
+            if (ncchStartingOffset == -1) {
+                return null;
+            }
+            FileInputStream fis = new FileInputStream(filename);
+            fis.skip(ncchStartingOffset + 0x150);
             byte[] productCode = FileFunctions.readFullyIntoBuffer(fis, 0x10);
             fis.close();
             return new String(productCode, "UTF-8").trim();
@@ -64,8 +88,12 @@ public abstract class Abstract3DSRomHandler extends AbstractRomHandler {
 
     protected static String getTitleIdFromFile(String filename) {
         try {
+            int ncchStartingOffset = getNCCHOffsetInFile(filename);
+            if (ncchStartingOffset == -1) {
+                return null;
+            }
             FileInputStream fis = new FileInputStream(filename);
-            fis.skip(0x118);
+            fis.skip(ncchStartingOffset + 0x118);
             byte[] programId = FileFunctions.readFullyIntoBuffer(fis, 0x8);
             fis.close();
             reverseArray(programId);

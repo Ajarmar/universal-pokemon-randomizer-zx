@@ -43,13 +43,14 @@ public class ROMFilter extends FileFilter {
             return false;
         }
         String extension = arg0.getName().substring(arg0.getName().lastIndexOf('.') + 1).toLowerCase();
-        return extension.equals("gb") || extension.equals("sgb") || extension.equals("gbc") || extension.equals("gba")
-                || extension.equals("nds") || extension.equals("cxi");
+        return extension.equals("gb") || extension.equals("sgb") || extension.equals("gbc")
+                || extension.equals("gba") || extension.equals("nds")
+                || extension.equals("3ds") || extension.equals("cci") || extension.equals("cxi");
     }
 
     @Override
     public String getDescription() {
-        return "Nintendo GB(C/A)/(3)DS ROM File (*.gb,*.sgb,*.gbc,*.gba,*.nds,*.cxi)";
+        return "Nintendo GB(C/A)/(3)DS ROM File (*.gb,*.sgb,*.gbc,*.gba,*.nds,*.3ds,*.cci,*.cxi)";
     }
 
 }
