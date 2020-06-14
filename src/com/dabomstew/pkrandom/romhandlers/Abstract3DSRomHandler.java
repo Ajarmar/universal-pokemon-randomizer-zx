@@ -51,7 +51,10 @@ public abstract class Abstract3DSRomHandler extends AbstractRomHandler {
         }
         // Load inner rom
         try {
-            baseRom = new NCCH(filename);
+            baseRom = new NCCH(filename, getNCCHOffsetInFile(filename));
+            if (!baseRom.isDecrypted()) {
+                return false;
+            }
         } catch (IOException e) {
             throw new RandomizerIOException(e);
         }
@@ -74,6 +77,10 @@ public abstract class Abstract3DSRomHandler extends AbstractRomHandler {
         // Default value for Gen4+.
         // Handlers can override again in case of ROM hacks etc.
         return true;
+    }
+
+    protected byte[] readCode() throws IOException {
+        return baseRom.getCode();
     }
 
     protected static int getNCCHOffsetInFile(String filename) {

@@ -26,10 +26,12 @@ package com.dabomstew.pkrandom.romhandlers;
 import com.dabomstew.pkrandom.FileFunctions;
 import com.dabomstew.pkrandom.MiscTweak;
 import com.dabomstew.pkrandom.constants.Gen6Constants;
+import com.dabomstew.pkrandom.exceptions.RandomizerIOException;
 import com.dabomstew.pkrandom.pokemon.*;
 
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.*;
 
@@ -118,6 +120,7 @@ public class Gen6RomHandler extends Abstract3DSRomHandler {
     private Pokemon[] pokes;
     private List<Pokemon> pokemonList;
     private RomEntry romEntry;
+    private byte[] code;
 
     @Override
     protected boolean detect3DSRom(String productCode, String titleId) {
@@ -144,6 +147,12 @@ public class Gen6RomHandler extends Abstract3DSRomHandler {
     @Override
     protected void loadedROM(String productCode, String titleId) {
         this.romEntry = entryFor(productCode, titleId);
+
+        try {
+            code = readCode();
+        } catch (IOException e) {
+            throw new RandomizerIOException(e);
+        }
 
         // TODO: Actually make this work by loading it from the ROM. Only doing it this
         // way temporarily so the randomizer won't crash
