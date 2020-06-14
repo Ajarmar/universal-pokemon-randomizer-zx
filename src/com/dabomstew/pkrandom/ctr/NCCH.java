@@ -183,7 +183,7 @@ public class NCCH {
         String currentPath = rootPath + metadata.name;
         RomfsFile file = new RomfsFile(this);
         file.offset = fileDataOffset + metadata.fileDataOffset;
-        file.size = metadata.fileDataLength;
+        file.size = (int) metadata.fileDataLength;  // no Pokemon game has a file larger than unsigned int max
         file.fullPath = currentPath;
         romfsFiles.put(currentPath, file);
         if (metadata.siblingFileOffset != metadata_unused) {

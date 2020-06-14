@@ -31,7 +31,8 @@ import java.io.RandomAccessFile;
 public class RomfsFile {
 
     private NCCH parent;
-    public long offset, size;
+    public long offset;
+    public int size;
     public String fullPath;
     private Extracted status = Extracted.NOT;
     private String extFilename;
@@ -46,7 +47,7 @@ public class RomfsFile {
             // extract file
             parent.reopenROM();
             RandomAccessFile rom = parent.getBaseRom();
-            byte[] buf = new byte[(int)this.size];  // TODO: Make this less hacky
+            byte[] buf = new byte[this.size];
             rom.seek(this.offset);
             rom.readFully(buf);
             if (parent.isWritingEnabled()) {
