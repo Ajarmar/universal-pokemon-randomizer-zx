@@ -23,16 +23,10 @@ package com.dabomstew.pkrandom;
 /*--  along with this program. If not, see <http://www.gnu.org/licenses/>.  --*/
 /*----------------------------------------------------------------------------*/
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
@@ -105,6 +99,22 @@ public class FileFunctions {
         return cns;
     }
 
+    public static long readFullLongLittleEndian(byte[] data, int offset) {
+        ByteBuffer buf = ByteBuffer.allocate(8);
+        buf.order(ByteOrder.LITTLE_ENDIAN);
+        buf.put(data, offset, 8);
+        buf.rewind();
+        return buf.getLong();
+    }
+
+    public static int readFullIntLittleEndian(byte[] data, int offset) {
+        ByteBuffer buf = ByteBuffer.allocate(4);
+        buf.order(ByteOrder.LITTLE_ENDIAN);
+        buf.put(data, offset, 4);
+        buf.rewind();
+        return buf.getInt();
+    }
+
     public static int readFullInt(byte[] data, int offset) {
         ByteBuffer buf = ByteBuffer.allocate(4).put(data, offset, 4);
         buf.rewind();
@@ -146,6 +156,20 @@ public class FileFunctions {
         while (offs < length && (read = in.read(buf, offs + offset, length - offs)) != -1) {
             offs += read;
         }
+    }
+
+    public static int readIntFromFile(RandomAccessFile file, long offset) throws IOException {
+        byte[] buf = new byte[4];
+        file.seek(offset);
+        file.readFully(buf);
+        return readFullInt(buf, 0);
+    }
+
+    public static int readLittleEndianIntFromFile(RandomAccessFile file, long offset) throws IOException {
+        byte[] buf = new byte[4];
+        file.seek(offset);
+        file.readFully(buf);
+        return readFullIntLittleEndian(buf, 0);
     }
 
     public static void writeBytesToFile(String filename, byte[] data) throws IOException {
