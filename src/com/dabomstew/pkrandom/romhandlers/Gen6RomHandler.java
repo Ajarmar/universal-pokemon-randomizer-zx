@@ -150,6 +150,9 @@ public class Gen6RomHandler extends Abstract3DSRomHandler {
 
         try {
             code = readCode();
+            if (romEntry.romType == Gen6Constants.Type_XY) {
+                byte[] test = readFile("sound/bgm_xy_ajito.aac");
+            }
         } catch (IOException e) {
             throw new RandomizerIOException(e);
         }

@@ -26,14 +26,18 @@ import com.dabomstew.pkrandom.SysConstants;
 import cuecompressors.BLZCoder;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class NCCH {
 
     private String romFilename;
     private RandomAccessFile baseRom;
     private int ncchStartingOffset;
-    private int exefsOffset, romfsOffset;
+    private int exefsOffset, romfsOffset, fileDataOffset;
     private ExefsFileHeader codeFileHeader;
+    private Map<String, RomfsFile> romfsFiles;
     private boolean romOpen;
     private String tmpFolder;
     private boolean writingEnabled;
@@ -41,6 +45,10 @@ public class NCCH {
     private byte[] codeRamstored;
 
     private static final int media_unit_size = 0x200;
+    private static final int exefs_header_size = 0x200;
+    private static final int romfs_header_size = 0x5C;
+    private static final int level3_header_size = 0x28;
+    private static final int metadata_unused = 0xFFFFFFFF;
 
     public NCCH(String filename, int ncchStartingOffset) throws IOException {
         this.romFilename = filename;
@@ -54,10 +62,6 @@ public class NCCH {
         dataFolder = dataFolder.replaceAll("[^A-Za-z0-9_]+", "");
         File tmpFolder = new File(SysConstants.ROOT_PATH + dataFolder);
         tmpFolder.mkdir();
-        File tmpExefsFolder = new File(SysConstants.ROOT_PATH + dataFolder + File.separator + "exefs");
-        tmpExefsFolder.mkdir();
-        File tmpRomfsFolder = new File(SysConstants.ROOT_PATH + dataFolder + File.separator + "romfs");
-        tmpRomfsFolder.mkdir();
         if (tmpFolder.canWrite()) {
             writingEnabled = true;
             this.tmpFolder = SysConstants.ROOT_PATH + dataFolder + File.separator;
@@ -66,6 +70,21 @@ public class NCCH {
             writingEnabled = false;
         }
         readFileSystem();
+    }
+
+    public void reopenROM() throws IOException {
+        if (!this.romOpen) {
+            this.baseRom = new RandomAccessFile(this.romFilename, "r");
+            this.romOpen = true;
+        }
+    }
+
+    public void closeROM() throws IOException {
+        if (this.romOpen && this.baseRom != null) {
+            this.baseRom.close();
+            this.baseRom = null;
+            this.romOpen = false;
+        }
     }
 
     private void readFileSystem() throws IOException {
@@ -82,7 +101,7 @@ public class NCCH {
     }
 
     private void readExefs() throws IOException {
-        byte[] exefsHeaderData = new byte[0x200];
+        byte[] exefsHeaderData = new byte[exefs_header_size];
         baseRom.seek(exefsOffset);
         baseRom.readFully(exefsHeaderData);
 
@@ -101,7 +120,73 @@ public class NCCH {
     }
 
     private void readRomfs() throws IOException {
-        // do nothing for now
+        byte[] romfsHeaderData = new byte[romfs_header_size];
+        baseRom.seek(romfsOffset);
+        baseRom.readFully(romfsHeaderData);
+        int magic1 = convertBytesToInt(romfsHeaderData, 0x00);
+        int magic2 = convertBytesToInt(romfsHeaderData, 0x04);
+        if (magic1 != 0x43465649 || magic2 != 0x10000) {
+            // Not a valid romfs
+            return;
+        }
+        int masterHashSize = convertBytesToInt(romfsHeaderData, 0x08);
+        int level3HashBlockSize = 1 << convertBytesToInt(romfsHeaderData, 0x4C);
+        int level3Offset = romfsOffset + align(0x60 + masterHashSize, level3HashBlockSize);
+
+        byte[] level3HeaderData = new byte[level3_header_size];
+        baseRom.seek(level3Offset);
+        baseRom.readFully(level3HeaderData);
+        int headerLength = convertBytesToInt(level3HeaderData, 0x00);
+        if (headerLength != level3_header_size) {
+            // Not a valid romfs
+            return;
+        }
+        int directoryMetadataOffset = convertBytesToInt(level3HeaderData, 0x0C);
+        int directoryMetadataLength = convertBytesToInt(level3HeaderData, 0x10);
+        int fileMetadataOffset = convertBytesToInt(level3HeaderData, 0x1c);
+        int fileMetadataLength = convertBytesToInt(level3HeaderData, 0x20);
+        int fileDataOffsetFromHeaderStart = convertBytesToInt(level3HeaderData, 0x24);
+        fileDataOffset = level3Offset + fileDataOffsetFromHeaderStart;
+
+        byte[] directoryMetadataBlock = new byte[directoryMetadataLength];
+        baseRom.seek(level3Offset + directoryMetadataOffset);
+        baseRom.readFully(directoryMetadataBlock);
+        byte[] fileMetadataBlock = new byte[fileMetadataLength];
+        baseRom.seek(level3Offset + fileMetadataOffset);
+        baseRom.readFully(fileMetadataBlock);
+        romfsFiles = new TreeMap<>();
+        visitDirectory(0, "", directoryMetadataBlock, fileMetadataBlock);
+    }
+
+    private void visitDirectory(int offset, String rootPath, byte[] directoryMetadataBlock, byte[] fileMetadataBlock) {
+        DirectoryMetadata metadata = new DirectoryMetadata(directoryMetadataBlock, offset);
+        String currentPath = rootPath;
+        if (!metadata.name.equals("")) {
+            currentPath = rootPath + metadata.name + "/";
+        }
+
+        if (metadata.firstFileOffset != metadata_unused) {
+            visitFile(metadata.firstFileOffset, currentPath, fileMetadataBlock);
+        }
+        if (metadata.firstChildDirectoryOffset != metadata_unused) {
+            visitDirectory(metadata.firstChildDirectoryOffset, currentPath, directoryMetadataBlock, fileMetadataBlock);
+        }
+        if (metadata.siblingDirectoryOffset != metadata_unused) {
+            visitDirectory(metadata.siblingDirectoryOffset, rootPath, directoryMetadataBlock, fileMetadataBlock);
+        }
+    }
+
+    private void visitFile(int offset, String rootPath, byte[] fileMetadataBlock) {
+        FileMetadata metadata = new FileMetadata(fileMetadataBlock, offset);
+        String currentPath = rootPath + metadata.name;
+        RomfsFile file = new RomfsFile(this);
+        file.offset = fileDataOffset + metadata.fileDataOffset;
+        file.size = metadata.fileDataLength;
+        file.fullPath = currentPath;
+        romfsFiles.put(currentPath, file);
+        if (metadata.siblingFileOffset != metadata_unused) {
+            visitFile(metadata.siblingFileOffset, rootPath, fileMetadataBlock);
+        }
     }
 
     // Note that certain older dumps of games have incorrectly set crypto flags,
@@ -125,7 +210,10 @@ public class NCCH {
         if (!codeOpen) {
             codeOpen = true;
             byte[] code = new byte[codeFileHeader.size];
-            baseRom.seek(exefsOffset + 0x200 + codeFileHeader.offset);
+
+            // File header offsets are from the start of the exefs but *exclude* the
+            // size of the exefs header, so we need to add it back ourselves.
+            baseRom.seek(exefsOffset + exefs_header_size + codeFileHeader.offset);
             baseRom.readFully(code);
 
             if (codeCompressed) {
@@ -134,7 +222,7 @@ public class NCCH {
 
             // Now actually make the copy or w/e
             if (writingEnabled) {
-                File arm9file = new File(tmpFolder + "exefs" + File.separator + ".code");
+                File arm9file = new File(tmpFolder + ".code");
                 FileOutputStream fos = new FileOutputStream(arm9file);
                 fos.write(code);
                 fos.close();
@@ -149,13 +237,34 @@ public class NCCH {
             }
         } else {
             if (writingEnabled) {
-                return FileFunctions.readFileFullyIntoBuffer(tmpFolder + "exefs" + File.separator + ".code");
+                return FileFunctions.readFileFullyIntoBuffer(tmpFolder + ".code");
             } else {
                 byte[] newcopy = new byte[this.codeRamstored.length];
                 System.arraycopy(this.codeRamstored, 0, newcopy, 0, this.codeRamstored.length);
                 return newcopy;
             }
         }
+    }
+
+    // returns null if file doesn't exist
+    public byte[] getFile(String filename) throws IOException {
+        if (romfsFiles.containsKey(filename)) {
+            return romfsFiles.get(filename).getContents();
+        } else {
+            return null;
+        }
+    }
+
+    public String getTmpFolder() {
+        return tmpFolder;
+    }
+
+    public RandomAccessFile getBaseRom() {
+        return baseRom;
+    }
+
+    public boolean isWritingEnabled() {
+        return writingEnabled;
     }
 
     private int readIntFromFile(RandomAccessFile file, int offset) throws IOException {
@@ -174,6 +283,19 @@ public class NCCH {
         return result;
     }
 
+    private long convertBytesToLong(byte[] bytes, int offset) {
+        long result = 0;
+        for (int i = 0; i < 8; i++) {
+            result |= (bytes[offset + i] & 0xFF) << (i * 8);
+        }
+        return result;
+    }
+
+    private int align(int num, int alignment) {
+        int mask = ~(alignment - 1);
+        return (num + (alignment - 1)) & mask;
+    }
+
     private class ExefsFileHeader {
         public String filename;
         public int offset;
@@ -182,17 +304,63 @@ public class NCCH {
         public ExefsFileHeader(byte[] exefsHeaderData, int fileHeaderOffset) {
             byte[] filenameBytes = new byte[0x8];
             System.arraycopy(exefsHeaderData, fileHeaderOffset, filenameBytes, 0, 0x8);
-            try {
-                this.filename = new String(filenameBytes, "UTF-8").trim();
-            } catch (UnsupportedEncodingException e) {
-                this.filename = "";
-            }
+            this.filename = new String(filenameBytes, StandardCharsets.UTF_8).trim();
             this.offset = convertBytesToInt(exefsHeaderData, fileHeaderOffset + 0x08);
             this.size = convertBytesToInt(exefsHeaderData, fileHeaderOffset + 0x0C);
         }
 
         public boolean isValid() {
             return this.filename != "" && this.size != 0;
+        }
+    }
+
+    private class DirectoryMetadata {
+        public int parentDirectoryOffset;
+        public int siblingDirectoryOffset;
+        public int firstChildDirectoryOffset;
+        public int firstFileOffset;
+        public int nextDirectoryInHashBucketOffset;
+        public int nameLength;
+        public String name;
+
+        public DirectoryMetadata(byte[] directoryMetadataBlock, int offset) {
+            parentDirectoryOffset = convertBytesToInt(directoryMetadataBlock, offset);
+            siblingDirectoryOffset = convertBytesToInt(directoryMetadataBlock, offset + 0x04);
+            firstChildDirectoryOffset = convertBytesToInt(directoryMetadataBlock, offset + 0x08);
+            firstFileOffset = convertBytesToInt(directoryMetadataBlock, offset + 0x0C);
+            nextDirectoryInHashBucketOffset = convertBytesToInt(directoryMetadataBlock, offset + 0x10);
+            nameLength = convertBytesToInt(directoryMetadataBlock, offset + 0x14);
+            name = "";
+            if (nameLength != metadata_unused) {
+                byte[] nameBytes = new byte[nameLength];
+                System.arraycopy(directoryMetadataBlock, offset + 0x18, nameBytes, 0, nameLength);
+                name = new String(nameBytes, StandardCharsets.UTF_16LE).trim();
+            }
+        }
+    }
+
+    private class FileMetadata {
+        public int parentDirectoryOffset;
+        public int siblingFileOffset;
+        public long fileDataOffset;
+        public long fileDataLength;
+        public int nextFileInHashBucketOffset;
+        public int nameLength;
+        public String name;
+
+        public FileMetadata(byte[] fileMetadataBlock, int offset) {
+            parentDirectoryOffset = convertBytesToInt(fileMetadataBlock, offset);
+            siblingFileOffset = convertBytesToInt(fileMetadataBlock, offset + 0x04);
+            fileDataOffset = convertBytesToLong(fileMetadataBlock, offset + 0x08);
+            fileDataLength = convertBytesToLong(fileMetadataBlock, offset + 0x10);
+            nextFileInHashBucketOffset = convertBytesToInt(fileMetadataBlock, offset + 0x18);
+            nameLength = convertBytesToInt(fileMetadataBlock, offset + 0x1C);
+            name = "";
+            if (nameLength != metadata_unused) {
+                byte[] nameBytes = new byte[nameLength];
+                System.arraycopy(fileMetadataBlock, offset + 0x20, nameBytes, 0, nameLength);
+                name = new String(nameBytes, StandardCharsets.UTF_16LE).trim();
+            }
         }
     }
 }

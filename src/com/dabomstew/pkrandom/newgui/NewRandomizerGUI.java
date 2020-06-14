@@ -1935,6 +1935,8 @@ public class NewRandomizerGUI {
 
             if (romHandler instanceof AbstractDSRomHandler) {
                 ((AbstractDSRomHandler) romHandler).closeInnerRom();
+            } else if (romHandler instanceof Abstract3DSRomHandler) {
+                ((Abstract3DSRomHandler) romHandler).closeInnerRom();
             }
         } catch (Exception e) {
             attemptToLogException(e, "GUI.processFailed","GUI.processFailedNoLog");

@@ -72,6 +72,10 @@ public abstract class Abstract3DSRomHandler extends AbstractRomHandler {
 
     protected abstract void loadedROM(String productCode, String titleId);
 
+    public void closeInnerRom() throws IOException {
+        baseRom.closeROM();
+    }
+
     @Override
     public boolean hasPhysicalSpecialSplit() {
         // Default value for Gen4+.
@@ -81,6 +85,10 @@ public abstract class Abstract3DSRomHandler extends AbstractRomHandler {
 
     protected byte[] readCode() throws IOException {
         return baseRom.getCode();
+    }
+
+    protected byte[] readFile(String location) throws IOException {
+        return baseRom.getFile(location);
     }
 
     protected static int getNCCHOffsetInFile(String filename) {
