@@ -25,7 +25,6 @@ package com.dabomstew.pkrandom.romhandlers;
 
 import com.dabomstew.pkrandom.FileFunctions;
 import com.dabomstew.pkrandom.MiscTweak;
-import com.dabomstew.pkrandom.constants.Gen5Constants;
 import com.dabomstew.pkrandom.constants.Gen6Constants;
 import com.dabomstew.pkrandom.pokemon.*;
 
@@ -44,7 +43,7 @@ public class Gen6RomHandler extends Abstract3DSRomHandler {
         }
 
         public boolean isLoadable(String filename) {
-            return detect3DSRom(getProductCodeFromFile(filename), getTitleIdFromFile(filename));
+            return detect3DSRomInner(getProductCodeFromFile(filename), getTitleIdFromFile(filename));
         }
     }
 
@@ -120,7 +119,12 @@ public class Gen6RomHandler extends Abstract3DSRomHandler {
     private List<Pokemon> pokemonList;
     private RomEntry romEntry;
 
-    private static boolean detect3DSRom(String productCode, String titleId) {
+    @Override
+    protected boolean detect3DSRom(String productCode, String titleId) {
+        return detect3DSRomInner(productCode, titleId);
+    }
+
+    private static boolean detect3DSRomInner(String productCode, String titleId) {
         return entryFor(productCode, titleId) != null;
     }
 
@@ -138,8 +142,8 @@ public class Gen6RomHandler extends Abstract3DSRomHandler {
     }
 
     @Override
-    public boolean loadRom(String filename) {
-        this.romEntry = entryFor(getProductCodeFromFile(filename), getTitleIdFromFile(filename));
+    protected void loadedROM(String productCode, String titleId) {
+        this.romEntry = entryFor(productCode, titleId);
 
         // TODO: Actually make this work by loading it from the ROM. Only doing it this
         // way temporarily so the randomizer won't crash
@@ -150,7 +154,6 @@ public class Gen6RomHandler extends Abstract3DSRomHandler {
         }
 
         pokemonList = Arrays.asList(Arrays.copyOfRange(pokes,0,Gen6Constants.pokemonCount + 1));
-        return true;
     }
 
     @Override

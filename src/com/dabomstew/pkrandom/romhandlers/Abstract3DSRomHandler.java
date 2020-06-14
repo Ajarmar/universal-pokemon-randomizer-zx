@@ -25,6 +25,7 @@ package com.dabomstew.pkrandom.romhandlers;
 /*----------------------------------------------------------------------------*/
 
 import com.dabomstew.pkrandom.FileFunctions;
+import com.dabomstew.pkrandom.ctr.NCCH;
 import com.dabomstew.pkrandom.exceptions.RandomizerIOException;
 
 import java.io.FileInputStream;
@@ -34,14 +35,39 @@ import java.util.Random;
 
 public abstract class Abstract3DSRomHandler extends AbstractRomHandler {
 
+    private NCCH baseRom;
+    private String loadedFN;
+
     public Abstract3DSRomHandler(Random random, PrintStream logStream) {
         super(random, logStream);
     }
 
     @Override
-    public String loadedFilename() {
-        return "loaded";
+    public boolean loadRom(String filename) {
+        String productCode = getProductCodeFromFile(filename);
+        String titleId = getTitleIdFromFile(filename);
+        if (!this.detect3DSRom(productCode, titleId)) {
+            return false;
+        }
+        // Load inner rom
+        try {
+            baseRom = new NCCH(filename);
+        } catch (IOException e) {
+            throw new RandomizerIOException(e);
+        }
+        loadedFN = filename;
+        this.loadedROM(productCode, titleId);
+        return true;
     }
+
+    protected abstract boolean detect3DSRom(String productCode, String titleId);
+
+    @Override
+    public String loadedFilename() {
+        return loadedFN;
+    }
+
+    protected abstract void loadedROM(String productCode, String titleId);
 
     @Override
     public boolean hasPhysicalSpecialSplit() {
