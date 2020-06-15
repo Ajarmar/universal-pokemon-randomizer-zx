@@ -465,37 +465,51 @@ public class NewRandomizerGUI {
             JOptionPane.showMessageDialog(frame, bundle.getString("GUI.pokeLimitNotChosen"));
             return;
         }
+        SaveType outputType = askForSaveType();
         romSaveChooser.setSelectedFile(null);
-        int returnVal = romSaveChooser.showSaveDialog(frame);
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File fh = romSaveChooser.getSelectedFile();
-            // Fix or add extension
-            List<String> extensions = new ArrayList<>(Arrays.asList("sgb", "gbc", "gba", "nds"));
-            extensions.remove(this.romHandler.getDefaultExtension());
-            fh = FileFunctions.fixFilename(fh, this.romHandler.getDefaultExtension(), extensions);
-            boolean allowed = true;
-            if (this.romHandler instanceof AbstractDSRomHandler) {
-                String currentFN = this.romHandler.loadedFilename();
-                if (currentFN.equals(fh.getAbsolutePath())) {
-                    JOptionPane.showMessageDialog(frame, bundle.getString("GUI.cantOverwriteDS"));
-                    allowed = false;
+        boolean allowed = false;
+        File fh = null;
+        if (outputType == SaveType.FILE) {
+            romSaveChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+            int returnVal = romSaveChooser.showSaveDialog(frame);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                fh = romSaveChooser.getSelectedFile();
+                // Fix or add extension
+                List<String> extensions = new ArrayList<>(Arrays.asList("sgb", "gbc", "gba", "nds", "cxi"));
+                extensions.remove(this.romHandler.getDefaultExtension());
+                fh = FileFunctions.fixFilename(fh, this.romHandler.getDefaultExtension(), extensions);
+                allowed = true;
+                if (this.romHandler instanceof AbstractDSRomHandler || this.romHandler instanceof Abstract3DSRomHandler) {
+                    String currentFN = this.romHandler.loadedFilename();
+                    if (currentFN.equals(fh.getAbsolutePath())) {
+                        JOptionPane.showMessageDialog(frame, bundle.getString("GUI.cantOverwriteDS"));
+                        allowed = false;
+                    }
                 }
             }
-            if (allowed) {
-                // Get a seed
-                long seed = RandomSource.pickSeed();
-                // Apply it
-                RandomSource.seed(seed);
-                presetMode = false;
-
-                try {
-                    CustomNamesSet cns = FileFunctions.getCustomNames();
-                    performRandomization(fh.getAbsolutePath(), seed, cns);
-                } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(frame, bundle.getString("GUI.cantLoadCustomNames"));
-                }
-
+        } else {
+            romSaveChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            int returnVal = romSaveChooser.showSaveDialog(frame);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                fh = romSaveChooser.getSelectedFile();
+                allowed = true;
             }
+        }
+
+        if (allowed && fh != null) {
+            // Get a seed
+            long seed = RandomSource.pickSeed();
+            // Apply it
+            RandomSource.seed(seed);
+            presetMode = false;
+
+            try {
+                CustomNamesSet cns = FileFunctions.getCustomNames();
+                performRandomization(fh.getAbsolutePath(), seed, cns, outputType == SaveType.DIRECTORY);
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(frame, bundle.getString("GUI.cantLoadCustomNames"));
+            }
+
         }
     }
 
@@ -562,7 +576,7 @@ public class NewRandomizerGUI {
         }
     }
 
-    private void performRandomization(final String filename, final long seed, CustomNamesSet customNames) {
+    private void performRandomization(final String filename, final long seed, CustomNamesSet customNames, boolean saveAsDirectory) {
         final Settings settings = createSettingsFromState(customNames);
         final boolean raceMode = settings.isRaceMode();
         // Setup verbose log
@@ -584,7 +598,7 @@ public class NewRandomizerGUI {
                 boolean succeededSave = false;
                 try {
                     romHandler.setLog(verboseLog);
-                    finishedCV.set(new Randomizer(settings, romHandler).randomize(filename,
+                    finishedCV.set(new Randomizer(settings, romHandler, saveAsDirectory).randomize(filename,
                             verboseLog, seed));
                     succeededSave = true;
                 } catch (RandomizationException ex) {
@@ -690,38 +704,72 @@ public class NewRandomizerGUI {
                 this.romHandler = null;
                 initialState();
             }
+            SaveType outputType = askForSaveType();
             romSaveChooser.setSelectedFile(null);
-            int returnVal = romSaveChooser.showSaveDialog(frame);
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                File fh = romSaveChooser.getSelectedFile();
-                // Fix or add extension
-                List<String> extensions = new ArrayList<>(Arrays.asList("sgb", "gbc", "gba", "nds"));
-                extensions.remove(this.romHandler.getDefaultExtension());
-                fh = FileFunctions.fixFilename(fh, this.romHandler.getDefaultExtension(), extensions);
-                boolean allowed = true;
-                if (this.romHandler instanceof AbstractDSRomHandler) {
-                    String currentFN = this.romHandler.loadedFilename();
-                    if (currentFN.equals(fh.getAbsolutePath())) {
-                        JOptionPane.showMessageDialog(frame, bundle.getString("GUI.cantOverwriteDS"));
-                        allowed = false;
+            boolean allowed = false;
+            File fh = null;
+            if (outputType == SaveType.FILE) {
+                romSaveChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+                int returnVal = romSaveChooser.showSaveDialog(frame);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    fh = romSaveChooser.getSelectedFile();
+                    // Fix or add extension
+                    List<String> extensions = new ArrayList<>(Arrays.asList("sgb", "gbc", "gba", "nds", "cxi"));
+                    extensions.remove(this.romHandler.getDefaultExtension());
+                    fh = FileFunctions.fixFilename(fh, this.romHandler.getDefaultExtension(), extensions);
+                    allowed = true;
+                    if (this.romHandler instanceof AbstractDSRomHandler || this.romHandler instanceof Abstract3DSRomHandler) {
+                        String currentFN = this.romHandler.loadedFilename();
+                        if (currentFN.equals(fh.getAbsolutePath())) {
+                            JOptionPane.showMessageDialog(frame, bundle.getString("GUI.cantOverwriteDS"));
+                            allowed = false;
+                        }
                     }
-                }
-                if (allowed) {
-                    // Apply the seed we were given
-                    RandomSource.seed(seed);
-                    presetMode = true;
-                    performRandomization(fh.getAbsolutePath(), seed, pld.getCustomNames());
                 } else {
                     this.romHandler = null;
                     initialState();
                 }
-
             } else {
-                this.romHandler = null;
-                initialState();
+                romSaveChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                int returnVal = romSaveChooser.showSaveDialog(frame);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    fh = romSaveChooser.getSelectedFile();
+                    allowed = true;
+                } else {
+                    this.romHandler = null;
+                    initialState();
+                }
+            }
+
+            if (allowed && fh != null) {
+                // Apply the seed we were given
+                RandomSource.seed(seed);
+                presetMode = true;
+                performRandomization(fh.getAbsolutePath(), seed, pld.getCustomNames(), outputType == SaveType.DIRECTORY);
             }
         }
 
+    }
+
+    private enum SaveType {
+        FILE, DIRECTORY
+    }
+
+    private SaveType askForSaveType() {
+        SaveType saveType = SaveType.FILE;
+        if (romHandler.generationOfPokemon() == 6 || romHandler.generationOfPokemon() == 7) {
+            Object[] options3DS = {"CXI", "LayeredFS"};
+            int returnVal3DS = JOptionPane.showOptionDialog(frame,
+                    "Would you like to output your 3DS game as a CXI file or as a LayeredFS directory?",
+                    "3DS Output Choice",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    options3DS,
+                    null);
+            saveType = SaveType.values()[returnVal3DS];
+        }
+        return saveType;
     }
 
     private void updateOldSettingsMenuItemActionPerformed() {

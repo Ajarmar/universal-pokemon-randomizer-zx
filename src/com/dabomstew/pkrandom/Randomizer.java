@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.dabomstew.pkrandom.constants.GlobalConstants;
 import com.dabomstew.pkrandom.pokemon.Encounter;
 import com.dabomstew.pkrandom.pokemon.EncounterSet;
 import com.dabomstew.pkrandom.pokemon.IngameTrade;
@@ -53,10 +52,12 @@ public class Randomizer {
 
     private final Settings settings;
     private final RomHandler romHandler;
+    private final boolean saveAsDirectory;
 
-    public Randomizer(Settings settings, RomHandler romHandler) {
+    public Randomizer(Settings settings, RomHandler romHandler, boolean saveAsDirectory) {
         this.settings = settings;
         this.romHandler = romHandler;
+        this.saveAsDirectory = saveAsDirectory;
     }
 
     public int randomize(final String filename) {
@@ -587,7 +588,11 @@ public class Randomizer {
         romHandler.writeCheckValueToROM(checkValue);
 
         // Save
-        romHandler.saveRom(filename);
+        if (saveAsDirectory) {
+            romHandler.saveRomDirectory(filename);
+        } else {
+            romHandler.saveRomFile(filename);
+        }
 
         // Log tail
         log.println("------------------------------------------------------------------");

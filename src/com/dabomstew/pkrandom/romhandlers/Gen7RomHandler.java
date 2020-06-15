@@ -167,8 +167,8 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
     }
 
     @Override
-    public boolean saveRom(String filename) {
-        return true;
+    protected void savingROM() {
+        // do nothing for now
     }
 
     @Override

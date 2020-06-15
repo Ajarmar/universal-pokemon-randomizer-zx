@@ -61,7 +61,7 @@ public abstract class AbstractGBRomHandler extends AbstractRomHandler {
     }
 
     @Override
-    public boolean saveRom(String filename) {
+    public boolean saveRomFile(String filename) {
         savingRom();
         try {
             FileOutputStream fos = new FileOutputStream(filename);
@@ -71,6 +71,12 @@ public abstract class AbstractGBRomHandler extends AbstractRomHandler {
         } catch (IOException ex) {
             return false;
         }
+    }
+
+    @Override
+    public boolean saveRomDirectory(String filename) {
+        // do nothing, because GB games don't really have a concept of a filesystem
+        return true;
     }
 
     @Override

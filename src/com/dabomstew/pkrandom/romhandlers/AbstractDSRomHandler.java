@@ -80,13 +80,20 @@ public abstract class AbstractDSRomHandler extends AbstractRomHandler {
     protected abstract void savingROM();
 
     @Override
-    public boolean saveRom(String filename) {
+    public boolean saveRomFile(String filename) {
         savingROM();
         try {
             baseRom.saveTo(filename);
         } catch (IOException e) {
             throw new RandomizerIOException(e);
         }
+        return true;
+    }
+
+    @Override
+    public boolean saveRomDirectory(String filename) {
+        // do nothing. DS games do have the concept of a filesystem, but it's way more
+        // convenient for users to use ROM files instead.
         return true;
     }
 

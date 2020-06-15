@@ -2185,7 +2185,7 @@ public class RandomizerGUI extends javax.swing.JFrame {
                     boolean succeededSave = false;
                     try {
                         RandomizerGUI.this.romHandler.setLog(verboseLog);
-                        finishedCV.set(new Randomizer(settings, RandomizerGUI.this.romHandler).randomize(filename,
+                        finishedCV.set(new Randomizer(settings, RandomizerGUI.this.romHandler, false).randomize(filename,
                                 verboseLog, seed));
                         succeededSave = true;
                     } catch (RandomizationException ex) {

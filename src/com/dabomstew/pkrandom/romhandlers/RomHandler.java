@@ -59,7 +59,9 @@ public interface RomHandler {
 
     boolean loadRom(String filename);
 
-    boolean saveRom(String filename);
+    boolean saveRomFile(String filename);
+
+    boolean saveRomDirectory(String filename);
 
     String loadedFilename();
 

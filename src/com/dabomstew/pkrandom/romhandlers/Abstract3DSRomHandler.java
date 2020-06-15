@@ -78,6 +78,20 @@ public abstract class Abstract3DSRomHandler extends AbstractRomHandler {
 
     protected abstract void loadedROM(String productCode, String titleId);
 
+    protected abstract void savingROM();
+
+    @Override
+    public boolean saveRomFile(String filename) {
+        // do nothing for now, as we currently don't support CXI writing.
+        return true;
+    }
+
+    @Override
+    public boolean saveRomDirectory(String filename) {
+        // do nothing for now
+        return true;
+    }
+
     public void closeInnerRom() throws IOException {
         baseRom.closeROM();
     }
