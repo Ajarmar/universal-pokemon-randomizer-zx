@@ -150,9 +150,6 @@ public class Gen6RomHandler extends Abstract3DSRomHandler {
 
         try {
             code = readCode();
-            if (romEntry.romType == Gen6Constants.Type_XY) {
-                byte[] test = readFile("sound/bgm_xy_ajito.aac");
-            }
         } catch (IOException e) {
             throw new RandomizerIOException(e);
         }
@@ -169,8 +166,11 @@ public class Gen6RomHandler extends Abstract3DSRomHandler {
     }
 
     @Override
-    protected void savingROM() {
-        // do nothing for now
+    protected void savingROM() throws IOException {
+        if (romEntry.romType == Gen6Constants.Type_ORAS) {
+            code[0x4A67EE]++;   // set the Hone Claws TM to Wide Guard for testing exefs modification
+            writeCode(code);
+        }
     }
 
     @Override
@@ -180,7 +180,11 @@ public class Gen6RomHandler extends Abstract3DSRomHandler {
 
     @Override
     public List<Pokemon> getPokemonInclFormes() {
-        return new ArrayList<>();
+        // TODO: Actually make this work by loading it from the ROM. Only doing it this
+        // way temporarily so the randomizer won't crash when trying to write an output ROM.
+        ArrayList<Pokemon> pokemonInclFormes = new ArrayList<>();
+        pokemonInclFormes.add(pokes[0]);
+        return pokemonInclFormes;
     }
 
     @Override

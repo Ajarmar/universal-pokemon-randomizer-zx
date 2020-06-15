@@ -178,7 +178,11 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
 
     @Override
     public List<Pokemon> getPokemonInclFormes() {
-        return new ArrayList<>();
+        // TODO: Actually make this work by loading it from the ROM. Only doing it this
+        // way temporarily so the randomizer won't crash when trying to write an output ROM.
+        ArrayList<Pokemon> pokemonInclFormes = new ArrayList<>();
+        pokemonInclFormes.add(pokes[0]);
+        return pokemonInclFormes;
     }
 
     @Override

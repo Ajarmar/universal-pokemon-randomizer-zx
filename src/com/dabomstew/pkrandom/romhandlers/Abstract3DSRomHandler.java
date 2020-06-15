@@ -57,7 +57,7 @@ public abstract class Abstract3DSRomHandler extends AbstractRomHandler {
         }
         // Load inner rom
         try {
-            baseRom = new NCCH(filename, getCXIOffsetInFile(filename));
+            baseRom = new NCCH(filename, getCXIOffsetInFile(filename), titleId);
             if (!baseRom.isDecrypted()) {
                 return false;
             }
@@ -78,7 +78,7 @@ public abstract class Abstract3DSRomHandler extends AbstractRomHandler {
 
     protected abstract void loadedROM(String productCode, String titleId);
 
-    protected abstract void savingROM();
+    protected abstract void savingROM() throws IOException;
 
     @Override
     public boolean saveRomFile(String filename) {
@@ -88,7 +88,12 @@ public abstract class Abstract3DSRomHandler extends AbstractRomHandler {
 
     @Override
     public boolean saveRomDirectory(String filename) {
-        // do nothing for now
+        try {
+            savingROM();
+            baseRom.saveAsLayeredFS(filename);
+        } catch (IOException e) {
+            throw new RandomizerIOException(e);
+        }
         return true;
     }
 
@@ -105,6 +110,10 @@ public abstract class Abstract3DSRomHandler extends AbstractRomHandler {
 
     protected byte[] readCode() throws IOException {
         return baseRom.getCode();
+    }
+
+    protected void writeCode(byte[] data) throws IOException {
+        baseRom.writeCode(data);
     }
 
     protected byte[] readFile(String location) throws IOException {

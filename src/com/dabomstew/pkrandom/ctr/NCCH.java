@@ -35,13 +35,14 @@ public class NCCH {
     private String romFilename;
     private RandomAccessFile baseRom;
     private long ncchStartingOffset;
+    private String titleId;
     private long exefsOffset, romfsOffset, fileDataOffset;
     private ExefsFileHeader codeFileHeader;
     private Map<String, RomfsFile> romfsFiles;
     private boolean romOpen;
     private String tmpFolder;
     private boolean writingEnabled;
-    private boolean codeCompressed, codeOpen;
+    private boolean codeCompressed, codeOpen, codeChanged;
     private byte[] codeRamstored;
 
     private static final int media_unit_size = 0x200;
@@ -52,10 +53,11 @@ public class NCCH {
     private static final int level3_header_size = 0x28;
     private static final int metadata_unused = 0xFFFFFFFF;
 
-    public NCCH(String filename, long ncchStartingOffset) throws IOException {
+    public NCCH(String filename, long ncchStartingOffset, String titleId) throws IOException {
         this.romFilename = filename;
         this.baseRom = new RandomAccessFile(filename, "r");
         this.ncchStartingOffset = ncchStartingOffset;
+        this.titleId = titleId;
         this.romOpen = true;
         // TMP folder?
         String rawFilename = new File(filename).getName();
@@ -191,6 +193,25 @@ public class NCCH {
         }
     }
 
+    public void saveAsLayeredFS(String outputPath) throws IOException {
+        String layeredFSRootPath = outputPath + File.separator + titleId + File.separator;
+        File layeredFSRootDir = new File(outputPath + File.separator + titleId + File.separator);
+        if (!layeredFSRootDir.exists()) {
+            layeredFSRootDir.mkdir();
+        }
+        File romfsDir = new File(layeredFSRootPath + "romfs" + File.separator);
+        if (!romfsDir.exists()) {
+            romfsDir.mkdir();
+        }
+
+        if (codeChanged) {
+            byte[] code = getCode();
+            FileOutputStream fos = new FileOutputStream(new File(layeredFSRootPath + "code.bin"));
+            fos.write(code);
+            fos.close();
+        }
+    }
+
     // Note that certain older dumps of games have incorrectly set crypto flags,
     // meaning this method might return false for an NCCH that is truly decrypted.
     // This method correctly checks the flags and matches the way games are
@@ -244,6 +265,28 @@ public class NCCH {
                 byte[] newcopy = new byte[this.codeRamstored.length];
                 System.arraycopy(this.codeRamstored, 0, newcopy, 0, this.codeRamstored.length);
                 return newcopy;
+            }
+        }
+    }
+
+    public void writeCode(byte[] code) throws IOException {
+        if (!codeOpen) {
+            getCode();
+        }
+        codeChanged = true;
+        if (writingEnabled) {
+            FileOutputStream fos = new FileOutputStream(new File(tmpFolder + ".code"));
+            fos.write(code);
+            fos.close();
+        } else {
+            if (this.codeRamstored.length == code.length) {
+                // copy new in
+                System.arraycopy(code, 0, this.codeRamstored, 0, code.length);
+            } else {
+                // make new array
+                this.codeRamstored = null;
+                this.codeRamstored = new byte[code.length];
+                System.arraycopy(code, 0, this.codeRamstored, 0, code.length);
             }
         }
     }
