@@ -115,10 +115,10 @@ public abstract class Abstract3DSRomHandler extends AbstractRomHandler {
 
                 // If this is *really* a CIA, we'll find our CXI at the beginning of the
                 // content section, which is after the certificate chain, ticket, and TMD
-                long certChainOffset = alignLong(ciaHeaderSize, 64);
-                long ticketOffset = alignLong(certChainOffset + certChainSize, 64);
-                long tmdOffset = alignLong(ticketOffset + ticketSize, 64);
-                long contentOffset = alignLong(tmdOffset + tmdFileSize, 64);
+                long certChainOffset = NCCH.alignLong(ciaHeaderSize, 64);
+                long ticketOffset = NCCH.alignLong(certChainOffset + certChainSize, 64);
+                long tmdOffset = NCCH.alignLong(ticketOffset + ticketSize, 64);
+                long contentOffset = NCCH.alignLong(tmdOffset + tmdFileSize, 64);
                 int magic = FileFunctions.readIntFromFile(rom, contentOffset + ncch_and_ncsd_magic_offset);
                 if (magic == ncch_magic) {
                     // This CIA's content contains a valid CXI!
@@ -140,6 +140,7 @@ public abstract class Abstract3DSRomHandler extends AbstractRomHandler {
                 // a fixed distance away from the start.
                 return 0x4000;
             } else {
+                // This doesn't seem to be a valid 3DS file.
                 return -1;
             }
         } catch (IOException e) {
@@ -197,10 +198,5 @@ public abstract class Abstract3DSRomHandler extends AbstractRomHandler {
             hexChars[i * 2 + 1] = HEX_ARRAY[unsignedByte & 0x0F];
         }
         return new String(hexChars);
-    }
-
-    public static long alignLong(long num, long alignment) {
-        long mask = ~(alignment - 1);
-        return (num + (alignment - 1)) & mask;
     }
 }
