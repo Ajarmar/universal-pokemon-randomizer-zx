@@ -22,6 +22,7 @@ package com.dabomstew.pkrandom.ctr;
 /*----------------------------------------------------------------------------*/
 
 import com.dabomstew.pkrandom.FileFunctions;
+import com.dabomstew.pkrandom.newnds.NDSFile;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -37,6 +38,7 @@ public class RomfsFile {
     private Extracted status = Extracted.NOT;
     private String extFilename;
     public byte[] data;
+    public boolean fileChanged = false;
 
     public RomfsFile(NCCH parent) {
         this.parent = parent;
@@ -54,7 +56,7 @@ public class RomfsFile {
                 // make a file
                 String tmpDir = parent.getTmpFolder();
                 this.extFilename = fullPath.replaceAll("[^A-Za-z0-9_\\.]+", "");
-                File tmpFile = new File(tmpDir + File.separator + extFilename);
+                File tmpFile = new File(tmpDir + extFilename);
                 FileOutputStream fos = new FileOutputStream(tmpFile);
                 fos.write(buf);
                 fos.close();
@@ -75,8 +77,40 @@ public class RomfsFile {
             return newcopy;
         } else {
             String tmpDir = parent.getTmpFolder();
-            return FileFunctions.readFileFullyIntoBuffer(tmpDir + File.separator + this.extFilename);
+            return FileFunctions.readFileFullyIntoBuffer(tmpDir + this.extFilename);
         }
+    }
+
+    public void writeOverride(byte[] data) throws IOException {
+        if (status == Extracted.NOT) {
+            // temp extract
+            getContents();
+        }
+        fileChanged = true;
+        if (status == Extracted.TO_FILE) {
+            String tmpDir = parent.getTmpFolder();
+            FileOutputStream fos = new FileOutputStream(new File(tmpDir + this.extFilename));
+            fos.write(data);
+            fos.close();
+        } else {
+            if (this.data.length == data.length) {
+                // copy new in
+                System.arraycopy(data, 0, this.data, 0, data.length);
+            } else {
+                // make new array
+                this.data = null;
+                this.data = new byte[data.length];
+                System.arraycopy(data, 0, this.data, 0, data.length);
+            }
+        }
+    }
+
+    // returns null if no override
+    public byte[] getOverrideContents() throws IOException {
+        if (status == Extracted.NOT) {
+            return null;
+        }
+        return getContents();
     }
 
     private enum Extracted {

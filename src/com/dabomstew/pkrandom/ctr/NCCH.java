@@ -195,11 +195,12 @@ public class NCCH {
 
     public void saveAsLayeredFS(String outputPath) throws IOException {
         String layeredFSRootPath = outputPath + File.separator + titleId + File.separator;
-        File layeredFSRootDir = new File(outputPath + File.separator + titleId + File.separator);
+        File layeredFSRootDir = new File(layeredFSRootPath);
         if (!layeredFSRootDir.exists()) {
             layeredFSRootDir.mkdir();
         }
-        File romfsDir = new File(layeredFSRootPath + "romfs" + File.separator);
+        String romfsRootPath = layeredFSRootPath + "romfs" + File.separator;
+        File romfsDir = new File(romfsRootPath);
         if (!romfsDir.exists()) {
             romfsDir.mkdir();
         }
@@ -210,6 +211,31 @@ public class NCCH {
             fos.write(code);
             fos.close();
         }
+
+        for (Map.Entry<String, RomfsFile> entry : romfsFiles.entrySet()) {
+            RomfsFile file = entry.getValue();
+            if (file.fileChanged) {
+                writeRomfsFileToLayeredFS(file, romfsRootPath);
+            }
+        }
+    }
+
+    private void writeRomfsFileToLayeredFS(RomfsFile file, String layeredFSRootPath) throws IOException {
+        String[] romfsPathComponents = file.fullPath.split("/");
+        StringBuffer buffer = new StringBuffer(layeredFSRootPath);
+        for (int i = 0; i < romfsPathComponents.length - 1; i++) {
+            buffer.append(romfsPathComponents[i]);
+            buffer.append(File.separator);
+            File currentDir = new File(buffer.toString());
+            if (!currentDir.exists()) {
+                currentDir.mkdir();
+            }
+        }
+        buffer.append(romfsPathComponents[romfsPathComponents.length - 1]);
+        String romfsFilePath = buffer.toString();
+        FileOutputStream fos = new FileOutputStream(new File(romfsFilePath));
+        fos.write(file.getOverrideContents());
+        fos.close();
     }
 
     // Note that certain older dumps of games have incorrectly set crypto flags,
@@ -297,6 +323,12 @@ public class NCCH {
             return romfsFiles.get(filename).getContents();
         } else {
             return null;
+        }
+    }
+
+    public void writeFile(String filename, byte[] data) throws IOException {
+        if (romfsFiles.containsKey(filename)) {
+            romfsFiles.get(filename).writeOverride(data);
         }
     }
 

@@ -120,6 +120,19 @@ public abstract class Abstract3DSRomHandler extends AbstractRomHandler {
         return baseRom.getFile(location);
     }
 
+    protected void writeFile(String location, byte[] data) throws IOException {
+        writeFile(location, data, 0, data.length);
+    }
+
+    protected void writeFile(String location, byte[] data, int offset, int length) throws IOException {
+        if (offset != 0 || length != data.length) {
+            byte[] newData = new byte[length];
+            System.arraycopy(data, offset, newData, 0, length);
+            data = newData;
+        }
+        baseRom.writeFile(location, data);
+    }
+
     // At the bare minimum, a 3DS game consists of what's known as a CXI file, which
     // is just an NCCH that contains executable code. However, 3DS games are packaged
     // in various containers that can hold other NCCH files like the game manual and

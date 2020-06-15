@@ -170,6 +170,19 @@ public class Gen6RomHandler extends Abstract3DSRomHandler {
         if (romEntry.romType == Gen6Constants.Type_ORAS) {
             code[0x4A67EE]++;   // set the Hone Claws TM to Wide Guard for testing exefs modification
             writeCode(code);
+
+            byte[] personalStats = readFile("a/1/9/5");
+            personalStats[0x903D] = (byte) 0x14;
+            personalStats[0x903E] = (byte) 0xE6;
+            personalStats[0x903F] = (byte) 0x05;
+            personalStats[0x9040] = (byte) 0x14;
+            personalStats[0x9041] = (byte) 0xE6;
+            personalStats[0x1925D] = (byte) 0x14;
+            personalStats[0x1925E] = (byte) 0xE6;
+            personalStats[0x1925F] = (byte) 0x05;
+            personalStats[0x19260] = (byte) 0x14;
+            personalStats[0x19261] = (byte) 0xE6;
+            writeFile("a/1/9/5", personalStats); // set Sceptile's stats to something silly for testing romfs modification
         }
     }
 
