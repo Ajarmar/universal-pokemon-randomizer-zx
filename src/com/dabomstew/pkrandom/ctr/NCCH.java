@@ -238,16 +238,12 @@ public class NCCH {
         fos.close();
     }
 
-    // Note that certain older dumps of games have incorrectly set crypto flags,
-    // meaning this method might return false for an NCCH that is truly decrypted.
-    // This method correctly checks the flags and matches the way games are
-    // currently dumped at the time of this writing.
     public boolean isDecrypted() throws IOException {
         long ncchFlagOffset = ncchStartingOffset + 0x188;
         byte[] ncchFlags = new byte[8];
         baseRom.seek(ncchFlagOffset);
         baseRom.readFully(ncchFlags);
-        return ncchFlags[3] == 0 && (ncchFlags[7] & 0x4) != 0;
+        return (ncchFlags[7] & 0x4) != 0;
     }
 
     // Retrieves a decompressed version of .code (the game's executable).
