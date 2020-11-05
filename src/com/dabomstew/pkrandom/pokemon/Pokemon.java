@@ -84,7 +84,7 @@ public class Pokemon implements Comparable<Pokemon> {
         Collections.shuffle(shuffledStatsOrder, random);
         applyShuffledOrderToStats();
     }
-    
+
     public void copyShuffledStatsUpEvolution(Pokemon evolvesFrom) {
         shuffledStatsOrder = evolvesFrom.shuffledStatsOrder;
         applyShuffledOrderToStats();
@@ -267,9 +267,9 @@ public class Pokemon implements Comparable<Pokemon> {
         return formeNumber == 0 ? strongLegendaries.contains(this.number) : strongLegendaries.contains(this.baseForme.number);
     }
 
-    // This method can only be used in contexts where alt formes are NOT involved; otherwise, some alt formes
+    // This method can only be used in contexts where alt forms are NOT involved; otherwise, some alt forms
     // will be considered as Ultra Beasts in SM.
-    // In contexts where formes are involved, use "if (ultraBeastList.contains(...))" instead,
+    // In contexts where forms are involved, use "if (ultraBeastList.contains(...))" instead,
     // assuming "checkPokemonRestrictions" has been used at some point beforehand.
     public boolean isUltraBeast() {
         return ultraBeasts.contains(this.number);

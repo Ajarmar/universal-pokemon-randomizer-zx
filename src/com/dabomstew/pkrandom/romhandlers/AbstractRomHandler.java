@@ -939,17 +939,17 @@ public abstract class AbstractRomHandler implements RomHandler {
     @Override
     public void area1to1Encounters(boolean useTimeOfDay, boolean catchEmAll, boolean typeThemed,
                                    boolean usePowerLevels, boolean noLegendaries, int levelModifier,
-                                   boolean allowAltformes, boolean abilitiesAreRandomized) {
+                                   boolean allowAltforms, boolean abilitiesAreRandomized) {
         List<EncounterSet> currentEncounters = this.getEncounters(useTimeOfDay);
         if (isORAS) {
             List<EncounterSet> collapsedEncounters = collapseAreasORAS(currentEncounters);
             area1to1EncountersImpl(collapsedEncounters, catchEmAll, typeThemed, usePowerLevels,
-                    noLegendaries, levelModifier, allowAltformes, abilitiesAreRandomized);
+                    noLegendaries, levelModifier, allowAltforms, abilitiesAreRandomized);
             setEncounters(useTimeOfDay, currentEncounters);
             return;
         } else {
             area1to1EncountersImpl(currentEncounters, catchEmAll, typeThemed, usePowerLevels,
-                    noLegendaries, levelModifier, allowAltformes, abilitiesAreRandomized);
+                    noLegendaries, levelModifier, allowAltforms, abilitiesAreRandomized);
             setEncounters(useTimeOfDay, currentEncounters);
         }
     }
@@ -3831,7 +3831,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         List<Integer> newTMs = new ArrayList<>(requiredTMs);
 
         // List<Integer> chosenItems = new ArrayList<Integer>(); // collecting chosenItems for later process
-        
+
         if (distributeItemsControl) {
             for (int i = 0; i < fieldItemCount; i++) {
                 int chosenItem = possibleItems.randomNonTM(this.random);
@@ -4544,7 +4544,7 @@ public abstract class AbstractRomHandler implements RomHandler {
     /**
      * Check whether adding an evolution from one Pokemon to another will cause
      * an evolution cycle.
-     * 
+     *
      * @param from Pokemon that is evolving
      * @param to Pokemon to evolve to
      * @return True if there is an evolution cycle, else false
@@ -5206,7 +5206,7 @@ public abstract class AbstractRomHandler implements RomHandler {
             Pokemon pokemon = mainPokemonListInclFormes.get(i);
             if (pokemon.baseForme != null) {
                 if (pokemon.baseForme.number == 351) {
-                    // All alternate Castform formes
+                    // All alternate Castform forms
                     abilityDependentFormes.add(pokemon);
                 } else if (pokemon.baseForme.number == 555 && pokemon.formeNumber == 1) {
                     // Damanitan-Z
@@ -5370,11 +5370,11 @@ public abstract class AbstractRomHandler implements RomHandler {
         }
 
     }
-    
+
     private void setPlacementHistory(Pokemon newPK) {
         Integer history = getPlacementHistory(newPK);
 //         System.out.println("Current history: " + newPK.name + " : " + history);
-        placementHistory.put(newPK, history + 1);        
+        placementHistory.put(newPK, history + 1);
     }
 
     private int getPlacementHistory(Pokemon newPK) {
@@ -5384,44 +5384,44 @@ public abstract class AbstractRomHandler implements RomHandler {
         }
         else {
             return 0;
-        }        
+        }
     }
 
     private float getPlacementAverage() {
         List<Pokemon> placedPK = new ArrayList<>(placementHistory.keySet());
         int placedPKNum = 0;
         for (Pokemon p : placedPK) {
-            placedPKNum += placementHistory.get(p); 
+            placedPKNum += placementHistory.get(p);
         }
         return (float)placedPKNum / (float)placedPK.size();
         }
 
-        
+
     private List<Pokemon> getBelowAveragePlacements() {
         // This method will return a PK if the number of times a pokemon has been
         // placed is less than average of all placed pokemon's appearances
         // E.g., Charmander's been placed once, but the average for all pokemon is 2.2
-        // So add to list and return 
-        
+        // So add to list and return
+
         List<Pokemon> toPlacePK = new ArrayList<>();
         List<Pokemon> placedPK = new ArrayList<>(placementHistory.keySet());
         List<Pokemon> allPK = cachedAllList;
         int placedPKNum = 0;
         for (Pokemon p : placedPK) {
-            placedPKNum += placementHistory.get(p); 
+            placedPKNum += placementHistory.get(p);
         }
         float placedAverage = Math.round((float)placedPKNum / (float)placedPK.size());
 
-        
-        
+
+
         if (placedAverage != placedAverage) { // this is checking for NaN, should only happen on first call
             placedAverage = 1;
         }
-        
+
         // now we've got placement average, iterate all pokemon and see if they qualify to be placed
 
         for (Pokemon newPK : allPK) {
-            if (placedPK.contains(newPK)) { // if it's in the list of previously placed, then check its viability 
+            if (placedPK.contains(newPK)) { // if it's in the list of previously placed, then check its viability
                 if (placementHistory.get(newPK) <= placedAverage) {
 //                     System.out.println(newPK.name + ": " + placementHistory.get(newPK)+" "+placedAverage+" ACCEPT");
                     toPlacePK.add(newPK);
@@ -5432,13 +5432,13 @@ public abstract class AbstractRomHandler implements RomHandler {
             }
             else {
                 toPlacePK.add(newPK); // if not placed at all, automatically flag true for placing
-                
+
             }
         }
 
         // System.out.println("Size: " + toPlacePK.size());
-        return toPlacePK; 
-        
+        return toPlacePK;
+
     }
 
     @Override
@@ -5447,16 +5447,16 @@ public abstract class AbstractRomHandler implements RomHandler {
         for (Pokemon p : placedPK) {
             System.out.println(p.name+": "+ placementHistory.get(p));
         }
-        
-        
+
+
     }
-    
-    
+
+
     ///// Item functions
     private void setItemPlacementHistory(int newItem) {
         Integer history = getItemPlacementHistory(newItem);
         // System.out.println("Current history: " + newPK.name + " : " + history);
-        itemPlacementHistory.put(newItem, history + 1);        
+        itemPlacementHistory.put(newItem, history + 1);
     }
 
     private int getItemPlacementHistory(int newItem) {
@@ -5466,34 +5466,34 @@ public abstract class AbstractRomHandler implements RomHandler {
         }
         else {
             return 0;
-        }        
+        }
     }
-    
+
     private float getItemPlacementAverage() {
         // This method will return an integer of average for itemPlacementHistory
         // placed is less than average of all placed pokemon's appearances
         // E.g., Charmander's been placed once, but the average for all pokemon is 2.2
-        // So add to list and return 
-        
+        // So add to list and return
+
         List<Integer> placedPK = new ArrayList<>(itemPlacementHistory.keySet());
         int placedPKNum = 0;
         for (Integer p : placedPK) {
-            placedPKNum += itemPlacementHistory.get(p); 
+            placedPKNum += itemPlacementHistory.get(p);
         }
         return (float)placedPKNum / (float)placedPK.size();
     }
-    
+
     private void reportItemHistory() {
         String[] itemNames = this.getItemNames();
         List<Integer> placedItem = new ArrayList<>(itemPlacementHistory.keySet());
         for (Integer p : placedItem) {
-            System.out.println(itemNames[p]+": "+ itemPlacementHistory.get(p)); 
+            System.out.println(itemNames[p]+": "+ itemPlacementHistory.get(p));
         }
     }
-    
-    
 
-    
+
+
+
     protected void log(String log) {
         if (logStream != null) {
             logStream.println(log);

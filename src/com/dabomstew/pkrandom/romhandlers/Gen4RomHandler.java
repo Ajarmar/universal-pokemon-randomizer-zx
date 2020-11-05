@@ -567,7 +567,7 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
 
     @Override
     public List<Pokemon> getPokemonInclFormes() {
-        return pokemonListInclFormes; // No formes for now
+        return pokemonListInclFormes; // No forms for now
     }
 
     @Override

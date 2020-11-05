@@ -1551,7 +1551,7 @@ public class Gen3RomHandler extends AbstractGBRomHandler {
 
     @Override
     public List<Pokemon> getPokemonInclFormes() {
-        return pokemonList; // No alt formes for now, should include Deoxys formes in the future
+        return pokemonList; // No alt forms for now, should include Deoxys forms in the future
     }
 
     @Override

@@ -180,7 +180,7 @@ public interface RomHandler {
 
     void area1to1Encounters(boolean useTimeOfDay, boolean catchEmAll, boolean typeThemed,
                             boolean usePowerLevels, boolean noLegendaries, int levelModifier,
-                            boolean allowAltformes, boolean abilitiesAreRandomized);
+                            boolean allowAltforms, boolean abilitiesAreRandomized);
 
     void game1to1Encounters(boolean useTimeOfDay, boolean usePowerLevels, boolean noLegendaries,
                             int levelModifier, boolean allowAltFormes, boolean abilitiesAreRandomized);
@@ -197,7 +197,7 @@ public interface RomHandler {
     List<Trainer> getTrainers();
 
     List<Integer> getMainPlaythroughTrainers();
-    
+
     List<Integer> getEvolutionItems();
 
     void setTrainers(List<Trainer> trainerData, boolean doubleBattleMode);
@@ -304,10 +304,10 @@ public interface RomHandler {
     /**
      * Get TM/HM compatibility data from this rom. The result should contain a
      * boolean array for each Pokemon indexed as such:
-     * 
+     *
      * 0: blank (false) / 1 - (getTMCount()) : TM compatibility /
      * (getTMCount()+1) - (getTMCount()+getHMCount()) - HM compatibility
-     * 
+     *
      * @return Map of TM/HM compatibility
      */
 
@@ -402,7 +402,7 @@ public interface RomHandler {
     void randomizeWildHeldItems(boolean banBadItems);
 
     String[] getItemNames();
-    
+
     String[] getShopNames();
 
     List<Integer> getStarterHeldItems();

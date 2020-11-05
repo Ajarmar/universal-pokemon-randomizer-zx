@@ -84,7 +84,7 @@ public class Gen5RomHandler extends AbstractDSRomHandler {
         private Map<String, OffsetWithinEntry[]> offsetArrayEntries = new HashMap<>();
         private List<StaticPokemon> staticPokemon = new ArrayList<>();
         private List<TradeScript> tradeScripts = new ArrayList<>();
-        
+
 
         private int getInt(String key) {
             if (!numbers.containsKey(key)) {
@@ -286,7 +286,7 @@ public class Gen5RomHandler extends AbstractDSRomHandler {
     private ItemList allowedItems, nonBadItems;
     private List<Integer> regularShopItems;
     private List<Integer> opShopItems;
-    
+
     private NARCArchive pokeNarc, moveNarc, stringsNarc, storyTextNarc, scriptNarc, shopNarc;
 
     @Override
@@ -351,7 +351,7 @@ public class Gen5RomHandler extends AbstractDSRomHandler {
         else if (romEntry.romType == Gen5Constants.Type_BW2) {
             shopNames = Gen5Constants.bw2ShopNames;
         }
-        
+
         loadedWildMapNames = false;
 
         allowedItems = Gen5Constants.allowedItems.copy();
@@ -473,7 +473,7 @@ public class Gen5RomHandler extends AbstractDSRomHandler {
             int firstFormeOffset = readWord(stats, Gen5Constants.bsFormeOffset);
             if (firstFormeOffset != 0) {
                 for (int i = 1; i < formeCount; i++) {
-                    altFormes.put(firstFormeOffset + i - 1,new FormeInfo(pkmn.number,i,readWord(stats,Gen5Constants.bsFormeSpriteOffset))); // Assumes that formes are in memory in the same order as their numbers
+                    altFormes.put(firstFormeOffset + i - 1,new FormeInfo(pkmn.number,i,readWord(stats,Gen5Constants.bsFormeSpriteOffset))); // Assumes that forms are in memory in the same order as their numbers
                     if (pkmn.number == 647) {
                         pkmn.cosmeticForms = formeCount;
                     }
@@ -1235,7 +1235,7 @@ public class Gen5RomHandler extends AbstractDSRomHandler {
             return Gen5Constants.emptyPlaythroughTrainers;
         }
     }
-    
+
     @Override
     public List<Integer> getEvolutionItems() {
             return Gen5Constants.evolutionItems;
@@ -2428,7 +2428,7 @@ public class Gen5RomHandler extends AbstractDSRomHandler {
     public String[] getShopNames() {
         return shopNames.toArray(new String[0]);
     }
-    
+
     @Override
     public String abilityName(int number) {
         return abilityNames.get(number);
@@ -2859,7 +2859,7 @@ public class Gen5RomHandler extends AbstractDSRomHandler {
         int[] shopItemOffsets = romEntry.arrayEntries.get("ShopItemOffsets");
         int[] shopItemSizes = romEntry.arrayEntries.get("ShopItemSizes");
         int shopCount = romEntry.getInt("ShopCount");
-        List<Integer> shopItems = new ArrayList<>();    
+        List<Integer> shopItems = new ArrayList<>();
         Map<Integer,List<Integer>> shopItemsMap = new TreeMap<>();
 
         try {

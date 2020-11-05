@@ -1,7 +1,7 @@
 package com.dabomstew.pkrandom.pokemon;
 
 /*----------------------------------------------------------------------------*/
-/*--  FormeInfo.java - stores information about a Pokemon's alt formes.     --*/
+/*--  FormeInfo.java - stores information about a Pokemon's alt forms.     --*/
 /*--                                                                        --*/
 /*--  Part of "Universal Pokemon Randomizer ZX" by the UPR-ZX team          --*/
 /*--  Pokemon and any associated names and the like are                     --*/

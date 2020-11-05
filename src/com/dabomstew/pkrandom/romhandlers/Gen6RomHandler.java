@@ -378,7 +378,7 @@ public class Gen6RomHandler extends Abstract3DSRomHandler {
                 int firstFormeOffset = FileFunctions.read2ByteInt(stats, Gen6Constants.bsFormeOffset);
                 if (firstFormeOffset != 0) {
                     for (int i = 1; i < formeCount; i++) {
-                        altFormes.put(firstFormeOffset + i - 1,new FormeInfo(pkmn.number,i,FileFunctions.read2ByteInt(stats,Gen6Constants.bsFormeSpriteOffset))); // Assumes that formes are in memory in the same order as their numbers
+                        altFormes.put(firstFormeOffset + i - 1,new FormeInfo(pkmn.number,i,FileFunctions.read2ByteInt(stats,Gen6Constants.bsFormeSpriteOffset))); // Assumes that forms are in memory in the same order as their numbers
                         if (Gen6Constants.actuallyCosmeticForms.contains(firstFormeOffset+i-1)) {
                             if (pkmn.number != 25 && pkmn.number != 421) { // No Pikachu/Cherrim
                                 pkmn.cosmeticForms += 1;
@@ -1236,7 +1236,7 @@ public class Gen6RomHandler extends Abstract3DSRomHandler {
 
                 // If the forme is purely cosmetic, just use the base forme as the Pokemon
                 // for this encounter (the cosmetic forme will be stored in the encounter).
-                // Do the same for formes 30 and 31, because they actually aren't formes, but
+                // Do the same for forms 30 and 31, because they actually aren't forms, but
                 // rather act as indicators for what forme should appear when encountered:
                 // 30 = Spawn the cosmetic forme specific to the user's region (Scatterbug line)
                 // 31 = Spawn *any* cosmetic forme with equal probability (Unown Mirage Cave)
