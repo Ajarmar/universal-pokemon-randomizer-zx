@@ -1,0 +1,81 @@
+name: "Release"
+
+on:
+  release:
+    types: [created, edited]
+  push:
+    branches:
+      - "**"
+
+jobs:
+  build:
+    env:
+      "OUTPUT": /tmp/${{ github.repository }}-${{ github.sha }}
+      "WORKDIR": /tmp/${{ github.repository }}-${{ github.sha }}/build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: '15.0.2'
+      - name: Build with Javac
+        shell: bash
+        run: |
+          mkdir -p "${OUTPUT}/Win32" "${OUTPUT}/Unix"
+          javac -d "${WORKDIR}" -cp "${GITHUB_WORKSPACE}/src" "${GITHUB_WORKSPACE}/src/com/dabomstew/pkrandom/newgui"/*.java --target 8 --source 8
+
+          shopt -s globstar extglob
+
+          for f in "${GITHUB_WORKSPACE}"/src/**/!(*.java); do
+              if [ -d "${f}" ]; then
+                  continue
+              fi
+
+              dir=$(dirname "${f}")
+              output=$(echo ${f##${GITHUB_WORKSPACE}} | sed -e "s/src\///")
+
+              mkdir -p "${WORKDIR}/$(dirname $output)"
+              echo "::debug:Installing ${f} to ${WORKDIR}/$output"
+              install -m 0444 -p "${f}" "${WORKDIR}/${output}"
+          done
+
+          shopt -u globstar extglob
+
+          jar -f "${OUTPUT}/Win32/upr-zx.jar" -e com/dabomstew/pkrandom/newgui/NewRandomizerGUI --create -C "${WORKDIR}" "./"
+          jar -f "${OUTPUT}/Unix/upr-zx.jar" -e com/dabomstew/pkrandom/newgui/NewRandomizerGUI --create -C "${WORKDIR}" "./"
+          rm -rf "${WORKDIR}"
+      - name: Copy Invocation Wrappers
+        shell: bash
+        run: |
+          install -D -p -m 0755 "${GITHUB_WORKSPACE}/.github/workflows/Randomizer.bat" "${OUTPUT}/Win32/Randomizer.bat"
+          sha256sum "${OUTPUT}"/Win32/Randomizer.bat "${OUTPUT}"/Win32/upr-zx.jar > "${OUTPUT}/Win32/release.sha256.txt"
+          sha384sum "${OUTPUT}"/Win32/Randomizer.bat "${OUTPUT}"/Win32/upr-zx.jar > "${OUTPUT}/Win32/release.sha384.txt"
+          sha512sum "${OUTPUT}"/Win32/Randomizer.bat "${OUTPUT}"/Win32/upr-zx.jar > "${OUTPUT}/Win32/release.sha512.txt"
+          7z a -tzip "${OUTPUT}"/Randomizer-Win32 "${OUTPUT}"/Win32/*
+
+          install -D -p -m 0755 "${GITHUB_WORKSPACE}/.github/workflows/Randomizer.sh" "${OUTPUT}/Unix/Randomizer.sh"
+          sha256sum "${OUTPUT}"/Unix/Randomizer.sh "${OUTPUT}"/Unix/upr-zx.jar > "${OUTPUT}/Unix/release.sha256.txt"
+          sha384sum "${OUTPUT}"/Unix/Randomizer.sh "${OUTPUT}"/Unix/upr-zx.jar > "${OUTPUT}/Unix/release.sha384.txt"
+          sha512sum "${OUTPUT}"/Unix/Randomizer.sh "${OUTPUT}"/Unix/upr-zx.jar > "${OUTPUT}/Unix/release.sha512.txt"
+          7z a -ttar "${OUTPUT}"/Randomizer "${OUTPUT}"/Unix/*
+          7z a -tgzip "${OUTPUT}"/Randomizer-Unix.tar.gz "${OUTPUT}"/Randomizer.tar
+      - name: Publish Win32 Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Randomizer-Win32
+          path: ${{ env.OUTPUT }}/Win32/*
+      - name: Publish Unix Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Randomizer-Unix
+          path: ${{ env.OUTPUT }}/Unix/*
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: |
+            ${{ env.OUTPUT }}/Randomizer-Unix.tar.gz
+            ${{ env.OUTPUT }}/Randomizer-Win32.zip
