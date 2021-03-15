@@ -39,3 +39,6 @@ gen5r_race.rnqs
 .settings/org.eclipse.jdt.core.prefs
 util/files
 util/log
+.idea/
+*.jar
+*.iml
