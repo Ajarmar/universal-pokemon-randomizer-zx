@@ -284,6 +284,7 @@ public class Settings {
 
     private FieldItemsMod fieldItemsMod = FieldItemsMod.UNCHANGED;
     private boolean banBadRandomFieldItems;
+    private boolean banRandomPlatesAndIncense;
 
     public enum ShopItemsMod {
         UNCHANGED, SHUFFLE, RANDOM
@@ -451,7 +452,8 @@ public class Settings {
 
         // 24 field items
         out.write(makeByteSelected(fieldItemsMod == FieldItemsMod.RANDOM, fieldItemsMod == FieldItemsMod.SHUFFLE,
-                fieldItemsMod == FieldItemsMod.UNCHANGED, banBadRandomFieldItems, fieldItemsMod == FieldItemsMod.RANDOM_EVEN));
+                fieldItemsMod == FieldItemsMod.UNCHANGED, banBadRandomFieldItems, fieldItemsMod == FieldItemsMod.RANDOM_EVEN,
+                banRandomPlatesAndIncense));
 
         // new 170
         // 25 move randomizers
@@ -725,6 +727,7 @@ public class Settings {
                 4   // RANDOM_EVEN
         ));
         settings.setBanBadRandomFieldItems(restoreState(data[24], 3));
+        settings.setBanRandomPlatesAndIncense(restoreState(data[24], 5));
 
         // new 170
         settings.setRandomizeMovePowers(restoreState(data[25], 0));
@@ -2053,9 +2056,16 @@ public class Settings {
         return banBadRandomFieldItems;
     }
 
-
     public void setBanBadRandomFieldItems(boolean banBadRandomFieldItems) {
         this.banBadRandomFieldItems = banBadRandomFieldItems;
+    }
+
+    public boolean isBanRandomPlatesAndIncense() {
+        return banRandomPlatesAndIncense;
+    }
+
+    public void setBanRandomPlatesAndIncense(boolean banRandomPlatesAndIncense) {
+        this.banRandomPlatesAndIncense = banRandomPlatesAndIncense;
     }
 
     public ShopItemsMod getShopItemsMod() {

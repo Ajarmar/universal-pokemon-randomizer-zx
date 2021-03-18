@@ -44,7 +44,6 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
-import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
@@ -186,6 +185,7 @@ public class NewRandomizerGUI {
     private JRadioButton fiRandomRadioButton;
     private JRadioButton fiRandomEvenDistributionRadioButton;
     private JCheckBox fiBanBadItemsCheckBox;
+    private JCheckBox fiBanPlatesAndIncense;
     private JRadioButton shUnchangedRadioButton;
     private JRadioButton shShuffleRadioButton;
     private JRadioButton shRandomRadioButton;
@@ -1460,6 +1460,7 @@ public class NewRandomizerGUI {
         fiShuffleRadioButton.setSelected(settings.getFieldItemsMod() == Settings.FieldItemsMod.SHUFFLE);
         fiUnchangedRadioButton.setSelected(settings.getFieldItemsMod() == Settings.FieldItemsMod.UNCHANGED);
         fiBanBadItemsCheckBox.setSelected(settings.isBanBadRandomFieldItems());
+        fiBanPlatesAndIncense.setSelected(settings.isBanRandomPlatesAndIncense());
 
         shRandomRadioButton.setSelected(settings.getShopItemsMod() == Settings.ShopItemsMod.RANDOM);
         shShuffleRadioButton.setSelected(settings.getShopItemsMod() == Settings.ShopItemsMod.SHUFFLE);
@@ -1641,6 +1642,7 @@ public class NewRandomizerGUI {
 
         settings.setFieldItemsMod(fiUnchangedRadioButton.isSelected(), fiShuffleRadioButton.isSelected(), fiRandomRadioButton.isSelected(), fiRandomEvenDistributionRadioButton.isSelected());
         settings.setBanBadRandomFieldItems(fiBanBadItemsCheckBox.isSelected());
+        settings.setBanRandomPlatesAndIncense(fiBanPlatesAndIncense.isSelected());
 
         settings.setShopItemsMod(shUnchangedRadioButton.isSelected(), shShuffleRadioButton.isSelected(), shRandomRadioButton.isSelected());
 
@@ -2301,6 +2303,9 @@ public class NewRandomizerGUI {
         fiBanBadItemsCheckBox.setVisible(true);
         fiBanBadItemsCheckBox.setEnabled(false);
         fiBanBadItemsCheckBox.setSelected(false);
+        fiBanPlatesAndIncense.setVisible(false);
+        fiBanPlatesAndIncense.setEnabled(false);
+        fiBanPlatesAndIncense.setSelected(false);
         shUnchangedRadioButton.setVisible(true);
         shUnchangedRadioButton.setEnabled(false);
         shUnchangedRadioButton.setSelected(false);
@@ -2657,6 +2662,7 @@ public class NewRandomizerGUI {
             fiUnchangedRadioButton.setSelected(true);
             fiShuffleRadioButton.setEnabled(true);
             fiRandomRadioButton.setEnabled(true);
+            fiBanPlatesAndIncense.setVisible(pokemonGeneration == 4);
             fiRandomEvenDistributionRadioButton.setEnabled(true);
 
             shopItemsPanel.setVisible(romHandler.hasShopRandomization());
@@ -3204,12 +3210,16 @@ public class NewRandomizerGUI {
 
         if (fiRandomRadioButton.isSelected() && fiRandomRadioButton.isVisible() && fiRandomRadioButton.isEnabled()) {
             fiBanBadItemsCheckBox.setEnabled(true);
+            fiBanPlatesAndIncense.setEnabled(true);
         } else if (fiRandomEvenDistributionRadioButton.isSelected() && fiRandomEvenDistributionRadioButton.isVisible()
                 && fiRandomEvenDistributionRadioButton.isEnabled()) {
             fiBanBadItemsCheckBox.setEnabled(true);
+            fiBanPlatesAndIncense.setEnabled(true);
         } else {
             fiBanBadItemsCheckBox.setEnabled(false);
             fiBanBadItemsCheckBox.setSelected(false);
+            fiBanPlatesAndIncense.setEnabled(false);
+            fiBanPlatesAndIncense.setSelected(false);
         }
 
         if (shRandomRadioButton.isSelected() && shRandomRadioButton.isVisible() && shRandomRadioButton.isEnabled()) {

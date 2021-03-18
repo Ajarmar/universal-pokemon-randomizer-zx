@@ -625,9 +625,9 @@ public class Randomizer {
         if (settings.getFieldItemsMod() == Settings.FieldItemsMod.SHUFFLE) {
             romHandler.shuffleFieldItems();
         } else if (settings.getFieldItemsMod() == Settings.FieldItemsMod.RANDOM) {
-            romHandler.randomizeFieldItems(settings.isBanBadRandomFieldItems(), false);
+            romHandler.randomizeFieldItems(settings.isBanBadRandomFieldItems(), settings.isBanRandomPlatesAndIncense(), false);
         } else if (settings.getFieldItemsMod() == Settings.FieldItemsMod.RANDOM_EVEN) {
-            romHandler.randomizeFieldItems(settings.isBanBadRandomFieldItems(), true);
+            romHandler.randomizeFieldItems(settings.isBanBadRandomFieldItems(), settings.isBanRandomPlatesAndIncense(), true);
         }
 
         if (settings.getShopItemsMod() == Settings.ShopItemsMod.SHUFFLE) {
@@ -636,7 +636,6 @@ public class Randomizer {
             romHandler.randomizeShopItems(settings.isBanBadRandomShopItems(), settings.isBanRegularShopItems(), settings.isBanOPShopItems(),
                     settings.isBalanceShopPrices(), settings.isGuaranteeEvolutionItems(), settings.isGuaranteeXItems());
         }
-
         
         // Shops
         if ((settings.getShopItemsMod() == Settings.ShopItemsMod.RANDOM || settings.getShopItemsMod() == Settings.ShopItemsMod.SHUFFLE)

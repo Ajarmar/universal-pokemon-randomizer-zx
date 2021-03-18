@@ -412,6 +412,8 @@ public interface RomHandler {
 
     ItemList getNonBadItems();
 
+    void banPlatesAndIncense(ItemList itemList);
+
     List<Integer> getRegularShopItems();
 
     List<Integer> getOPShopItems();
@@ -448,7 +450,7 @@ public interface RomHandler {
 
     void shuffleFieldItems();
 
-    void randomizeFieldItems(boolean banBadItems, boolean distributeItemsControl);
+    void randomizeFieldItems(boolean banBadItems, boolean banPlatesAndIncense, boolean distributeItemsControl);
 
     // Trades
 

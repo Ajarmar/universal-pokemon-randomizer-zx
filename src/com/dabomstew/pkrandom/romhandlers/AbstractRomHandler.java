@@ -3867,6 +3867,11 @@ public abstract class AbstractRomHandler implements RomHandler {
     }
 
     @Override
+    public void banPlatesAndIncense(ItemList itemList) {
+        // Do nothing except in gen-specific logic
+    }
+
+    @Override
     public void randomizeWildHeldItems(boolean banBadItems) {
         List<Pokemon> pokemon = allPokemonInclFormesWithoutNull();
         ItemList possibleItems = banBadItems ? this.getNonBadItems() : this.getAllowedItems();
@@ -3989,8 +3994,12 @@ public abstract class AbstractRomHandler implements RomHandler {
     }
 
     @Override
-    public void randomizeFieldItems(boolean banBadItems, boolean distributeItemsControl) {
+    public void randomizeFieldItems(boolean banBadItems, boolean banPlatesAndIncense, boolean distributeItemsControl) {
         ItemList possibleItems = banBadItems ? this.getNonBadItems() : this.getAllowedItems();
+        if (banPlatesAndIncense) {
+            this.banPlatesAndIncense(possibleItems);
+        }
+
         List<Integer> currentItems = this.getRegularFieldItems();
         List<Integer> currentTMs = this.getCurrentFieldTMs();
         List<Integer> requiredTMs = this.getRequiredFieldTMs();

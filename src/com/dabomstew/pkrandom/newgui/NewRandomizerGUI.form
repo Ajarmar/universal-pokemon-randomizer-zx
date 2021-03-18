@@ -2958,6 +2958,17 @@
                       <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.fiBanBadItemsCheckBox.toolTipText"/>
                     </properties>
                   </component>
+                  <component id="3f3fb" class="javax.swing.JCheckBox" binding="fiBanPlatesAndIncense">
+                    <constraints>
+                      <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <enabled value="false"/>
+                      <text value="Ban Plates and Incense"/>
+                      <toolTipText value="&lt;html&gt; Bans plates and incense, which are largely redundant with other items like TwistedSpoon aside from niche side-effects"/>
+                    </properties>
+                  </component>
                 </children>
               </grid>
               <hspacer id="36f9b">

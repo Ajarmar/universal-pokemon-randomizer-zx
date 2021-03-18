@@ -3455,6 +3455,12 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
     }
 
     @Override
+    public void banPlatesAndIncense(ItemList itemList) {
+        // ban plates and incense (298-320)
+        itemList.banRange(0x12A, 23);
+    }
+
+    @Override
     public List<Integer> getRegularShopItems() {
         return Gen4Constants.regularShopItems;
     }
