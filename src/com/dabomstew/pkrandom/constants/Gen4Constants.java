@@ -469,6 +469,9 @@ public class Gen4Constants {
         nonBadItems.banRange(0x9F, 54); // berries DansGame
         nonBadItems.banRange(0x100, 4); // pokemon specific
         nonBadItems.banRange(0x104, 5); // contest scarves
+        nonBadItems.banRange(0x110, 2); // toxic orb, flame orb
+        nonBadItems.banRange(0x116, 2); // iron ball, lagging tail
+        nonBadItems.banSingles(0x120); // sticky barb
 
         regularShopItems = new ArrayList<>();
 
