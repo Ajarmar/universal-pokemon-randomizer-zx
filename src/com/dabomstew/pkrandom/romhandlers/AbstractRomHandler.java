@@ -4000,6 +4000,8 @@ public abstract class AbstractRomHandler implements RomHandler {
         List<String>[] allTrainerNames = new List[] { new ArrayList<String>(), new ArrayList<String>() };
         Map<Integer, List<String>> trainerNamesByLength[] = new Map[] { new TreeMap<Integer, List<String>>(),
                 new TreeMap<Integer, List<String>>() };
+        
+        List<String> repeatedTrainerNames = Arrays.asList(new String[] { "GRUNT", "EXECUTIVE", "SHADOW", "ADMIN", "GOON", "EMPLOYEE" });
 
         // Read name lists
         for (String trainername : customNames.getTrainerNames()) {
@@ -4060,8 +4062,7 @@ public abstract class AbstractRomHandler implements RomHandler {
             int tnIndex = -1;
             for (String trainerName : currentTrainerNames) {
                 tnIndex++;
-                if (translation.containsKey(trainerName) && !trainerName.equalsIgnoreCase("GRUNT")
-                        && !trainerName.equalsIgnoreCase("EXECUTIVE")) {
+                if (translation.containsKey(trainerName) && !repeatedTrainerNames.contains(trainerName.toUpperCase())) {
                     // use an already picked translation
                     newTrainerNames.add(translation.get(trainerName));
                     totalLength += this.internalStringLength(translation.get(trainerName));
