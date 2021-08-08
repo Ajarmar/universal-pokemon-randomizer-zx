@@ -1737,6 +1737,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         boolean swapMegaEvos = settings.isSwapTrainerMegaEvos();
         boolean shinyChance = settings.isShinyChance();
         boolean abilitiesAreRandomized = settings.getAbilitiesMod() == Settings.AbilitiesMod.RANDOMIZE;
+        boolean themeRegularTrainers = settings.isTrainersThemeRegularPokemon();
 
         checkPokemonRestrictions();
         List<Trainer> currentTrainers = this.getTrainers();
@@ -1867,62 +1868,53 @@ public abstract class AbstractRomHandler implements RomHandler {
             }
         }
 
-        // New: randomize the order trainers are randomized in.
-        // Leads to less predictable results for various modifiers.
-        // Need to keep the original ordering around for saving though.
-        List<Trainer> scrambledTrainers = new ArrayList<>(currentTrainers);
-        Collections.shuffle(scrambledTrainers, this.random);
+        if (themeRegularTrainers) {
 
-        // Give a type to each unassigned trainer
-        for (Trainer t : scrambledTrainers) {
-            if (t.tag != null && t.tag.equals("IRIVAL")) {
-                continue; // skip
-            }
+            // New: randomize the order trainers are randomized in.
+            // Leads to less predictable results for various modifiers.
+            // Need to keep the original ordering around for saving though.
+            List<Trainer> scrambledTrainers = new ArrayList<>(currentTrainers);
+            Collections.shuffle(scrambledTrainers, this.random);
 
-            if (!assignedTrainers.contains(t)) {
-                Type typeForTrainer = pickType(weightByFrequency, noLegendaries, includeFormes);
-                // Ubers: can't have the same type as each other
-                if (t.tag != null && t.tag.equals("UBER")) {
-                    while (usedUberTypes.contains(typeForTrainer)) {
-                        typeForTrainer = pickType(weightByFrequency, noLegendaries, includeFormes);
-                    }
-                    usedUberTypes.add(typeForTrainer);
+            // Give a type to each unassigned trainer
+            for (Trainer t : scrambledTrainers) {
+                if (t.tag != null && t.tag.equals("IRIVAL")) {
+                    continue; // skip
                 }
-                for (TrainerPokemon tp : t.pokemon) {
-                    boolean swapThisMegaEvo = swapMegaEvos && tp.canMegaEvolve();
-                    boolean shedAllowed = (!noEarlyWonderGuard) || tp.level >= 20;
-                    Pokemon oldPK = tp.pokemon;
-                    if (tp.forme > 0) {
-                        oldPK = getAltFormeOfPokemon(oldPK, tp.forme);
-                    }
-                    Pokemon newPK =
-                            pickReplacement(
-                                    oldPK,
-                                    usePowerLevels,
-                                    typeForTrainer,
-                                    noLegendaries,
-                                    shedAllowed,
-                                    false,
-                                    swapThisMegaEvo,
-                                    abilitiesAreRandomized,
-                                    includeFormes
-                            );
-                    tp.absolutePokeNumber = newPK.number;
-                    tp.pokemon = newPK;
-                    setFormeForTrainerPokemon(tp, newPK);
-                    tp.abilitySlot = getRandomAbilitySlot(newPK);
 
-                    if (swapThisMegaEvo) {
-                        tp.heldItem = newPK
-                                        .megaEvolutionsFrom
-                                        .get(this.random.nextInt(newPK.megaEvolutionsFrom.size()))
-                                        .argument;
+                if (!assignedTrainers.contains(t)) {
+                    Type typeForTrainer = pickType(weightByFrequency, noLegendaries, includeFormes);
+                    // Ubers: can't have the same type as each other
+                    if (t.tag != null && t.tag.equals("UBER")) {
+                        while (usedUberTypes.contains(typeForTrainer)) {
+                            typeForTrainer = pickType(weightByFrequency, noLegendaries, includeFormes);
+                        }
+                        usedUberTypes.add(typeForTrainer);
                     }
+                    for (TrainerPokemon tp : t.pokemon) {
+                        boolean swapThisMegaEvo = swapMegaEvos && tp.canMegaEvolve();
+                        boolean shedAllowed = (!noEarlyWonderGuard) || tp.level >= 20;
+                        Pokemon oldPK = tp.pokemon;
+                        if (tp.forme > 0) {
+                            oldPK = getAltFormeOfPokemon(oldPK, tp.forme);
+                        }
+                        Pokemon newPK = pickReplacement(oldPK, usePowerLevels, typeForTrainer, noLegendaries,
+                                shedAllowed, false, swapThisMegaEvo, abilitiesAreRandomized, includeFormes);
+                        tp.absolutePokeNumber = newPK.number;
+                        tp.pokemon = newPK;
+                        setFormeForTrainerPokemon(tp, newPK);
+                        tp.abilitySlot = getRandomAbilitySlot(newPK);
 
-                    tp.resetMoves = true;
-                    if (shinyChance) {
-                        if (this.random.nextInt(256) == 0) {
-                            tp.IVs |= (1 << 30);
+                        if (swapThisMegaEvo) {
+                            tp.heldItem = newPK.megaEvolutionsFrom
+                                    .get(this.random.nextInt(newPK.megaEvolutionsFrom.size())).argument;
+                        }
+
+                        tp.resetMoves = true;
+                        if (shinyChance) {
+                            if (this.random.nextInt(256) == 0) {
+                                tp.IVs |= (1 << 30);
+                            }
                         }
                     }
                 }

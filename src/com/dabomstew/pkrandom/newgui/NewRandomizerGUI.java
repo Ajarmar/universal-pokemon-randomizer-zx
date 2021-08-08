@@ -287,6 +287,7 @@ public class NewRandomizerGUI {
     private JCheckBox tpConsumableItemsOnlyCheckBox;
     private JCheckBox tpSensibleItemsCheckBox;
     private JCheckBox tpHighestLevelGetsItemCheckBox;
+    private JCheckBox tpThemeRegularPokemonItemBox;
 
     private static JFrame frame;
 
@@ -501,6 +502,7 @@ public class NewRandomizerGUI {
         tpBossTrainersItemsCheckBox.addActionListener(e -> enableOrDisableSubControls());
         tpImportantTrainersItemsCheckBox.addActionListener(e -> enableOrDisableSubControls());
         tpRegularTrainersItemsCheckBox.addActionListener(e -> enableOrDisableSubControls());
+        tpThemeRegularPokemonItemBox.addActionListener(e -> enableOrDisableSubControls());
         totpUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         totpRandomRadioButton.addActionListener(e -> enableOrDisableSubControls());
         totpRandomSimilarStrengthRadioButton.addActionListener(e -> enableOrDisableSubControls());
@@ -1384,6 +1386,8 @@ public class NewRandomizerGUI {
         tpConsumableItemsOnlyCheckBox.setSelected(settings.isConsumableItemsOnlyForTrainers());
         tpSensibleItemsCheckBox.setSelected(settings.isSensibleItemsOnlyForTrainers());
         tpHighestLevelGetsItemCheckBox.setSelected(settings.isHighestLevelGetsItemsForTrainers());
+        tpThemeRegularPokemonItemBox.setSelected(settings.isTrainersThemeRegularPokemon());
+
 
         tpRandomShinyTrainerPokemonCheckBox.setSelected(settings.isShinyChance());
 
@@ -1610,6 +1614,7 @@ public class NewRandomizerGUI {
         settings.setConsumableItemsOnlyForTrainers(tpConsumableItemsOnlyCheckBox.isVisible() && tpConsumableItemsOnlyCheckBox.isSelected());
         settings.setSensibleItemsOnlyForTrainers(tpSensibleItemsCheckBox.isVisible() && tpSensibleItemsCheckBox.isSelected());
         settings.setHighestLevelGetsItemsForTrainers(tpHighestLevelGetsItemCheckBox.isVisible() && tpHighestLevelGetsItemCheckBox.isSelected());
+        settings.setTrainersThemeRegularPokemon(tpThemeRegularPokemonItemBox.isVisible() && tpThemeRegularPokemonItemBox.isSelected());
 
         settings.setTotemPokemonMod(totpUnchangedRadioButton.isSelected(), totpRandomRadioButton.isSelected(), totpRandomSimilarStrengthRadioButton.isSelected());
         settings.setAllyPokemonMod(totpAllyUnchangedRadioButton.isSelected(), totpAllyRandomRadioButton.isSelected(), totpAllyRandomSimilarStrengthRadioButton.isSelected());
@@ -2168,6 +2173,9 @@ public class NewRandomizerGUI {
         tpHighestLevelGetsItemCheckBox.setVisible(true);
         tpHighestLevelGetsItemCheckBox.setEnabled(false);
         tpHighestLevelGetsItemCheckBox.setSelected(false);
+        tpThemeRegularPokemonItemBox.setVisible(true);
+        tpThemeRegularPokemonItemBox.setEnabled(false);
+        tpThemeRegularPokemonItemBox.setSelected(false);
         tpRandomShinyTrainerPokemonCheckBox.setVisible(true);
         tpRandomShinyTrainerPokemonCheckBox.setEnabled(false);
         totpPanel.setVisible(true);
@@ -2643,6 +2651,9 @@ public class NewRandomizerGUI {
             tpHighestLevelGetsItemCheckBox.setVisible(trainersHeldItemSupport);
             tpHighestLevelGetsItemCheckBox.setEnabled(false);
 
+            tpThemeRegularPokemonItemBox.setVisible(true);
+            tpThemeRegularPokemonItemBox.setEnabled(false);
+            
             tpRandomizeTrainerNamesCheckBox.setEnabled(true);
             tpRandomizeTrainerClassNamesCheckBox.setEnabled(true);
             tpNoEarlyWonderGuardCheckBox.setVisible(pokemonGeneration >= 3);
@@ -3106,9 +3117,12 @@ public class NewRandomizerGUI {
 
         if (tpTypeThemedRadioButton.isSelected()) {
             tpWeightTypesCheckBox.setEnabled(true);
+            tpThemeRegularPokemonItemBox.setEnabled(true);
         } else {
             tpWeightTypesCheckBox.setEnabled(false);
             tpWeightTypesCheckBox.setSelected(false);
+            tpThemeRegularPokemonItemBox.setEnabled(false);
+            tpThemeRegularPokemonItemBox.setSelected(false);
         }
 
         if (!totpUnchangedRadioButton.isSelected() || !totpAllyUnchangedRadioButton.isSelected()) {
