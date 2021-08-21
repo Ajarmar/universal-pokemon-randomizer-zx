@@ -1737,7 +1737,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         boolean swapMegaEvos = settings.isSwapTrainerMegaEvos();
         boolean shinyChance = settings.isShinyChance();
         boolean abilitiesAreRandomized = settings.getAbilitiesMod() == Settings.AbilitiesMod.RANDOMIZE;
-        boolean themeRegularTrainers = settings.isTrainersThemeRegularPokemon();
+        boolean themeRegularTrainers = settings.isTrainersThemeNonSpecialistPokemon();
 
         checkPokemonRestrictions();
         List<Trainer> currentTrainers = this.getTrainers();
@@ -1868,7 +1868,7 @@ public abstract class AbstractRomHandler implements RomHandler {
             }
         }
 
-        if (themeRegularTrainers) {
+
 
             // New: randomize the order trainers are randomized in.
             // Leads to less predictable results for various modifiers.
@@ -1883,11 +1883,11 @@ public abstract class AbstractRomHandler implements RomHandler {
                 }
 
                 if (!assignedTrainers.contains(t)) {
-                    Type typeForTrainer = pickType(weightByFrequency, noLegendaries, includeFormes);
+                    Type typeForTrainer = themeRegularTrainers ? pickType(weightByFrequency, noLegendaries, includeFormes) : null;
                     // Ubers: can't have the same type as each other
-                    if (t.tag != null && t.tag.equals("UBER")) {
+                    if (t.tag != null && t.tag.equals("UBER") && typeForTrainer != null) {
                         while (usedUberTypes.contains(typeForTrainer)) {
-                            typeForTrainer = pickType(weightByFrequency, noLegendaries, includeFormes);
+                            typeForTrainer = themeRegularTrainers ? pickType(weightByFrequency, noLegendaries, includeFormes) : null;
                         }
                         usedUberTypes.add(typeForTrainer);
                     }
@@ -1919,7 +1919,6 @@ public abstract class AbstractRomHandler implements RomHandler {
                     }
                 }
             }
-        }
 
         // Save it all up
         this.setTrainers(currentTrainers, false);

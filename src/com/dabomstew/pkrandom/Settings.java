@@ -182,9 +182,7 @@ public class Settings {
     private boolean consumableItemsOnlyForTrainerPokemon;
     private boolean sensibleItemsOnlyForTrainerPokemon;
     private boolean highestLevelOnlyGetsItemsForTrainerPokemon;
-    private boolean trainersThemeRegularPokemon;
-    private boolean trainersThemeBossPokemon;
-    private boolean trainersThemeImportantPokemon;
+    private boolean trainersThemeNonSpecialistPokemon = true;
     private boolean doubleBattleMode;
     private boolean shinyChance;
 
@@ -1664,12 +1662,12 @@ public class Settings {
         this.highestLevelOnlyGetsItemsForTrainerPokemon = highestOnly;
     }
 
-    public boolean isTrainersThemeRegularPokemon() {
-        return trainersThemeRegularPokemon;
+    public boolean isTrainersThemeNonSpecialistPokemon() {
+        return trainersThemeNonSpecialistPokemon;
     }
 
-    public void setTrainersThemeRegularPokemon(boolean trainersThemeRegularPokemon) {
-        this.trainersThemeRegularPokemon = trainersThemeRegularPokemon;
+    public void setTrainersThemeNonSpecialistPokemon(boolean trainersThemeNonSpecialistPokemon) {
+        this.trainersThemeNonSpecialistPokemon = trainersThemeNonSpecialistPokemon;
     }
 
     public boolean isDoubleBattleMode() {
