@@ -2177,7 +2177,7 @@ public class NewRandomizerGUI {
         tpHighestLevelGetsItemCheckBox.setSelected(false);
         tpThemeAllFoePokemonRadioButton.setVisible(true);
         tpThemeAllFoePokemonRadioButton.setEnabled(false);
-        tpThemeAllFoePokemonRadioButton.setSelected(false);
+        tpThemeAllFoePokemonRadioButton.setSelected(true);
         tpThemeSpecialistPokemonRadioButton.setVisible(true);
         tpThemeSpecialistPokemonRadioButton.setEnabled(false);
         tpThemeSpecialistPokemonRadioButton.setSelected(false);
