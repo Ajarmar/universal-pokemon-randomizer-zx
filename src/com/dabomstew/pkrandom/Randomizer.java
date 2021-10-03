@@ -979,17 +979,20 @@ public class Randomizer {
             log.printf("%3d " + nameSpFormat, pkmn.number, pkmn.fullName() + " ");
 
             for (int i = 1; i < flags.length; i++) {
-
-                int moveNameLength = moveData.get(moveList.get(i - 1)).name.length();
+                String moveName = moveData.get(moveList.get(i - 1)).name;
+                if (moveName.length() == 0) {
+                    moveName = "(BLANK)";
+                }
+                int moveNameLength = moveName.length();
                 if (flags[i]) {
                     if (includeTMNumber) {
                         if (i <= tmCount) {
-                            log.printf("|TM%02d %" + moveNameLength + "s ", i, moveData.get(moveList.get(i - 1)).name);
+                            log.printf("|TM%02d %" + moveNameLength + "s ", i, moveName);
                         } else {
-                            log.printf("|HM%02d %" + moveNameLength + "s ", i-tmCount, moveData.get(moveList.get(i - 1)).name);
+                            log.printf("|HM%02d %" + moveNameLength + "s ", i-tmCount, moveName);
                         }
                     } else {
-                        log.printf("|%" + moveNameLength + "s ", moveData.get(moveList.get(i - 1)).name);
+                        log.printf("|%" + moveNameLength + "s ", moveName);
                     }
                 } else {
                     if (includeTMNumber) {
