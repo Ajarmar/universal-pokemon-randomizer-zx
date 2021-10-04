@@ -2357,7 +2357,13 @@ public class Gen2RomHandler extends AbstractGBCRomHandler {
         int movesEvosStart = romEntry.getValue("PokemonMovesetsTableOffset");
         int movesEvosBank = bankOf(movesEvosStart);
         byte[] pointerTable = new byte[Gen2Constants.pokemonCount * 2];
-        int startOfNextBank = ((movesEvosStart / GBConstants.bankSize) + 1) * GBConstants.bankSize;
+        int startOfNextBank;
+        if (isVietCrystal) {
+            startOfNextBank = 0x43E00; // fix for pokedex crash
+        }
+        else {
+            startOfNextBank = ((movesEvosStart / GBConstants.bankSize) + 1) * GBConstants.bankSize;
+        }
         int dataBlockSize = startOfNextBank - (movesEvosStart + pointerTable.length);
         int dataBlockOffset = movesEvosStart + pointerTable.length;
         byte[] dataBlock = new byte[dataBlockSize];
