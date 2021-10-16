@@ -2476,6 +2476,15 @@ public class Gen2RomHandler extends AbstractGBCRomHandler {
     }
 
     @Override
+    public List<Integer> getIllegalMoves() {
+        // 3 moves that crash the game when used by self or opponent
+        if (isVietCrystal) {
+            return Gen2Constants.illegalVietCrystalMoves;
+        }
+        return new ArrayList<>();
+    }
+
+    @Override
     public List<Integer> getFieldMoves() {
         // cut, fly, surf, strength, flash,
         // dig, teleport, whirlpool, waterfall,

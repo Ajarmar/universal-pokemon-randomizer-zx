@@ -573,6 +573,8 @@ public interface RomHandler {
 
     List<Integer> getGameBreakingMoves();
 
+    List<Integer> getIllegalMoves();
+
     // includes game or gen-specific moves like Secret Power
     // but NOT healing moves (Softboiled, Milk Drink)
     List<Integer> getFieldMoves();

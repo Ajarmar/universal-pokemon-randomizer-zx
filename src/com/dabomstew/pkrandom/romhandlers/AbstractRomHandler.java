@@ -2651,6 +2651,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         allBanned.addAll(hms);
         allBanned.addAll(this.getMovesBannedFromLevelup());
         allBanned.addAll(GlobalConstants.zMoves);
+        allBanned.addAll(this.getIllegalMoves());
 
         // Build sets of moves
         List<Move> validMoves = new ArrayList<>();
@@ -3508,6 +3509,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         @SuppressWarnings("unchecked")
         List<Integer> banned = new ArrayList<Integer>(noBroken ? this.getGameBreakingMoves() : Collections.EMPTY_LIST);
         banned.addAll(getMovesBannedFromLevelup());
+        banned.addAll(this.getIllegalMoves());
         // field moves?
         List<Integer> fieldMoves = this.getFieldMoves();
         int preservedFieldMoveCount = 0;
@@ -3772,6 +3774,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         @SuppressWarnings("unchecked")
         List<Integer> banned = new ArrayList<Integer>(noBroken ? this.getGameBreakingMoves() : Collections.EMPTY_LIST);
         banned.addAll(getMovesBannedFromLevelup());
+        banned.addAll(this.getIllegalMoves());
 
         // field moves?
         List<Integer> fieldMoves = this.getFieldMoves();
@@ -6299,6 +6302,11 @@ public abstract class AbstractRomHandler implements RomHandler {
     public List<Integer> getGameBreakingMoves() {
         // Sonicboom & Dragon Rage
         return Arrays.asList(49, 82);
+    }
+
+    @Override
+    public List<Integer> getIllegalMoves() {
+        return new ArrayList<>();
     }
 
     @Override

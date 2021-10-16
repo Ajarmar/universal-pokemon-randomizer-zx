@@ -88,6 +88,9 @@ public class Gen2Constants {
     public static final List<Integer> brokenMoves = Arrays.asList(
             Moves.sonicBoom, Moves.dragonRage, Moves.hornDrill, Moves.fissure, Moves.guillotine);
 
+    public static final List<Integer> illegalVietCrystalMoves = Arrays.asList(
+            Moves.protect, Moves.rest, Moves.spikeCannon);
+
     public static final int tmBlockOneIndex = 191, tmBlockOneSize = 4, tmBlockTwoIndex = 196, tmBlockTwoSize = 24,
             tmBlockThreeIndex = 221, tmBlockThreeSize = 22;
 
