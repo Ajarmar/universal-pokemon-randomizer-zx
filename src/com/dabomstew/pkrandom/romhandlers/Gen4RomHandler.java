@@ -694,17 +694,17 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
             throw new RandomizerIOException(e);
         }
         try {
-            writeNARC(romEntry.getString("Text"), msgNarc);
+            writeNARC(romEntry.getFile("Text"), msgNarc);
         } catch (IOException e) {
             throw new RandomizerIOException(e);
         }
         try {
-            writeNARC(romEntry.getString("Scripts"), scriptNarc);
+            writeNARC(romEntry.getFile("Scripts"), scriptNarc);
         } catch (IOException e) {
             throw new RandomizerIOException(e);
         }
         try {
-            writeNARC(romEntry.getString("Events"), eventNarc);
+            writeNARC(romEntry.getFile("Events"), eventNarc);
         } catch (IOException e) {
             throw new RandomizerIOException(e);
         }
