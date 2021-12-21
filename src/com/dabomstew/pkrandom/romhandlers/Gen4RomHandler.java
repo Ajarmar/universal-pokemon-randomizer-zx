@@ -729,7 +729,7 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
         }
 
         try {
-            this.writeNARC(romEntry.getString("MoveData"), moveNarc);
+            this.writeNARC(romEntry.getFile("MoveData"), moveNarc);
         } catch (IOException e) {
             throw new RandomizerIOException(e);
         }
@@ -766,7 +766,7 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
         setStrings(romEntry.getInt("PokemonNamesTextOffset"), namesList, false);
 
         try {
-            String pstatsnarc = romEntry.getString("PokemonStats");
+            String pstatsnarc = romEntry.getFile("PokemonStats");
             this.writeNARC(pstatsnarc, pokeNarc);
         } catch (IOException e) {
             throw new RandomizerIOException(e);
@@ -2582,8 +2582,8 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
                 }
                 trpokes.files.add(trpoke);
             }
-            this.writeNARC(romEntry.getString("TrainerData"), trainers);
-            this.writeNARC(romEntry.getString("TrainerPokemon"), trpokes);
+            this.writeNARC(romEntry.getFile("TrainerData"), trainers);
+            this.writeNARC(romEntry.getFile("TrainerPokemon"), trpokes);
 
             // In Gen 4, the game prioritizes showing the special double battle intro over almost any
             // other kind of intro. Since the trainer music is tied to the intro, this results in the
@@ -2657,7 +2657,7 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
                 NARCArchive battleSkillSubSeq = readNARC(romEntry.getFile("BattleSkillSubSeq"));
                 byte[] trainerEndFile = battleSkillSubSeq.files.get(romEntry.getInt("TrainerEndFileNumber"));
                 trainerEndFile[romEntry.getInt("TrainerEndTextBoxOffset")] = 0;
-                writeNARC(romEntry.getString("BattleSkillSubSeq"), battleSkillSubSeq);
+                writeNARC(romEntry.getFile("BattleSkillSubSeq"), battleSkillSubSeq);
 
             }
         } catch (IOException ex) {
@@ -2780,7 +2780,7 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
         //}
         // Save
         try {
-            this.writeNARC(romEntry.getString("PokemonMovesets"), movesLearnt);
+            this.writeNARC(romEntry.getFile("PokemonMovesets"), movesLearnt);
         } catch (IOException e) {
             throw new RandomizerIOException(e);
         }
@@ -3073,7 +3073,7 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
                         replaceAllStringsInEntry(romEntry.getInt("KenyaTextOffset"), replacements);
                     }
                 }
-                writeNARC(romEntry.getString("InGameTrades"), tradeNARC);
+                writeNARC(romEntry.getFile("InGameTrades"), tradeNARC);
             }
             if (romEntry.getInt("MysteryEggOffset") > 0) {
                 // Same overlay as MT moves
@@ -3524,7 +3524,7 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
                 }
             }
             if (romEntry.romType == Gen4Constants.Type_HGSS) {
-                writeFile(romEntry.getString("MoveTutorCompat"), mtcFile);
+                writeFile(romEntry.getFile("MoveTutorCompat"), mtcFile);
             } else {
                 writeOverlay(romEntry.getInt("MoveTutorCompatOvlNumber"), mtcFile);
             }
@@ -3720,7 +3720,7 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
                     evosWritten++;
                 }
             }
-            writeNARC(romEntry.getString("PokemonEvolutions"), evoNARC);
+            writeNARC(romEntry.getFile("PokemonEvolutions"), evoNARC);
         } catch (IOException e) {
             throw new RandomizerIOException(e);
         }
@@ -4040,7 +4040,7 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
                     itemID = 135;
                 }
             }
-            writeNARC(romEntry.getString("ItemData"),itemPriceNarc);
+            writeNARC(romEntry.getFile("ItemData"),itemPriceNarc);
         } catch (IOException e) {
             throw new RandomizerIOException(e);
         }
@@ -4600,7 +4600,7 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
                     writeLong(tfile, 0x50, 0); // disable gender
                 }
             }
-            this.writeNARC(romEntry.getString("InGameTrades"), tradeNARC);
+            this.writeNARC(romEntry.getFile("InGameTrades"), tradeNARC);
             this.setStrings(romEntry.getInt("IngameTradesTextOffset"), tradeStrings);
             // update what the people say when they talk to you
             if (romEntry.arrayEntries.containsKey("IngameTradePersonTextOffsets")) {
@@ -4697,7 +4697,7 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
                 writeWord(babyPokes, i * 2, baby.number);
             }
             // finish up
-            writeFile(romEntry.getString("BabyPokemon"), babyPokes);
+            writeFile(romEntry.getFile("BabyPokemon"), babyPokes);
         } catch (IOException e) {
             throw new RandomizerIOException(e);
         }
