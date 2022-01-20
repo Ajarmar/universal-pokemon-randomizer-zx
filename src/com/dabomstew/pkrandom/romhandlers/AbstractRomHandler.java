@@ -1735,6 +1735,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         boolean swapMegaEvos = settings.isSwapTrainerMegaEvos();
         boolean shinyChance = settings.isShinyChance();
         boolean abilitiesAreRandomized = settings.getAbilitiesMod() == Settings.AbilitiesMod.RANDOMIZE;
+        boolean themeShuffleOnly = settings.getTrainersMod() == Settings.TrainersMod.SHUFFLE_THEMES;
 
         checkPokemonRestrictions();
         List<Trainer> currentTrainers = this.getTrainers();
@@ -1810,20 +1811,37 @@ public abstract class AbstractRomHandler implements RomHandler {
             // Shuffle ordering within group to promote randomness
             Collections.shuffle(trainersInGroup, random);
             Type typeForGroup = pickType(weightByFrequency, noLegendaries, includeFormes);
-            if (group.startsWith("GYM")) {
-                while (usedGymTypes.contains(typeForGroup)) {
-                    typeForGroup = pickType(weightByFrequency, noLegendaries, includeFormes);
+            if (themeShuffleOnly){
+                if (group.equals("CHAMPION")) {
+                    typeForGroup = null; // Champion is un-themed in this mode
+                } else {
+                    // Track gyms and e4 together to avoid repeating
+                    while (usedGymTypes.contains(typeForGroup)) {
+                        typeForGroup = pickType(weightByFrequency, noLegendaries, includeFormes);
+                    }
+                    usedGymTypes.add(typeForGroup);
+
+                    // If we ran out of types (gen 2), reset the tracker.
+                    if (usedGymTypes.size() >= availableTypes().size())
+                        usedGymTypes.clear();
                 }
-                usedGymTypes.add(typeForGroup);
-            }
-            if (group.startsWith("ELITE")) {
-                while (usedEliteTypes.contains(typeForGroup)) {
-                    typeForGroup = pickType(weightByFrequency, noLegendaries, includeFormes);
+            } else {
+                // Sort trainers so that we don't repeat themes within a group
+                if (group.startsWith("GYM")) {
+                    while (usedGymTypes.contains(typeForGroup)) {
+                        typeForGroup = pickType(weightByFrequency, noLegendaries, includeFormes);
+                    }
+                    usedGymTypes.add(typeForGroup);
                 }
-                usedEliteTypes.add(typeForGroup);
-            }
-            if (group.equals("CHAMPION")) {
-                usedUberTypes.add(typeForGroup);
+                if (group.startsWith("ELITE")) {
+                    while (usedEliteTypes.contains(typeForGroup)) {
+                        typeForGroup = pickType(weightByFrequency, noLegendaries, includeFormes);
+                    }
+                    usedEliteTypes.add(typeForGroup);
+                }
+                if (group.equals("CHAMPION")) {
+                    usedUberTypes.add(typeForGroup);
+                }
             }
             // Themed groups just have a theme, no special criteria
             for (Trainer t : trainersInGroup) {
@@ -1882,13 +1900,16 @@ public abstract class AbstractRomHandler implements RomHandler {
             }
 
             if (!assignedTrainers.contains(t)) {
-                Type typeForTrainer = pickType(weightByFrequency, noLegendaries, includeFormes);
-                // Ubers: can't have the same type as each other
-                if (t.tag != null && t.tag.equals("UBER")) {
-                    while (usedUberTypes.contains(typeForTrainer)) {
-                        typeForTrainer = pickType(weightByFrequency, noLegendaries, includeFormes);
+                Type typeForTrainer = null;
+                if(!themeShuffleOnly) {
+                    typeForTrainer = pickType(weightByFrequency, noLegendaries, includeFormes);
+                    // Ubers: can't have the same type as each other
+                    if (t.tag != null && t.tag.equals("UBER")) {
+                        while (usedUberTypes.contains(typeForTrainer)) {
+                            typeForTrainer = pickType(weightByFrequency, noLegendaries, includeFormes);
+                        }
+                        usedUberTypes.add(typeForTrainer);
                     }
-                    usedUberTypes.add(typeForTrainer);
                 }
                 for (TrainerPokemon tp : t.pokemon) {
                     boolean swapThisMegaEvo = swapMegaEvos && tp.canMegaEvolve();
@@ -5624,14 +5645,12 @@ public abstract class AbstractRomHandler implements RomHandler {
     private Type pickType(boolean weightByFrequency, boolean noLegendaries, boolean allowAltFormes) {
         if (totalTypeWeighting == 0) {
             // Determine weightings
-            for (Type t : Type.values()) {
-                if (typeInGame(t)) {
-                    List<Pokemon> pokemonOfType = allowAltFormes ? pokemonOfTypeInclFormes(t, noLegendaries) :
-                            pokemonOfType(t, noLegendaries);
-                    int pkWithTyping = pokemonOfType.size();
-                    typeWeightings.put(t, pkWithTyping);
-                    totalTypeWeighting += pkWithTyping;
-                }
+            for (Type t : availableTypes()) {
+                List<Pokemon> pokemonOfType = allowAltFormes ? pokemonOfTypeInclFormes(t, noLegendaries) :
+                        pokemonOfType(t, noLegendaries);
+                int pkWithTyping = pokemonOfType.size();
+                typeWeightings.put(t, pkWithTyping);
+                totalTypeWeighting += pkWithTyping;
             }
         }
 
@@ -6488,6 +6507,10 @@ public abstract class AbstractRomHandler implements RomHandler {
     @Override
     public boolean typeInGame(Type type) {
         return !type.isHackOnly && !(type == Type.FAIRY && generationOfPokemon() < 6);
+    }
+
+    public List<Type> availableTypes(){
+        return Arrays.stream(Type.values()).filter(t -> typeInGame(t)).collect(Collectors.toList());
     }
 
     @Override

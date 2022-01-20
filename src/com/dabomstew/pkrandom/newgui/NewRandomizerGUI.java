@@ -36,6 +36,7 @@ import com.dabomstew.pkrandom.pokemon.ExpCurve;
 import com.dabomstew.pkrandom.pokemon.GenRestrictions;
 import com.dabomstew.pkrandom.pokemon.Pokemon;
 import com.dabomstew.pkrandom.romhandlers.*;
+import static com.dabomstew.pkrandom.Settings.TrainersMod.*;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -128,11 +129,6 @@ public class NewRandomizerGUI {
     private JCheckBox pmsForceGoodDamagingCheckBox;
     private JSlider pmsGuaranteedLevel1MovesSlider;
     private JSlider pmsForceGoodDamagingSlider;
-    private JRadioButton tpUnchangedRadioButton;
-    private JRadioButton tpRandomRadioButton;
-    private JRadioButton tpRandomEvenDistributionRadioButton;
-    private JRadioButton tpRandomEvenDistributionMainRadioButton;
-    private JRadioButton tpTypeThemedRadioButton;
     private JCheckBox tpRivalCarriesStarterCheckBox;
     private JCheckBox tpSimilarStrengthCheckBox;
     private JCheckBox tpWeightTypesCheckBox;
@@ -296,6 +292,7 @@ public class NewRandomizerGUI {
     private JCheckBox pbsAssignEvoStatsRandomlyCheckBox;
     private JCheckBox noIrregularAltFormesCheckBox;
     private JRadioButton peRandomEveryLevelRadioButton;
+    private JComboBox tpRandomizationTypeComboBox;
 
     private static JFrame frame;
 
@@ -428,11 +425,7 @@ public class NewRandomizerGUI {
         pmsMetronomeOnlyModeRadioButton.addActionListener(e -> enableOrDisableSubControls());
         pmsGuaranteedLevel1MovesCheckBox.addActionListener(e -> enableOrDisableSubControls());
         pmsForceGoodDamagingCheckBox.addActionListener(e -> enableOrDisableSubControls());
-        tpUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
-        tpRandomRadioButton.addActionListener(e -> enableOrDisableSubControls());
-        tpTypeThemedRadioButton.addActionListener(e -> enableOrDisableSubControls());
-        tpRandomEvenDistributionRadioButton.addActionListener(e -> enableOrDisableSubControls());
-        tpRandomEvenDistributionMainRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        tpRandomizationTypeComboBox.addActionListener(e -> enableOrDisableSubControls());
         tpForceFullyEvolvedAtCheckBox.addActionListener(e -> enableOrDisableSubControls());
         tpPercentageLevelModifierCheckBox.addActionListener(e -> enableOrDisableSubControls());
         wpUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
@@ -503,7 +496,8 @@ public class NewRandomizerGUI {
             if (gld.pressedOK()) {
                 currentRestrictions = gld.getChoice();
                 if (currentRestrictions != null && !currentRestrictions.allowTrainerSwapMegaEvolvables(
-                        romHandler.forceSwapStaticMegaEvos(), tpTypeThemedRadioButton.isSelected())) {
+                        romHandler.forceSwapStaticMegaEvos(),
+                        getTrainerRandomizationType() == TYPE_THEMED || getTrainerRandomizationType() == SHUFFLE_THEMES)) {
                     tpSwapMegaEvosCheckBox.setEnabled(false);
                     tpSwapMegaEvosCheckBox.setSelected(false);
                 }
@@ -771,7 +765,7 @@ public class NewRandomizerGUI {
         if (romHandler == null) {
             return; // none loaded
         }
-        if (raceModeCheckBox.isSelected() && tpUnchangedRadioButton.isSelected() && wpUnchangedRadioButton.isSelected()) {
+        if (raceModeCheckBox.isSelected() && getTrainerRandomizationType() == UNCHANGED && wpUnchangedRadioButton.isSelected()) {
             JOptionPane.showMessageDialog(frame, bundle.getString("GUI.raceModeRequirements"));
             return;
         }
@@ -1399,14 +1393,10 @@ public class NewRandomizerGUI {
         pmsNoGameBreakingMovesCheckBox.setSelected(settings.isBlockBrokenMovesetMoves());
         pmsEvolutionMovesCheckBox.setSelected(settings.isEvolutionMovesForAll());
 
+        setTrainerRandomizationType(settings.getTrainersMod());
         tpSimilarStrengthCheckBox.setSelected(settings.isTrainersUsePokemonOfSimilarStrength());
-        tpRandomRadioButton.setSelected(settings.getTrainersMod() == Settings.TrainersMod.RANDOM);
         tpRivalCarriesStarterCheckBox.setSelected(settings.isRivalCarriesStarterThroughout());
-        tpTypeThemedRadioButton.setSelected(settings.getTrainersMod() == Settings.TrainersMod.TYPE_THEMED);
         tpWeightTypesCheckBox.setSelected(settings.isTrainersMatchTypingDistribution());
-        tpUnchangedRadioButton.setSelected(settings.getTrainersMod() == Settings.TrainersMod.UNCHANGED);
-        tpRandomEvenDistributionRadioButton.setSelected(settings.getTrainersMod() == Settings.TrainersMod.DISTRIBUTED);
-        tpRandomEvenDistributionMainRadioButton.setSelected(settings.getTrainersMod() == Settings.TrainersMod.MAINPLAYTHROUGH);
         tpDontUseLegendariesCheckBox.setSelected(settings.isTrainersBlockLegendaries());
         tpNoEarlyWonderGuardCheckBox.setSelected(settings.isTrainersBlockEarlyWonderGuard());
         tpForceFullyEvolvedAtCheckBox.setSelected(settings.isTrainersForceFullyEvolved());
@@ -1636,7 +1626,7 @@ public class NewRandomizerGUI {
         settings.setBlockBrokenMovesetMoves(pmsNoGameBreakingMovesCheckBox.isSelected());
         settings.setEvolutionMovesForAll(pmsEvolutionMovesCheckBox.isSelected());
 
-        settings.setTrainersMod(tpUnchangedRadioButton.isSelected(), tpRandomRadioButton.isSelected(), tpRandomEvenDistributionRadioButton.isSelected(), tpRandomEvenDistributionMainRadioButton.isSelected(), tpTypeThemedRadioButton.isSelected());
+        settings.setTrainersMod(getTrainerRandomizationType());
         settings.setTrainersUsePokemonOfSimilarStrength(tpSimilarStrengthCheckBox.isSelected());
         settings.setRivalCarriesStarterThroughout(tpRivalCarriesStarterCheckBox.isSelected());
         settings.setTrainersMatchTypingDistribution(tpWeightTypesCheckBox.isSelected());
@@ -2137,21 +2127,8 @@ public class NewRandomizerGUI {
         pmsEvolutionMovesCheckBox.setVisible(true);
         pmsEvolutionMovesCheckBox.setEnabled(false);
         pmsEvolutionMovesCheckBox.setSelected(false);
-        tpUnchangedRadioButton.setVisible(true);
-        tpUnchangedRadioButton.setEnabled(false);
-        tpUnchangedRadioButton.setSelected(false);
-        tpRandomRadioButton.setVisible(true);
-        tpRandomRadioButton.setEnabled(false);
-        tpRandomRadioButton.setSelected(false);
-        tpRandomEvenDistributionRadioButton.setVisible(true);
-        tpRandomEvenDistributionRadioButton.setEnabled(false);
-        tpRandomEvenDistributionRadioButton.setSelected(false);
-        tpRandomEvenDistributionMainRadioButton.setVisible(true);
-        tpRandomEvenDistributionMainRadioButton.setEnabled(false);
-        tpRandomEvenDistributionMainRadioButton.setSelected(false);
-        tpTypeThemedRadioButton.setVisible(true);
-        tpTypeThemedRadioButton.setEnabled(false);
-        tpTypeThemedRadioButton.setSelected(false);
+        tpRandomizationTypeComboBox.setVisible(true);
+        tpRandomizationTypeComboBox.setEnabled(false);
         tpRivalCarriesStarterCheckBox.setVisible(true);
         tpRivalCarriesStarterCheckBox.setEnabled(false);
         tpRivalCarriesStarterCheckBox.setSelected(false);
@@ -2668,14 +2645,9 @@ public class NewRandomizerGUI {
             pmsGuaranteedLevel1MovesSlider.setVisible(romHandler.supportsFourStartingMoves());
             pmsEvolutionMovesCheckBox.setVisible(pokemonGeneration >= 7);
 
-            tpUnchangedRadioButton.setEnabled(true);
-            tpUnchangedRadioButton.setSelected(true);
-            tpRandomRadioButton.setEnabled(true);
-            tpTypeThemedRadioButton.setEnabled(true);
-            tpRandomEvenDistributionRadioButton.setEnabled(true);
-            tpRandomEvenDistributionRadioButton.setVisible(true);
-            tpRandomEvenDistributionMainRadioButton.setEnabled(pokemonGeneration == 5);
-            tpRandomEvenDistributionMainRadioButton.setVisible(pokemonGeneration == 5);
+            tpRandomizationTypeComboBox.setEnabled(true);
+            populateTpRandomizationComboBox();
+
             tpAllowAlternateFormesCheckBox.setVisible(romHandler.hasFunctionalFormes());
             tpForceFullyEvolvedAtCheckBox.setEnabled(true);
             tpPercentageLevelModifierCheckBox.setEnabled(true);
@@ -3160,7 +3132,7 @@ public class NewRandomizerGUI {
             pmsForceGoodDamagingSlider.setValue(pmsForceGoodDamagingSlider.getMinimum());
         }
 
-        if (tpUnchangedRadioButton.isSelected()) {
+        if (getTrainerRandomizationType() == UNCHANGED) {
             tpSimilarStrengthCheckBox.setEnabled(false);
             tpSimilarStrengthCheckBox.setSelected(false);
             tpDontUseLegendariesCheckBox.setEnabled(false);
@@ -3199,7 +3171,8 @@ public class NewRandomizerGUI {
             tpNoEarlyWonderGuardCheckBox.setEnabled(true);
             tpAllowAlternateFormesCheckBox.setEnabled(true);
             if (currentRestrictions == null || currentRestrictions.allowTrainerSwapMegaEvolvables(
-                    romHandler.forceSwapStaticMegaEvos(), tpTypeThemedRadioButton.isSelected())) {
+                    romHandler.forceSwapStaticMegaEvos(),
+                    getTrainerRandomizationType() == TYPE_THEMED || getTrainerRandomizationType() == SHUFFLE_THEMES)) {
                 tpSwapMegaEvosCheckBox.setEnabled(true);
             } else {
                 tpSwapMegaEvosCheckBox.setEnabled(false);
@@ -3261,14 +3234,14 @@ public class NewRandomizerGUI {
             tpHighestLevelGetsItemCheckBox.setEnabled(false);
         }
 
-        if (!spUnchangedRadioButton.isSelected() || !this.tpUnchangedRadioButton.isSelected()) {
+        if (!spUnchangedRadioButton.isSelected() || getTrainerRandomizationType() != UNCHANGED) {
             tpRivalCarriesStarterCheckBox.setEnabled(true);
         } else {
             tpRivalCarriesStarterCheckBox.setEnabled(false);
             tpRivalCarriesStarterCheckBox.setSelected(false);
         }
 
-        if (tpTypeThemedRadioButton.isSelected()) {
+        if (getTrainerRandomizationType() == TYPE_THEMED) {
             tpWeightTypesCheckBox.setEnabled(true);
         } else {
             tpWeightTypesCheckBox.setEnabled(false);
@@ -3754,6 +3727,63 @@ public class NewRandomizerGUI {
             result = new ExpCurve[]{ ExpCurve.MEDIUM_FAST, ExpCurve.MEDIUM_SLOW, ExpCurve.FAST, ExpCurve.SLOW, ExpCurve.ERRATIC, ExpCurve.FLUCTUATING };
         }
         return result;
+    }
+
+    private Settings.TrainersMod getTrainerRandomizationType() {
+        if (tpRandomizationTypeComboBox.getSelectedIndex() < 0)
+            return UNCHANGED; // Unitialized objects will set index = -1
+        return getValidTrTypes().get(tpRandomizationTypeComboBox.getSelectedIndex());
+    }
+
+    private void setTrainerRandomizationType(Settings.TrainersMod type) {
+        int index = getValidTrTypes().indexOf(type);
+        tpRandomizationTypeComboBox.setSelectedIndex(index);
+    }
+
+    private void populateTpRandomizationComboBox(){
+        List<String> keys = getValidTrTypes().stream().map(Enum::name).collect(Collectors.toList());
+
+        // Populate the combobox options
+        tpRandomizationTypeComboBox.removeAllItems();
+        String textKey = "GUI.tpRandomizationTypeComboBox.%s.text";
+        keys.stream().map(key -> bundle.getString(String.format(textKey, key)))
+                .forEach(tpRandomizationTypeComboBox::addItem);
+        tpRandomizationTypeComboBox.setSelectedIndex(0);
+
+        // Get the tooltips
+        String tooltipKey = "GUI.tpRandomizationTypeComboBox.%s.toolTipText";
+        List<String> tooltips = keys.stream().map(key -> bundle.getString(String.format(tooltipKey, key)))
+                .collect(Collectors.toList());
+
+        // Finally, replace the default combobox renderer with one that supports our tooltips
+        tpRandomizationTypeComboBox.setRenderer(
+                new DefaultListCellRenderer() {
+                    List<String> customTooltips = tooltips;
+
+                    @Override
+                    public Component getListCellRendererComponent(JList list, Object value, int index,
+                                                                  boolean isSelected, boolean cellHasFocus) {
+
+                        JComponent comp = (JComponent) super.getListCellRendererComponent(list, value, index,
+                                isSelected, cellHasFocus);
+
+                        if (-1 < index && null != value && null != customTooltips) {
+                            list.setToolTipText(customTooltips.get(index));
+                        }
+                        return comp;
+                    }
+                }
+        );
+    }
+
+    private List<Settings.TrainersMod> getValidTrTypes() {
+        List<Settings.TrainersMod> types = new ArrayList(Arrays.asList(Settings.TrainersMod.values()));
+
+        // MAINPLAYTHROUGH is only supported in gen 5, so filter it out of other gens
+        if(romHandler.generationOfPokemon() != 5)
+            types.remove(MAINPLAYTHROUGH);
+
+        return types;
     }
 
     public static void main(String[] args) {

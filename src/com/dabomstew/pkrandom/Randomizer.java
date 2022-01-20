@@ -339,6 +339,7 @@ public class Randomizer {
                 trainersChanged = true;
                 break;
             case TYPE_THEMED:
+            case SHUFFLE_THEMES:
                 romHandler.typeThemeTrainerPokes(settings);
                 trainersChanged = true;
                 break;

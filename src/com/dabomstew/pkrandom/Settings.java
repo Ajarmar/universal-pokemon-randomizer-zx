@@ -156,7 +156,7 @@ public class Settings {
     private boolean evolutionMovesForAll;
 
     public enum TrainersMod {
-        UNCHANGED, RANDOM, DISTRIBUTED, MAINPLAYTHROUGH, TYPE_THEMED
+        UNCHANGED, RANDOM, DISTRIBUTED, MAINPLAYTHROUGH, TYPE_THEMED, SHUFFLE_THEMES
     }
 
     private TrainersMod trainersMod = TrainersMod.UNCHANGED;
@@ -186,6 +186,7 @@ public class Settings {
     private boolean highestLevelOnlyGetsItemsForTrainerPokemon;
     private boolean doubleBattleMode;
     private boolean shinyChance;
+
 
     public enum WildPokemonMod {
         UNCHANGED, RANDOM, AREA_MAPPING, GLOBAL_MAPPING
@@ -1502,7 +1503,7 @@ public class Settings {
         setTrainersMod(getEnum(TrainersMod.class, bools));
     }
 
-    private void setTrainersMod(TrainersMod trainersMod) {
+    public void setTrainersMod(TrainersMod trainersMod) {
         this.trainersMod = trainersMod;
     }
 
