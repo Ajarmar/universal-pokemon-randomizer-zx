@@ -65,6 +65,7 @@ public class Settings {
     private boolean blockBrokenMoves;
     private boolean limitPokemon;
     private boolean banIrregularAltFormes;
+    private boolean dualTypeOnly;
 
     public enum BaseStatisticsMod {
         UNCHANGED, SHUFFLE, RANDOM,
@@ -1064,6 +1065,12 @@ public class Settings {
 
     public boolean isChangeImpossibleEvolutions() {
         return changeImpossibleEvolutions;
+    }
+    public boolean isDualTypeOnly(){
+        return dualTypeOnly;
+    }
+    public void setDualTypeOnly(boolean dualTypeOnly){
+        this.dualTypeOnly=dualTypeOnly;
     }
 
     public void setChangeImpossibleEvolutions(boolean changeImpossibleEvolutions) {

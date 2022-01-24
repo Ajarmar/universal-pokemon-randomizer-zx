@@ -428,14 +428,14 @@ public abstract class AbstractRomHandler implements RomHandler {
                 pk.primaryType = randomType();
                 pk.secondaryType = null;
                 if (pk.evolutionsFrom.size() == 1 && pk.evolutionsFrom.get(0).carryStats) {
-                    if (AbstractRomHandler.this.random.nextDouble() < 0.35) {
+                    if (AbstractRomHandler.this.random.nextDouble() < 0.35||settings.isDualTypeOnly()) {
                         pk.secondaryType = randomType();
                         while (pk.secondaryType == pk.primaryType) {
                             pk.secondaryType = randomType();
                         }
                     }
                 } else {
-                    if (AbstractRomHandler.this.random.nextDouble() < 0.5) {
+                    if (AbstractRomHandler.this.random.nextDouble() < 0.5||settings.isDualTypeOnly()) {
                         pk.secondaryType = randomType();
                         while (pk.secondaryType == pk.primaryType) {
                             pk.secondaryType = randomType();
@@ -448,7 +448,7 @@ public abstract class AbstractRomHandler implements RomHandler {
 
                 if (evTo.secondaryType == null) {
                     double chance = toMonIsFinalEvo ? 0.25 : 0.15;
-                    if (AbstractRomHandler.this.random.nextDouble() < chance) {
+                    if (AbstractRomHandler.this.random.nextDouble() < chance||settings.isDualTypeOnly()) {
                         evTo.secondaryType = randomType();
                         while (evTo.secondaryType == evTo.primaryType) {
                             evTo.secondaryType = randomType();
@@ -462,7 +462,7 @@ public abstract class AbstractRomHandler implements RomHandler {
                 if (pkmn != null) {
                     pkmn.primaryType = randomType();
                     pkmn.secondaryType = null;
-                    if (this.random.nextDouble() < 0.5) {
+                    if (this.random.nextDouble() < 0.5||settings.isDualTypeOnly()) {
                         pkmn.secondaryType = randomType();
                         while (pkmn.secondaryType == pkmn.primaryType) {
                             pkmn.secondaryType = randomType();
