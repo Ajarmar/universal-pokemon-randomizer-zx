@@ -2562,7 +2562,7 @@ public class NewRandomizerGUI {
             ptRandomFollowEvolutionsRadioButton.setEnabled(true);
             ptRandomCompletelyRadioButton.setEnabled(true);
             ptFollowMegaEvosCheckBox.setVisible(romHandler.hasMegaEvolutions());
-            ptIsDualTypeCheckBox.setEnabled(true);
+            ptIsDualTypeCheckBox.setEnabled(false);
 
             // Pokemon Abilities
             if (pokemonGeneration >= 3) {
