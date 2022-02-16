@@ -1939,6 +1939,9 @@ public class NewRandomizerGUI {
         ptFollowMegaEvosCheckBox.setVisible(true);
         ptFollowMegaEvosCheckBox.setEnabled(false);
         ptFollowMegaEvosCheckBox.setSelected(false);
+        ptIsDualTypeCheckBox.setVisible(true);
+        ptIsDualTypeCheckBox.setEnabled(false);
+        ptIsDualTypeCheckBox.setSelected(false);
         pokemonAbilitiesPanel.setVisible(true);
         paUnchangedRadioButton.setVisible(true);
         paUnchangedRadioButton.setEnabled(false);
@@ -1991,9 +1994,6 @@ public class NewRandomizerGUI {
         peChangeImpossibleEvosCheckBox.setVisible(true);
         peChangeImpossibleEvosCheckBox.setEnabled(false);
         peChangeImpossibleEvosCheckBox.setSelected(false);
-        ptIsDualTypeCheckBox.setVisible(true);
-        ptIsDualTypeCheckBox.setEnabled(false);
-        ptIsDualTypeCheckBox.setSelected(false);
         peMakeEvolutionsEasierCheckBox.setVisible(true);
         peMakeEvolutionsEasierCheckBox.setEnabled(false);
         peMakeEvolutionsEasierCheckBox.setSelected(false);

@@ -426,7 +426,10 @@
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
-                      <text value="Force Dual Types"/>
+                      <enabled value="false"/>
+                      <selected value="false"/>
+                      <text resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.ptForceDualTypeCheckBox.text"/>
+                      <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.ptForceDualTypeCheckBox.toolTipText"/>
                     </properties>
                   </component>
                 </children>
