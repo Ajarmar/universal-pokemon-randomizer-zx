@@ -31,7 +31,6 @@ import com.dabomstew.pkrandom.constants.GlobalConstants;
 import com.dabomstew.pkrandom.exceptions.EncryptedROMException;
 import com.dabomstew.pkrandom.exceptions.InvalidSupplementFilesException;
 import com.dabomstew.pkrandom.exceptions.RandomizationException;
-import com.dabomstew.pkrandom.exceptions.UnsupportedUpdateException;
 import com.dabomstew.pkrandom.pokemon.ExpCurve;
 import com.dabomstew.pkrandom.pokemon.GenRestrictions;
 import com.dabomstew.pkrandom.pokemon.Pokemon;
@@ -1155,10 +1154,6 @@ public class NewRandomizerGUI {
                 } catch (EncryptedROMException ex) {
                     JOptionPane.showMessageDialog(mainPanel,
                             String.format(bundle.getString("GUI.encryptedRom"), fh.getAbsolutePath()));
-                    return;
-                } catch (UnsupportedUpdateException ex) {
-                    JOptionPane.showMessageDialog(mainPanel,
-                            String.format(bundle.getString("GUI.unsupportedUpdate"), fh.getName()));
                     return;
                 }
                 gameUpdates.put(romHandler.getROMCode(), fh.getAbsolutePath());

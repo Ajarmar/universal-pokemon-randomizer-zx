@@ -29,13 +29,11 @@ import com.dabomstew.pkrandom.ctr.GARCArchive;
 import com.dabomstew.pkrandom.ctr.NCCH;
 import com.dabomstew.pkrandom.exceptions.EncryptedROMException;
 import com.dabomstew.pkrandom.exceptions.RandomizerIOException;
-import com.dabomstew.pkrandom.exceptions.UnsupportedUpdateException;
 import com.dabomstew.pkrandom.pokemon.Type;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.RandomAccessFile;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Random;
@@ -124,7 +122,7 @@ public abstract class Abstract3DSRomHandler extends AbstractRomHandler {
             }
             int version = gameUpdate.getVersion();
             if (!this.isGameUpdateSupported(version)) {
-                throw new UnsupportedUpdateException(filename);
+                System.out.println("Game Update: Supplied unexpected version " + version);
             }
         } catch (IOException e) {
             throw new RandomizerIOException(e);
