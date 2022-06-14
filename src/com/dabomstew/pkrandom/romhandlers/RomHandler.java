@@ -251,7 +251,7 @@ public interface RomHandler {
 
     void randomizeTrainerHeldItems(Settings settings);
 
-    List<Integer> getSensibleHeldItemsFor(TrainerPokemon tp, boolean consumableOnly, List<Move> moves, Map<Integer, List<MoveLearnt>> movesets);
+    List<Integer> getSensibleHeldItemsFor(TrainerPokemon tp, boolean consumableOnly, List<Move> moves, int[] pokeMoves);
 
     List<Integer> getAllConsumableHeldItems();
 
@@ -268,6 +268,10 @@ public interface RomHandler {
     void addTrainerPokemon(Settings settings);
 
     void doubleBattleMode();
+
+    List<Move> getMoveSelectionPoolAtLevel(TrainerPokemon tp, boolean cyclicEvolutions);
+
+    void pickTrainerMovesets(Settings settings);
 
     // =========
     // Move Data
@@ -634,6 +638,8 @@ public interface RomHandler {
     void applyMiscTweaks(Settings settings);
 
     void applyMiscTweak(MiscTweak tweak);
+
+    boolean isEffectivenessUpdated();
 
     void renderPlacementHistory();
 

@@ -84,6 +84,7 @@ public class Randomizer {
         boolean startersChanged = false;
         boolean evolutionsChanged = false;
         boolean trainersChanged = false;
+        boolean trainerMovesetsChanged = false;
         boolean staticsChanged = false;
         boolean totemsChanged = false;
         boolean wildsChanged = false;
@@ -312,180 +313,6 @@ public class Randomizer {
             log.println("Pokemon Movesets: Unchanged." + NEWLINE);
         }
 
-        // Trainer Pokemon
-        // 1. Add extra Trainer Pokemon
-        // 2. Set trainers to be double battles and add extra Pokemon if necessary
-        // 3. Randomize Trainer Pokemon
-        // 4. Modify rivals to carry starters
-        // 5. Force Trainer Pokemon to be fully evolved
-
-        if (settings.getAdditionalRegularTrainerPokemon() > 0
-                || settings.getAdditionalImportantTrainerPokemon() > 0
-                || settings.getAdditionalBossTrainerPokemon() > 0) {
-            romHandler.addTrainerPokemon(settings);
-            trainersChanged = true;
-        }
-
-
-        if (settings.isDoubleBattleMode()) {
-            romHandler.doubleBattleMode();
-            trainersChanged = true;
-        }
-
-        switch(settings.getTrainersMod()) {
-            case RANDOM:
-            case DISTRIBUTED:
-            case MAINPLAYTHROUGH:
-            case TYPE_THEMED:
-            case TYPE_THEMED_ELITE4_GYMS:
-                romHandler.randomizeTrainerPokes(settings);
-                trainersChanged = true;
-                break;
-            default:
-                if (settings.isTrainersLevelModified()) {
-                    romHandler.onlyChangeTrainerLevels(settings);
-                    trainersChanged = true;
-                }
-                break;
-        }
-
-        if ((settings.getTrainersMod() != Settings.TrainersMod.UNCHANGED
-                || settings.getStartersMod() != Settings.StartersMod.UNCHANGED)
-                && settings.isRivalCarriesStarterThroughout()) {
-            romHandler.rivalCarriesStarter();
-            trainersChanged = true;
-        }
-
-        if (settings.isTrainersForceFullyEvolved()) {
-            romHandler.forceFullyEvolvedTrainerPokes(settings);
-            trainersChanged = true;
-        }
-
-        if (settings.isRandomizeHeldItemsForBossTrainerPokemon()
-                || settings.isRandomizeHeldItemsForImportantTrainerPokemon()
-                || settings.isRandomizeHeldItemsForRegularTrainerPokemon()) {
-            romHandler.randomizeTrainerHeldItems(settings);
-            trainersChanged = true;
-        }
-
-        List<String> originalTrainerNames = getTrainerNames();
-        boolean trainerNamesChanged = false;
-
-        // Trainer names & class names randomization
-        if (romHandler.canChangeTrainerText()) {
-            if (settings.isRandomizeTrainerClassNames()) {
-                romHandler.randomizeTrainerClassNames(settings);
-                trainersChanged = true;
-                trainerNamesChanged = true;
-            }
-
-            if (settings.isRandomizeTrainerNames()) {
-                romHandler.randomizeTrainerNames(settings);
-                trainersChanged = true;
-                trainerNamesChanged = true;
-            }
-        }
-
-        if (trainersChanged) {
-            maybeLogTrainerChanges(log, originalTrainerNames, trainerNamesChanged);
-        } else {
-            log.println("Trainers: Unchanged." + NEWLINE);
-        }
-
-        // Apply metronome only mode now that trainers have been dealt with
-        if (settings.getMovesetsMod() == Settings.MovesetsMod.METRONOME_ONLY) {
-            romHandler.metronomeOnlyMode();
-        }
-
-        List<Trainer> trainers = romHandler.getTrainers();
-        for (Trainer t : trainers) {
-            for (TrainerPokemon tpk : t.pokemon) {
-                checkValue = addToCV(checkValue, tpk.level, tpk.pokemon.number);
-            }
-        }
-
-        // Static Pokemon
-        if (romHandler.canChangeStaticPokemon()) {
-            List<StaticEncounter> oldStatics = romHandler.getStaticPokemon();
-            if (settings.getStaticPokemonMod() != Settings.StaticPokemonMod.UNCHANGED) { // Legendary for L
-                romHandler.randomizeStaticPokemon(settings);
-                staticsChanged = true;
-            } else if (settings.isStaticLevelModified()) {
-                romHandler.onlyChangeStaticLevels(settings);
-                staticsChanged = true;
-            }
-
-            if (staticsChanged) {
-                checkValue = logStaticPokemon(log, checkValue, oldStatics);
-            } else {
-                log.println("Static Pokemon: Unchanged." + NEWLINE);
-            }
-        }
-
-        // Totem Pokemon
-        if (romHandler.generationOfPokemon() == 7) {
-            List<TotemPokemon> oldTotems = romHandler.getTotemPokemon();
-            if (settings.getTotemPokemonMod() != Settings.TotemPokemonMod.UNCHANGED ||
-                    settings.getAllyPokemonMod() != Settings.AllyPokemonMod.UNCHANGED ||
-                    settings.getAuraMod() != Settings.AuraMod.UNCHANGED ||
-                    settings.isRandomizeTotemHeldItems() ||
-                    settings.isTotemLevelsModified()) {
-
-                romHandler.randomizeTotemPokemon(settings);
-                totemsChanged = true;
-            }
-
-            if (totemsChanged) {
-                checkValue = logTotemPokemon(log, checkValue, oldTotems);
-            } else {
-                log.println("Totem Pokemon: Unchanged." + NEWLINE);
-            }
-        }
-
-        // Wild Pokemon
-        // 1. Update catch rates
-        // 2. Randomize Wild Pokemon
-
-        if (settings.isUseMinimumCatchRate()) {
-            romHandler.changeCatchRates(settings);
-        }
-
-        switch (settings.getWildPokemonMod()) {
-            case RANDOM:
-                romHandler.randomEncounters(settings);
-                wildsChanged = true;
-                break;
-            case AREA_MAPPING:
-                romHandler.area1to1Encounters(settings);
-                wildsChanged = true;
-                break;
-            case GLOBAL_MAPPING:
-                romHandler.game1to1Encounters(settings);
-                wildsChanged = true;
-                break;
-            default:
-                if (settings.isWildLevelsModified()) {
-                    romHandler.onlyChangeWildLevels(settings);
-                    wildsChanged = true;
-                }
-                break;
-        }
-
-        if (wildsChanged) {
-            logWildPokemonChanges(log);
-        } else {
-            log.println("Wild Pokemon: Unchanged." + NEWLINE);
-        }
-
-        boolean useTimeBasedEncounters = settings.isUseTimeBasedEncounters() ||
-                (settings.getWildPokemonMod() == Settings.WildPokemonMod.UNCHANGED && settings.isWildLevelsModified());
-        List<EncounterSet> encounters = romHandler.getEncounters(useTimeBasedEncounters);
-        for (EncounterSet es : encounters) {
-            for (Encounter e : es.encounters) {
-                checkValue = addToCV(checkValue, e.level, e.pokemon.number);
-            }
-        }
-
         // TMs
 
         if (!(settings.getMovesetsMod() == Settings.MovesetsMod.METRONOME_ONLY)
@@ -597,6 +424,186 @@ public class Randomizer {
             }
 
         }
+
+        // Trainer Pokemon
+        // 1. Add extra Trainer Pokemon
+        // 2. Set trainers to be double battles and add extra Pokemon if necessary
+        // 3. Randomize Trainer Pokemon
+        // 4. Modify rivals to carry starters
+        // 5. Force Trainer Pokemon to be fully evolved
+
+        if (settings.getAdditionalRegularTrainerPokemon() > 0
+                || settings.getAdditionalImportantTrainerPokemon() > 0
+                || settings.getAdditionalBossTrainerPokemon() > 0) {
+            romHandler.addTrainerPokemon(settings);
+            trainersChanged = true;
+        }
+
+
+        if (settings.isDoubleBattleMode()) {
+            romHandler.doubleBattleMode();
+            trainersChanged = true;
+        }
+
+        switch(settings.getTrainersMod()) {
+            case RANDOM:
+            case DISTRIBUTED:
+            case MAINPLAYTHROUGH:
+            case TYPE_THEMED:
+            case TYPE_THEMED_ELITE4_GYMS:
+                romHandler.randomizeTrainerPokes(settings);
+                trainersChanged = true;
+                break;
+            default:
+                if (settings.isTrainersLevelModified()) {
+                    romHandler.onlyChangeTrainerLevels(settings);
+                    trainersChanged = true;
+                }
+                break;
+        }
+
+        if ((settings.getTrainersMod() != Settings.TrainersMod.UNCHANGED
+                || settings.getStartersMod() != Settings.StartersMod.UNCHANGED)
+                && settings.isRivalCarriesStarterThroughout()) {
+            romHandler.rivalCarriesStarter();
+            trainersChanged = true;
+        }
+
+        if (settings.isTrainersForceFullyEvolved()) {
+            romHandler.forceFullyEvolvedTrainerPokes(settings);
+            trainersChanged = true;
+        }
+
+        if (settings.isBetterTrainerMovesets()) {
+            romHandler.pickTrainerMovesets(settings);
+            trainerMovesetsChanged = true;
+        }
+
+        if (settings.isRandomizeHeldItemsForBossTrainerPokemon()
+                || settings.isRandomizeHeldItemsForImportantTrainerPokemon()
+                || settings.isRandomizeHeldItemsForRegularTrainerPokemon()) {
+            romHandler.randomizeTrainerHeldItems(settings);
+            trainersChanged = true;
+        }
+
+        List<String> originalTrainerNames = getTrainerNames();
+        boolean trainerNamesChanged = false;
+
+        // Trainer names & class names randomization
+        if (romHandler.canChangeTrainerText()) {
+            if (settings.isRandomizeTrainerClassNames()) {
+                romHandler.randomizeTrainerClassNames(settings);
+                trainersChanged = true;
+                trainerNamesChanged = true;
+            }
+
+            if (settings.isRandomizeTrainerNames()) {
+                romHandler.randomizeTrainerNames(settings);
+                trainersChanged = true;
+                trainerNamesChanged = true;
+            }
+        }
+
+        if (trainersChanged) {
+            maybeLogTrainerChanges(log, originalTrainerNames, trainerNamesChanged, trainerMovesetsChanged);
+        } else {
+            log.println("Trainers: Unchanged." + NEWLINE);
+        }
+
+        // Apply metronome only mode now that trainers have been dealt with
+        if (settings.getMovesetsMod() == Settings.MovesetsMod.METRONOME_ONLY) {
+            romHandler.metronomeOnlyMode();
+        }
+
+        List<Trainer> trainers = romHandler.getTrainers();
+        for (Trainer t : trainers) {
+            for (TrainerPokemon tpk : t.pokemon) {
+                checkValue = addToCV(checkValue, tpk.level, tpk.pokemon.number);
+            }
+        }
+
+        // Static Pokemon
+        if (romHandler.canChangeStaticPokemon()) {
+            List<StaticEncounter> oldStatics = romHandler.getStaticPokemon();
+            if (settings.getStaticPokemonMod() != Settings.StaticPokemonMod.UNCHANGED) { // Legendary for L
+                romHandler.randomizeStaticPokemon(settings);
+                staticsChanged = true;
+            } else if (settings.isStaticLevelModified()) {
+                romHandler.onlyChangeStaticLevels(settings);
+                staticsChanged = true;
+            }
+
+            if (staticsChanged) {
+                checkValue = logStaticPokemon(log, checkValue, oldStatics);
+            } else {
+                log.println("Static Pokemon: Unchanged." + NEWLINE);
+            }
+        }
+
+        // Totem Pokemon
+        if (romHandler.generationOfPokemon() == 7) {
+            List<TotemPokemon> oldTotems = romHandler.getTotemPokemon();
+            if (settings.getTotemPokemonMod() != Settings.TotemPokemonMod.UNCHANGED ||
+                    settings.getAllyPokemonMod() != Settings.AllyPokemonMod.UNCHANGED ||
+                    settings.getAuraMod() != Settings.AuraMod.UNCHANGED ||
+                    settings.isRandomizeTotemHeldItems() ||
+                    settings.isTotemLevelsModified()) {
+
+                romHandler.randomizeTotemPokemon(settings);
+                totemsChanged = true;
+            }
+
+            if (totemsChanged) {
+                checkValue = logTotemPokemon(log, checkValue, oldTotems);
+            } else {
+                log.println("Totem Pokemon: Unchanged." + NEWLINE);
+            }
+        }
+
+        // Wild Pokemon
+        // 1. Update catch rates
+        // 2. Randomize Wild Pokemon
+
+        if (settings.isUseMinimumCatchRate()) {
+            romHandler.changeCatchRates(settings);
+        }
+
+        switch (settings.getWildPokemonMod()) {
+            case RANDOM:
+                romHandler.randomEncounters(settings);
+                wildsChanged = true;
+                break;
+            case AREA_MAPPING:
+                romHandler.area1to1Encounters(settings);
+                wildsChanged = true;
+                break;
+            case GLOBAL_MAPPING:
+                romHandler.game1to1Encounters(settings);
+                wildsChanged = true;
+                break;
+            default:
+                if (settings.isWildLevelsModified()) {
+                    romHandler.onlyChangeWildLevels(settings);
+                    wildsChanged = true;
+                }
+                break;
+        }
+
+        if (wildsChanged) {
+            logWildPokemonChanges(log);
+        } else {
+            log.println("Wild Pokemon: Unchanged." + NEWLINE);
+        }
+
+        boolean useTimeBasedEncounters = settings.isUseTimeBasedEncounters() ||
+                (settings.getWildPokemonMod() == Settings.WildPokemonMod.UNCHANGED && settings.isWildLevelsModified());
+        List<EncounterSet> encounters = romHandler.getEncounters(useTimeBasedEncounters);
+        for (EncounterSet es : encounters) {
+            for (Encounter e : es.encounters) {
+                checkValue = addToCV(checkValue, e.level, e.pokemon.number);
+            }
+        }
+
 
         // In-game trades
 
@@ -1116,15 +1123,12 @@ public class Randomizer {
         log.println();
     }
 
-    private void maybeLogTrainerChanges(final PrintStream log, List<String> originalTrainerNames, boolean trainerNamesChanged) {
-
+    private void maybeLogTrainerChanges(final PrintStream log, List<String> originalTrainerNames, boolean trainerNamesChanged, boolean logTrainerMovesets) {
         log.println("--Trainers Pokemon--");
         List<Trainer> trainers = romHandler.getTrainers();
-        int idx = 0;
         for (Trainer t : trainers) {
-            idx++;
-            log.print("#" + idx + " ");
-            String originalTrainerName = originalTrainerNames.get(idx);
+            log.print("#" + t.index + " ");
+            String originalTrainerName = originalTrainerNames.get(t.index);
             String currentTrainerName = "";
             if (t.fullDisplayName != null) {
                 currentTrainerName = t.fullDisplayName;
@@ -1138,18 +1142,40 @@ public class Randomizer {
                     log.printf("(%s)", currentTrainerName);
                 }
             }
-            if (t.offset != idx && t.offset != 0) {
+            if (t.offset != 0) {
                 log.printf("@%X", t.offset);
             }
-            log.print(" - ");
-            boolean first = true;
+
             String[] itemNames = romHandler.getItemNames();
-            for (TrainerPokemon tpk : t.pokemon) {
-                if (!first) {
-                    log.print(", ");
+            if (logTrainerMovesets) {
+                log.println();
+                for (TrainerPokemon tpk : t.pokemon) {
+                    List<Move> moves = romHandler.getMoves();
+                    log.printf(tpk.toString(), itemNames[tpk.heldItem]);
+                    log.print(", Ability: " + romHandler.abilityName(romHandler.getAbilityForTrainerPokemon(tpk)));
+                    log.print(" - ");
+                    boolean first = true;
+                    for (int move : tpk.moves) {
+                        if (move != 0) {
+                            if (!first) {
+                                log.print(", ");
+                            }
+                            log.print(moves.get(move).name);
+                            first = false;
+                        }
+                    }
+                    log.println();
                 }
-                log.printf(tpk.toString(), itemNames[tpk.heldItem]);
-                first = false;
+            } else {
+                log.print(" - ");
+                boolean first = true;
+                for (TrainerPokemon tpk : t.pokemon) {
+                    if (!first) {
+                        log.print(", ");
+                    }
+                    log.printf(tpk.toString(), itemNames[tpk.heldItem]);
+                    first = false;
+                }
             }
             log.println();
         }

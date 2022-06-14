@@ -1874,7 +1874,7 @@ public class Gen6RomHandler extends Abstract3DSRomHandler {
                 byte[] trpoke = trpokes.files.get(i).get(0);
                 Trainer tr = new Trainer();
                 tr.poketype = isORAS ? readWord(trainer,0) : trainer[0] & 0xFF;
-                tr.offset = i;
+                tr.index = i;
                 tr.trainerclass = isORAS ? readWord(trainer,2) : trainer[1] & 0xFF;
                 int offset = isORAS ? 6 : 2;
                 int battleType = trainer[offset] & 0xFF;
@@ -1920,9 +1920,6 @@ public class Gen6RomHandler extends Abstract3DSRomHandler {
                     tpk.forcedGenderFlag = (abilityAndFlag & 0xF);
                     tpk.forme = formnum;
                     tpk.formeSuffix = Gen6Constants.getFormeSuffixByBaseForme(species,formnum);
-                    tpk.absolutePokeNumber = absolutePokeNumByBaseForme
-                            .getOrDefault(species,dummyAbsolutePokeNums)
-                            .getOrDefault(formnum,species);
                     pokeOffs += 8;
                     if (tr.pokemonHaveItems()) {
                         tpk.heldItem = readWord(trpoke, pokeOffs);
@@ -2026,7 +2023,7 @@ public class Gen6RomHandler extends Abstract3DSRomHandler {
                     }
                     if (tr.pokemonHaveCustomMoves()) {
                         if (tp.resetMoves) {
-                            int[] pokeMoves = RomFunctions.getMovesAtLevel(tp.absolutePokeNumber, movesets, tp.level);
+                            int[] pokeMoves = RomFunctions.getMovesAtLevel(getAltFormeOfPokemon(tp.pokemon, tp.forme).number, movesets, tp.level);
                             for (int m = 0; m < 4; m++) {
                                 writeWord(trpoke, pokeOffs + m * 2, pokeMoves[m]);
                             }
@@ -2602,6 +2599,11 @@ public class Gen6RomHandler extends Abstract3DSRomHandler {
         } else if (tweak == MiscTweak.NATIONAL_DEX_AT_START) {
             patchForNationalDex();
         }
+    }
+
+    @Override
+    public boolean isEffectivenessUpdated() {
+        return false;
     }
 
     private void applyFastestText() {
@@ -4097,7 +4099,7 @@ public class Gen6RomHandler extends Abstract3DSRomHandler {
     }
 
     @Override
-    public List<Integer> getSensibleHeldItemsFor(TrainerPokemon tp, boolean consumableOnly, List<Move> moves, Map<Integer, List<MoveLearnt>> movesets) {
+    public List<Integer> getSensibleHeldItemsFor(TrainerPokemon tp, boolean consumableOnly, List<Move> moves, int[] pokeMoves) {
         List<Integer> items = new ArrayList<>();
         items.addAll(Gen6Constants.generalPurposeConsumableItems);
         int frequencyBoostCount = 6; // Make some very good items more common, but not too common
@@ -4105,7 +4107,6 @@ public class Gen6RomHandler extends Abstract3DSRomHandler {
             frequencyBoostCount = 8; // bigger to account for larger item pool.
             items.addAll(Gen6Constants.generalPurposeItems);
         }
-        int[] pokeMoves = RomFunctions.getMovesAtLevel(tp.pokemon.number, movesets, tp.level);
         int numDamagingMoves = 0;
         for (int moveIdx : pokeMoves) {
             Move move = moves.get(moveIdx);

@@ -1924,6 +1924,17 @@
                       <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.tpHighestLevelGetsItemCheckBox.tooltip"/>
                     </properties>
                   </component>
+                  <component id="21090" class="javax.swing.JCheckBox" binding="tpBetterMovesetsCheckBox">
+                    <constraints>
+                      <grid row="3" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <enabled value="false"/>
+                      <text resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.tpBetterMovesetsCheckBox.text"/>
+                      <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.tpBetterMovesetsCheckBox.toolTipText"/>
+                    </properties>
+                  </component>
                 </children>
               </grid>
               <hspacer id="66d2">

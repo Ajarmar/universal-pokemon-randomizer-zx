@@ -364,6 +364,7 @@ public class Gen3RomHandler extends AbstractGBRomHandler {
     private ItemList allowedItems, nonBadItems;
     private int pickupItemsTableOffset;
     private long actualCRC32;
+    private boolean effectivenessUpdated;
 
     @Override
     public boolean detectRom(byte[] rom) {
@@ -1816,6 +1817,7 @@ public class Gen3RomHandler extends AbstractGBRomHandler {
             int trOffset = baseOffset + i * entryLen;
             Trainer tr = new Trainer();
             tr.offset = trOffset;
+            tr.index = i;
             int trainerclass = rom[trOffset + 1] & 0xFF;
             tr.trainerclass = (rom[trOffset + 2] & 0x80) > 0 ? 1 : 0;
 
@@ -4119,6 +4121,11 @@ public class Gen3RomHandler extends AbstractGBRomHandler {
         }
     }
 
+    @Override
+    public boolean isEffectivenessUpdated() {
+        return effectivenessUpdated;
+    }
+
     private void randomizeCatchingTutorial() {
         if (romEntry.getValue("CatchingTutorialOpponentMonOffset") > 0) {
             int oppOffset = romEntry.getValue("CatchingTutorialOpponentMonOffset");
@@ -4234,6 +4241,7 @@ public class Gen3RomHandler extends AbstractGBRomHandler {
         }
         logBlankLine();
         writeTypeEffectivenessTable(typeEffectivenessTable);
+        effectivenessUpdated = true;
     }
 
     private List<TypeRelationship> readTypeEffectivenessTable() {
@@ -4343,13 +4351,12 @@ public class Gen3RomHandler extends AbstractGBRomHandler {
     }
 
     @Override
-    public List<Integer> getSensibleHeldItemsFor(TrainerPokemon tp, boolean consumableOnly, List<Move> moves, Map<Integer, List<MoveLearnt>> movesets) {
+    public List<Integer> getSensibleHeldItemsFor(TrainerPokemon tp, boolean consumableOnly, List<Move> moves, int[] pokeMoves) {
         List<Integer> items = new ArrayList<>();
         items.addAll(Gen3Constants.generalPurposeConsumableItems);
         if (!consumableOnly) {
             items.addAll(Gen3Constants.generalPurposeItems);
         }
-        int[] pokeMoves = RomFunctions.getMovesAtLevel(tp.pokemon.number, movesets, tp.level);
         for (int moveIdx : pokeMoves) {
             Move move = moves.get(moveIdx);
             if (move == null) {

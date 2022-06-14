@@ -37,7 +37,6 @@ public class TrainerPokemon {
     public int abilitySlot;
     public int forme;
     public String formeSuffix = "";
-    public int absolutePokeNumber = 0;
 
     public int forcedGenderFlag;
     public byte nature;
@@ -94,7 +93,6 @@ public class TrainerPokemon {
         tpk.abilitySlot = abilitySlot;
         tpk.forme = forme;
         tpk.formeSuffix = formeSuffix;
-        tpk.absolutePokeNumber = absolutePokeNumber;
 
         tpk.resetMoves = resetMoves;
 

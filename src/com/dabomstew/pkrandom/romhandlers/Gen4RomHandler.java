@@ -2811,7 +2811,7 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
                 Trainer tr = new Trainer();
                 tr.poketype = trainer[0] & 0xFF;
                 tr.trainerclass = trainer[1] & 0xFF;
-                tr.offset = i;
+                tr.index = i;
                 int numPokes = trainer[3] & 0xFF;
                 int pokeOffs = 0;
                 tr.fullDisplayName = tclasses.get(tr.trainerclass) + " " + tnames.get(i - 1);
@@ -2844,7 +2844,6 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
                     tpk.abilitySlot = abilitySlot;
                     tpk.forme = formnum;
                     tpk.formeSuffix = Gen4Constants.getFormeSuffixByBaseForme(species,formnum);
-                    tpk.absolutePokeNumber = Gen4Constants.getAbsolutePokeNumByBaseForme(species,formnum);
                     pokeOffs += 6;
                     if (tr.pokemonHaveItems()) {
                         tpk.heldItem = readWord(trpoke, pokeOffs);
@@ -2925,7 +2924,7 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
                         // If we set this flag for partner trainers (e.g., Cheryl), then the double wild battles
                         // will turn into trainer battles with glitchy trainers.
                         boolean excludedPartnerTrainer = romEntry.romType != Gen4Constants.Type_HGSS &&
-                                Gen4Constants.partnerTrainerIndices.contains(tr.offset);
+                                Gen4Constants.partnerTrainerIndices.contains(tr.index);
                         if (trainer[16] == 0 && !excludedPartnerTrainer) {
                             trainer[16] |= 3;
                         }
@@ -2965,7 +2964,7 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
                     }
                     if (tr.pokemonHaveCustomMoves()) {
                         if (tp.resetMoves) {
-                            int[] pokeMoves = RomFunctions.getMovesAtLevel(tp.absolutePokeNumber, movesets, tp.level);
+                            int[] pokeMoves = RomFunctions.getMovesAtLevel(getAltFormeOfPokemon(tp.pokemon, tp.forme).number, movesets, tp.level);
                             for (int m = 0; m < 4; m++) {
                                 writeWord(trpoke, pokeOffs + m * 2, pokeMoves[m]);
                             }
@@ -5262,6 +5261,11 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
         }
     }
 
+    @Override
+    public boolean isEffectivenessUpdated() {
+        return effectivenessUpdated;
+    }
+
     private void randomizeCatchingTutorial() {
         int opponentOffset = romEntry.getInt("CatchingTutorialOpponentMonOffset");
 
@@ -5685,7 +5689,7 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
     }
 
     @Override
-    public List<Integer> getSensibleHeldItemsFor(TrainerPokemon tp, boolean consumableOnly, List<Move> moves, Map<Integer, List<MoveLearnt>> movesets) {
+    public List<Integer> getSensibleHeldItemsFor(TrainerPokemon tp, boolean consumableOnly, List<Move> moves, int[] pokeMoves) {
         List<Integer> items = new ArrayList<>();
         items.addAll(Gen4Constants.generalPurposeConsumableItems);
         int frequencyBoostCount = 6; // Make some very good items more common, but not too common
@@ -5693,7 +5697,6 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
             frequencyBoostCount = 8; // bigger to account for larger item pool.
             items.addAll(Gen4Constants.generalPurposeItems);
         }
-        int[] pokeMoves = RomFunctions.getMovesAtLevel(tp.pokemon.number, movesets, tp.level);
         for (int moveIdx : pokeMoves) {
             Move move = moves.get(moveIdx);
             if (move == null) {

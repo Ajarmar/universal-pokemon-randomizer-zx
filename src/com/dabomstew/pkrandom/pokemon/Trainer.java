@@ -29,6 +29,7 @@ import java.util.List;
 
 public class Trainer implements Comparable<Trainer> {
     public int offset;
+    public int index;
     public List<TrainerPokemon> pokemon = new ArrayList<>();
     public String tag;
     public boolean importantTrainer;
@@ -39,6 +40,8 @@ public class Trainer implements Comparable<Trainer> {
     public String fullDisplayName;
     public MultiBattleStatus multiBattleStatus = MultiBattleStatus.NEVER;
     public int forceStarterPosition = -1;
+    // Certain trainers (e.g., trainers in the PWT in BW2) require unique held items for all of their Pokemon to prevent a game crash.
+    public boolean requiresUniqueHeldItems;
 
     public String toString() {
         StringBuilder sb = new StringBuilder("[");
@@ -50,7 +53,9 @@ public class Trainer implements Comparable<Trainer> {
         if (trainerclass != 0) {
             sb.append("(").append(trainerclass).append(") - ");
         }
-        sb.append(String.format("%x", offset));
+        if (offset > 0) {
+            sb.append(String.format("%x", offset));
+        }
         sb.append(" => ");
         boolean first = true;
         for (TrainerPokemon p : pokemon) {
@@ -71,7 +76,7 @@ public class Trainer implements Comparable<Trainer> {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + offset;
+        result = prime * result + index;
         return result;
     }
 
@@ -84,12 +89,12 @@ public class Trainer implements Comparable<Trainer> {
         if (getClass() != obj.getClass())
             return false;
         Trainer other = (Trainer) obj;
-        return offset == other.offset;
+        return index == other.index;
     }
 
     @Override
     public int compareTo(Trainer o) {
-        return offset - o.offset;
+        return index - o.index;
     }
 
     public boolean isBoss() {
@@ -119,9 +124,31 @@ public class Trainer implements Comparable<Trainer> {
         return (this.poketype & 2) == 2;
     }
 
+    public void setPokemonHaveCustomMoves(boolean haveCustomMoves) {
+        if (haveCustomMoves) {
+            this.poketype |= 1;
+        } else {
+            this.poketype = poketype & ~1;
+        }
+    }
+
     public boolean pokemonHaveCustomMoves() {
         // This flag seems consistent for all gens
         return (this.poketype & 1) == 1;
+    }
+
+    public boolean pokemonHaveUniqueHeldItems() {
+        List<Integer> heldItemsForThisTrainer = new ArrayList<>();
+        for (TrainerPokemon poke : this.pokemon) {
+            if (poke.heldItem > 0) {
+                if (heldItemsForThisTrainer.contains(poke.heldItem)) {
+                    return false;
+                } else {
+                    heldItemsForThisTrainer.add(poke.heldItem);
+                }
+            }
+        }
+        return true;
     }
 
     public enum MultiBattleStatus {

@@ -24,11 +24,20 @@ package com.dabomstew.pkrandom.pokemon;
 /*--  along with this program. If not, see <http://www.gnu.org/licenses/>.  --*/
 /*----------------------------------------------------------------------------*/
 
+import com.dabomstew.pkrandom.constants.GlobalConstants;
+
 public class Move {
     public class StatChange {
         public StatChangeType type;
         public int stages;
         public double percentChance;
+
+        @Override
+        public boolean equals(Object obj) {
+            StatChange other = (StatChange)obj;
+            return this.type == other.type && this.stages == other.stages && this.percentChance == other.percentChance;
+        }
+
     }
 
     public String name;
@@ -66,6 +75,25 @@ public class Move {
             this.statChanges[i] = new StatChange();
             this.statChanges[i].type = StatChangeType.NONE;
         }
+    }
+
+    public boolean hasSpecificStatChange(StatChangeType type, boolean isPositive) {
+        for (StatChange sc: this.statChanges) {
+            if (sc.type == type && (isPositive ^ sc.stages < 0)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasBeneficialStatChange() {
+        return (statChangeMoveType == StatChangeMoveType.DAMAGE_TARGET && statChanges[0].stages < 0) ||
+                statChangeMoveType == StatChangeMoveType.DAMAGE_USER && statChanges[0].stages > 0;
+    }
+
+    public boolean isGoodDamaging(int perfectAccuracy) {
+        return (power * hitCount) >= 2 * GlobalConstants.MIN_DAMAGING_MOVE_POWER
+                || ((power * hitCount) >= GlobalConstants.MIN_DAMAGING_MOVE_POWER && (hitratio >= 90 || hitratio == perfectAccuracy));
     }
 
     public String toString() {
