@@ -555,17 +555,6 @@
                       <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.paBadAbilitiesCheckBox.toolTipText"/>
                     </properties>
                   </component>
-                  <component id="b3439" class="javax.swing.JCheckBox" binding="paFollowMegaEvosCheckBox">
-                    <constraints>
-                      <grid row="2" column="3" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                      <gridbag weightx="0.0" weighty="0.0"/>
-                    </constraints>
-                    <properties>
-                      <enabled value="false"/>
-                      <text resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.paFollowMegaEvosCheckBox.text"/>
-                      <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.paFollowMegaEvosCheckBox.toolTipText"/>
-                    </properties>
-                  </component>
                   <component id="652d7" class="javax.swing.JCheckBox" binding="paWeighDuplicatesTogetherCheckBox">
                     <constraints>
                       <grid row="1" column="3" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
@@ -575,6 +564,28 @@
                       <enabled value="false"/>
                       <text resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.paWeighDuplicatesTogetherCheckBox.text"/>
                       <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.paWeighDuplicatesTogetherCheckBox.toolTipText"/>
+                    </properties>
+                  </component>
+                  <component id="bae4a" class="javax.swing.JCheckBox" binding="paEnsureTwoAbilitiesCheckbox">
+                    <constraints>
+                      <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <enabled value="false"/>
+                      <text value="Ensure Two Abilities"/>
+                      <toolTipText value="[GUI.paEnsureTwoAbilitiesDupliCheckBox.toolTipText / com.dabomstew.pkrandom.newgui.Bundle]"/>
+                    </properties>
+                  </component>
+                  <component id="b3439" class="javax.swing.JCheckBox" binding="paFollowMegaEvosCheckBox">
+                    <constraints>
+                      <grid row="2" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <enabled value="false"/>
+                      <text resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.paFollowMegaEvosCheckBox.text"/>
+                      <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.paFollowMegaEvosCheckBox.toolTipText"/>
                     </properties>
                   </component>
                 </children>

@@ -97,6 +97,7 @@ public class Settings {
     private boolean banNegativeAbilities;
     private boolean banBadAbilities;
     private boolean weighDuplicateAbilitiesTogether;
+    private boolean ensureTwoAbilities;
 
     public enum StartersMod {
         UNCHANGED, CUSTOM, COMPLETELY_RANDOM, RANDOM_WITH_TWO_EVOLUTIONS
@@ -579,6 +580,9 @@ public class Settings {
         // 50 elite four unique pokemon (3 bits)
         out.write(eliteFourUniquePokemonNumber);
 
+        // 51 ensure two abilities
+        out.write((ensureTwoAbilities ? 0x80 : 0));
+
         try {
             byte[] romName = this.romName.getBytes("US-ASCII");
             out.write(romName.length);
@@ -866,6 +870,7 @@ public class Settings {
         settings.setBanIrregularAltFormes(restoreState(data[49], 3));
 
         settings.setEliteFourUniquePokemonNumber(data[50] & 0x7);
+        settings.setEnsureTwoAbilities(restoreState(data[51], 7));
 
         int romNameLength = data[LENGTH_OF_SETTINGS_DATA] & 0xFF;
         String romName = new String(data, LENGTH_OF_SETTINGS_DATA + 1, romNameLength, "US-ASCII");
@@ -1292,6 +1297,12 @@ public class Settings {
 
     public void setWeighDuplicateAbilitiesTogether(boolean weighDuplicateAbilitiesTogether) {
         this.weighDuplicateAbilitiesTogether = weighDuplicateAbilitiesTogether;
+    }
+
+    public boolean isEnsureTwoAbilities() { return ensureTwoAbilities; }
+
+    public void setEnsureTwoAbilities(boolean ensureTwoAbilities) {
+        this.ensureTwoAbilities = ensureTwoAbilities;
     }
 
     public StartersMod getStartersMod() {
