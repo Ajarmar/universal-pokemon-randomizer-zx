@@ -566,13 +566,14 @@ public class Settings {
         // 47 Static level modifier
         out.write((staticLevelModified ? 0x80 : 0) | (staticLevelModifier+50));
 
-        // 48 trainer pokemon held items.
+        // 48 trainer pokemon held items / pokemon ensure two abilities
         out.write(makeByteSelected(randomizeHeldItemsForBossTrainerPokemon,
                 randomizeHeldItemsForImportantTrainerPokemon,
                 randomizeHeldItemsForRegularTrainerPokemon,
                 consumableItemsOnlyForTrainerPokemon,
                 sensibleItemsOnlyForTrainerPokemon,
-                highestLevelOnlyGetsItemsForTrainerPokemon));
+                highestLevelOnlyGetsItemsForTrainerPokemon,
+                ensureTwoAbilities));
 
         // 49 pickup item randomization
         out.write(makeByteSelected(pickupItemsMod == PickupItemsMod.RANDOM,
@@ -581,9 +582,6 @@ public class Settings {
 
         // 50 elite four unique pokemon (3 bits)
         out.write(eliteFourUniquePokemonNumber);
-
-        // 51 ensure two abilities
-        out.write((ensureTwoAbilities ? 0x80 : 0));
 
         try {
             byte[] romName = this.romName.getBytes("US-ASCII");
@@ -865,6 +863,7 @@ public class Settings {
         settings.setConsumableItemsOnlyForTrainers(restoreState(data[48], 3));
         settings.setSensibleItemsOnlyForTrainers(restoreState(data[48], 4));
         settings.setHighestLevelGetsItemsForTrainers(restoreState(data[48], 5));
+        settings.setEnsureTwoAbilities(restoreState(data[48], 6));
 
         settings.setPickupItemsMod(restoreEnum(PickupItemsMod.class, data[49],
                 1, // UNCHANGED
