@@ -872,7 +872,6 @@ public class Settings {
         settings.setBanIrregularAltFormes(restoreState(data[49], 3));
 
         settings.setEliteFourUniquePokemonNumber(data[50] & 0x7);
-        settings.setEnsureTwoAbilities(restoreState(data[51], 7));
 
         int romNameLength = data[LENGTH_OF_SETTINGS_DATA] & 0xFF;
         String romName = new String(data, LENGTH_OF_SETTINGS_DATA + 1, romNameLength, "US-ASCII");
