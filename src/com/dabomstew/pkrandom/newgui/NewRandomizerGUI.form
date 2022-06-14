@@ -2,7 +2,7 @@
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.dabomstew.pkrandom.newgui.NewRandomizerGUI">
   <grid id="27dc6" binding="mainPanel" layout-manager="GridBagLayout">
     <constraints>
-      <xy x="7" y="20" width="1084" height="1103"/>
+      <xy x="7" y="20" width="1350" height="1103"/>
     </constraints>
     <properties/>
     <border type="none">
@@ -573,8 +573,8 @@
                     </constraints>
                     <properties>
                       <enabled value="false"/>
-                      <text value="Ensure Two Abilities"/>
-                      <toolTipText value="[GUI.paEnsureTwoAbilitiesDupliCheckBox.toolTipText / com.dabomstew.pkrandom.newgui.Bundle]"/>
+                      <text resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.paEnsureTwoAbilitiesCheckbox.text"/>
+                      <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.paEnsureTwoAbilitiesCheckbox.toolTipText"/>
                     </properties>
                   </component>
                   <component id="b3439" class="javax.swing.JCheckBox" binding="paFollowMegaEvosCheckBox">
