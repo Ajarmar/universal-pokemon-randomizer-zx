@@ -329,10 +329,10 @@ public class Gen2RomHandler extends AbstractGBCRomHandler {
         allowedItems = Gen2Constants.allowedItems.copy();
         nonBadItems = Gen2Constants.nonBadItems.copy();
         actualCRC32 = FileFunctions.getCRC32(rom);
-        // VietCrystal: exclude Burn Heal, Calcium, and Elixir
+        // VietCrystal: exclude Burn Heal, Calcium, TwistedSpoon, and Elixir
         // crashes your game if used, glitches out your inventory if carried
         if (isVietCrystal) {
-            allowedItems.banSingles(Gen2Items.burnHeal, Gen2Items.calcium, Gen2Items.elixer);
+            allowedItems.banSingles(Gen2Items.burnHeal, Gen2Items.calcium, Gen2Items.elixer, Gen2Items.TwistedSpoon);
         }
     }
 
