@@ -49,7 +49,7 @@ public class Settings {
 
     public static final int VERSION = Version.VERSION;
 
-    public static final int LENGTH_OF_SETTINGS_DATA = 51;
+    public static final int LENGTH_OF_SETTINGS_DATA = 52;
 
     private CustomNamesSet customNames;
 
@@ -100,11 +100,12 @@ public class Settings {
     private boolean ensureTwoAbilities;
 
     public enum StartersMod {
-        UNCHANGED, CUSTOM, COMPLETELY_RANDOM, RANDOM_WITH_TWO_EVOLUTIONS
+        UNCHANGED, CUSTOM, COMPLETELY_RANDOM, RANDOM_WITH_TWO_EVOLUTIONS, RANDOM_BASIC
     }
 
     private StartersMod startersMod = StartersMod.UNCHANGED;
     private boolean allowStarterAltFormes;
+    private boolean randomBasicBanLegendary;
 
     // index in the rom's list of pokemon
     // offset from the dropdown index from RandomizerGUI by 1
@@ -383,10 +384,10 @@ public class Settings {
                 allowWonderGuard, abilitiesFollowEvolutions, banTrappingAbilities, banNegativeAbilities, banBadAbilities,
                 abilitiesFollowMegaEvolutions));
 
-        // 4: starter pokemon stuff
+        // 4: starter pokemon mod
         out.write(makeByteSelected(startersMod == StartersMod.CUSTOM, startersMod == StartersMod.COMPLETELY_RANDOM,
                 startersMod == StartersMod.UNCHANGED, startersMod == StartersMod.RANDOM_WITH_TWO_EVOLUTIONS,
-                randomizeStartersHeldItems, banBadRandomStarterHeldItems, allowStarterAltFormes));
+                startersMod == StartersMod.RANDOM_BASIC));
 
         // 5 - 10: dropdowns
         write2ByteInt(out, customStarters[0] - 1);
@@ -582,6 +583,12 @@ public class Settings {
         // 50 elite four unique pokemon (3 bits) + catch rate level (3 bits)
         out.write(eliteFourUniquePokemonNumber | ((minimumCatchRateLevel - 1) << 3));
 
+        // 51: starter pokemon toggles
+        out.write(makeByteSelected(randomizeStartersHeldItems,
+                banBadRandomStarterHeldItems,
+                allowStarterAltFormes,
+                randomBasicBanLegendary));
+
         try {
             byte[] romName = this.romName.getBytes("US-ASCII");
             out.write(romName.length);
@@ -651,11 +658,9 @@ public class Settings {
         settings.setStartersMod(restoreEnum(StartersMod.class, data[4], 2, // UNCHANGED
                 0, // CUSTOM
                 1, // COMPLETELY_RANDOM
-                3 // RANDOM_WITH_TWO_EVOLUTIONS
+                3, // RANDOM_WITH_TWO_EVOLUTIONS
+                4  // RANDOM_BASIC
         ));
-        settings.setRandomizeStartersHeldItems(restoreState(data[4], 4));
-        settings.setBanBadRandomStarterHeldItems(restoreState(data[4], 5));
-        settings.setAllowStarterAltFormes(restoreState(data[4],6));
 
         settings.setCustomStarters(new int[] { FileFunctions.read2ByteInt(data, 5) + 1,
                 FileFunctions.read2ByteInt(data, 7) + 1, FileFunctions.read2ByteInt(data, 9) + 1 });
@@ -705,7 +710,7 @@ public class Settings {
         settings.setStaticPokemonMod(restoreEnum(StaticPokemonMod.class, data[17], 0, // UNCHANGED
                 1, // RANDOM_MATCHING
                 2, // COMPLETELY_RANDOM
-                3  // SIMILAR_STRENGTH 
+                3  // SIMILAR_STRENGTH
         ));
         
         settings.setLimitMainGameLegendaries(restoreState(data[17], 4));
@@ -870,6 +875,11 @@ public class Settings {
 
         settings.setEliteFourUniquePokemonNumber(data[50] & 0x7);
         settings.setMinimumCatchRateLevel(((data[50] & 0x38) >> 3) + 1);
+
+        settings.setRandomizeStartersHeldItems(restoreState(data[51], 0));
+        settings.setBanBadRandomStarterHeldItems(restoreState(data[51], 1));
+        settings.setAllowStarterAltFormes(restoreState(data[51],2));
+        settings.setRandomBasicBanLegendary(restoreState(data[51],3));
 
         int romNameLength = data[LENGTH_OF_SETTINGS_DATA] & 0xFF;
         String romName = new String(data, LENGTH_OF_SETTINGS_DATA + 1, romNameLength, "US-ASCII");
@@ -1353,7 +1363,14 @@ public class Settings {
         this.allowStarterAltFormes = allowStarterAltFormes;
     }
 
-    
+    public boolean isRandomBasicBanLegendary() {
+        return randomBasicBanLegendary;
+    }
+
+    public void setRandomBasicBanLegendary(boolean randomBasicBanLegendary) {
+        this.randomBasicBanLegendary = randomBasicBanLegendary;
+    }
+
     public TypesMod getTypesMod() {
         return typesMod;
     }
