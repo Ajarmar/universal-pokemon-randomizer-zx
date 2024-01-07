@@ -133,10 +133,11 @@ public class CliRandomizer {
             File settingsFile = new File(settingsFilePath);
             FileInputStream fis = new FileInputStream(settingsFile);
             Settings settings = Settings.read(fis);
+
             // taken from com.dabomstew.pkrandom.newgui.NewRandomizerGUI.saveROM, set
-            // distinctly
-            // from all other settings
+            // distinctly from all other settings
             settings.setCustomNames(FileFunctions.getCustomNames());
+            
             fis.close();
             return settings;
         } catch (IOException e) {
@@ -156,6 +157,11 @@ public class CliRandomizer {
             }
 
             Settings settings = Settings.fromString(settingsString);
+            
+            // taken from com.dabomstew.pkrandom.newgui.NewRandomizerGUI.saveROM, set
+            // distinctly from all other settings
+            settings.setCustomNames(FileFunctions.getCustomNames());
+            
             return settings;
         } catch (IllegalArgumentException | IOException e) {
             printError("Could not parse settings string");
