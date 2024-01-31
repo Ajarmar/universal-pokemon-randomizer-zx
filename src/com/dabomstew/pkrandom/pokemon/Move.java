@@ -24,8 +24,6 @@ package com.dabomstew.pkrandom.pokemon;
 /*--  along with this program. If not, see <http://www.gnu.org/licenses/>.  --*/
 /*----------------------------------------------------------------------------*/
 
-import com.dabomstew.pkrandom.constants.GlobalConstants;
-
 public class Move {
     public class StatChange {
         public StatChangeType type;
@@ -46,6 +44,11 @@ public class Move {
     public int power;
     public int pp;
     public double hitratio;
+    public double learnRate;
+    public double levelLearnRate;
+    public double efficacy;
+    public int efficacyTier;
+
     public Type type;
     public MoveCategory category;
     public StatChangeMoveType statChangeMoveType = StatChangeMoveType.NONE_OR_UNKNOWN;
@@ -91,10 +94,14 @@ public class Move {
                 statChangeMoveType == StatChangeMoveType.DAMAGE_USER && statChanges[0].stages > 0;
     }
 
-    public boolean isGoodDamaging(int perfectAccuracy) {
-        return (power * hitCount) >= 2 * GlobalConstants.MIN_DAMAGING_MOVE_POWER
-                || ((power * hitCount) >= GlobalConstants.MIN_DAMAGING_MOVE_POWER && (hitratio >= 90 || hitratio == perfectAccuracy));
+    public boolean isDamaging(int effT) {
+        return power > 0 && effT - efficacyTier >= 0;
     }
+
+    public boolean isGoodDamaging(int effT) {
+        return power > 0 && Math.abs(effT - efficacyTier) <= 1;
+    }
+
 
     public String toString() {
         return "#" + number + " " + name + " - Power: " + power + ", Base PP: " + pp + ", Type: " + type + ", Hit%: "

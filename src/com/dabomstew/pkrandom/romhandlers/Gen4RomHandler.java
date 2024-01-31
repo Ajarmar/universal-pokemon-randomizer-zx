@@ -1047,6 +1047,7 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
             pkmn.secondaryType = null;
         }
         pkmn.catchRate = stats[Gen4Constants.bsCatchRateOffset] & 0xFF;
+        pkmn.expYield = stats[Gen4Constants.bsExpYieldOffset] & 0xFF;
         pkmn.growthCurve = ExpCurve.fromByte(stats[Gen4Constants.bsGrowthCurveOffset]);
 
         // Abilities
@@ -1192,6 +1193,7 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
             stats[Gen4Constants.bsSecondaryTypeOffset] = Gen4Constants.typeToByte(pkmn.secondaryType);
         }
         stats[Gen4Constants.bsCatchRateOffset] = (byte) pkmn.catchRate;
+        stats[Gen4Constants.bsExpYieldOffset] = (byte) pkmn.expYield;
         stats[Gen4Constants.bsGrowthCurveOffset] = pkmn.growthCurve.toByte();
 
         stats[Gen4Constants.bsAbility1Offset] = (byte) pkmn.ability1;
@@ -4864,7 +4866,8 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
             return pkmn.ability1;
         } else {
             // In HGSS, Trainer Pokemon can specify which ability they want to use.
-            return tp.abilitySlot == 2 ? pkmn.ability2 : pkmn.ability1;
+            if (tp.abilitySlot == 2 && pkmn.ability2 != 0) return pkmn.ability2;
+            else return pkmn.ability1;
         }
     }
 

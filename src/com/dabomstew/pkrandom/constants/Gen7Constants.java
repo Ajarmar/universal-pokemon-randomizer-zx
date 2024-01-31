@@ -1081,12 +1081,12 @@ public class Gen7Constants {
 
     public static void tagTrainersSM(List<Trainer> trs) {
 
-        tag(trs,"ELITE1", 23, 152, 349); // Hala
-        tag(trs,"ELITE2",90, 153, 351); // Olivia
-        tag(trs,"ELITE3", 154, 403); // Nanu
-        tag(trs,"ELITE4", 155, 359); // Hapu
-        tag(trs,"ELITE5", 149, 350); // Acerola
-        tag(trs,"ELITE6", 156, 352); // Kahili
+        tag(trs,"ELITE1", Type.FIGHTING, 23, 152, 349); // Hala
+        tag(trs,"ELITE2", Type.ROCK,90, 153, 351); // Olivia
+        tag(trs,"ELITE3", Type.DARK, 154, 403); // Nanu
+        tag(trs,"ELITE4", Type.GROUND, 155, 359); // Hapu
+        tag(trs,"ELITE5", Type.GHOST, 149, 350); // Acerola
+        tag(trs,"ELITE6", Type.FLYING, 156, 352); // Kahili
 
         tag(trs,"RIVAL2-0", 129);
         tag(trs,"RIVAL2-1", 413);
@@ -1124,13 +1124,13 @@ public class Gen7Constants {
 
     public static void tagTrainersUSUM(List<Trainer> trs) {
 
-        tag(trs,"ELITE1", 23, 650); // Hala
-        tag(trs,"ELITE2", 90, 153, 351); // Olivia
-        tag(trs,"ELITE3", 154, 508); // Nanu
-        tag(trs,"ELITE4", 359, 497); // Hapu
-        tag(trs,"ELITE5", 489, 490); // Big Mo
-        tag(trs,"ELITE6", 149, 350); // Acerola
-        tag(trs,"ELITE7", 156, 352); // Kahili
+        tag(trs,"ELITE1", Type.FIGHTING, 23, 650); // Hala
+        tag(trs,"ELITE2", Type.ROCK, 90, 153, 351); // Olivia
+        tag(trs,"ELITE3", Type.DARK, 154, 508); // Nanu
+        tag(trs,"ELITE4", Type.GROUND, 359, 497); // Hapu
+        tag(trs,"ELITE5", Type.STEEL, 489, 490); // Big Mo
+        tag(trs,"ELITE6", Type.GHOST, 149, 350); // Acerola
+        tag(trs,"ELITE7", Type.FLYING, 156, 352); // Kahili
 
         tagRival(trs,"RIVAL2", 477); // Kukui
 
@@ -1184,6 +1184,22 @@ public class Gen7Constants {
         for (int num : numbers) {
             if (allTrainers.size() > (num - 1)) {
                 allTrainers.get(num - 1).tag = tag;
+            }
+        }
+    }
+
+    private static void tag(List<Trainer> allTrainers, int number, String tag, Type typeTheme) {
+        if (allTrainers.size() > (number - 1)) {
+            allTrainers.get(number - 1).tag = tag;
+            allTrainers.get(number - 1).typeTheme = typeTheme;
+        }
+    }
+
+    private static void tag(List<Trainer> allTrainers, String tag, Type typeTheme, int... numbers) {
+        for (int num : numbers) {
+            if (allTrainers.size() > (num - 1)) {
+                allTrainers.get(num - 1).tag = tag;
+                allTrainers.get(num - 1).typeTheme = typeTheme;
             }
         }
     }

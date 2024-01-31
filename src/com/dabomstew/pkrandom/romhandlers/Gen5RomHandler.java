@@ -71,26 +71,26 @@ public class Gen5RomHandler extends AbstractDSRomHandler {
     public void changeCatchRates(Settings settings) {
         int minimumCatchRateLevel = settings.getMinimumCatchRateLevel();
 
-        int normalMin, legendaryMin;
+        int normalMin, bigMin;
         switch (minimumCatchRateLevel) {
             case 1:
             default:
                 normalMin = 50;
-                legendaryMin = 25;
+                bigMin = 25;
                 break;
             case 2:
                 normalMin = 100;
-                legendaryMin = 45;
+                bigMin = 45;
                 break;
             case 3:
                 normalMin = 180;
-                legendaryMin = 75;
+                bigMin = 75;
                 break;
             case 4:
-                normalMin = legendaryMin = 255;
+                normalMin = bigMin = 255;
                 break;
         }
-        minimumCatchRate(normalMin, legendaryMin);
+        minimumCatchRate(normalMin, bigMin);
     }
 
     private static class OffsetWithinEntry {

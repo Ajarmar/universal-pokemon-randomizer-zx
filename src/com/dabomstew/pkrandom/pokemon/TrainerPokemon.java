@@ -29,12 +29,17 @@ public class TrainerPokemon {
     public Pokemon pokemon;
     public int level;
 
+    // Nickname is not actually supported by any mainline games
+    // This just assists with internal testing
+    private String nickname;
+
     public int[] moves = {0, 0, 0, 0};
 
     public int heldItem = 0;
     public boolean hasMegaStone;
     public boolean hasZCrystal;
     public int abilitySlot;
+    public int AILevel;
     public int forme;
     public String formeSuffix = "";
 
@@ -56,6 +61,26 @@ public class TrainerPokemon {
     public int strength;
     
     public boolean resetMoves = false;
+
+    public TrainerPokemon(){};
+
+    public TrainerPokemon(TrainerPokemon tp) {
+        this.pokemon = tp.pokemon;
+        this.level = tp.level;
+        this.nickname = tp.getNickname();
+        this.moves = tp.moves;
+        this.AILevel = tp.AILevel;
+        this.heldItem = tp.heldItem;
+        this.abilitySlot = tp.abilitySlot;
+    }
+
+    public String getNickname() {
+        return this.nickname;
+    }
+
+    public int getLevel() {
+        return this.level;
+    }
 
     public String toString() {
         String s = pokemon.name + formeSuffix;

@@ -1077,32 +1077,32 @@ public class Gen6Constants {
     public static void tagTrainersXY(List<Trainer> trs) {
 
         // Gym Trainers
-        tag(trs,"GYM1", 39, 40, 48);
-        tag(trs,"GYM2",64, 63, 106, 105);
-        tag(trs,"GYM3",83, 84, 146, 147);
-        tag(trs,"GYM4", 121, 122, 123, 124);
-        tag(trs,"GYM5", 461, 462, 463, 464, 465, 466, 467, 468, 469, 28, 29, 30);
-        tag(trs,"GYM6", 245, 250, 248, 243);
-        tag(trs,"GYM7", 170, 171, 172, 365, 366);
-        tag(trs,"GYM8", 168, 169, 31, 32);
+        tag(trs,"GYM1", Type.BUG, 39, 40, 48);
+        tag(trs,"GYM2", Type.ROCK,64, 63, 106, 105);
+        tag(trs,"GYM3", Type.FIGHTING,83, 84, 146, 147);
+        tag(trs,"GYM4", Type.GRASS, 121, 122, 123, 124);
+        tag(trs,"GYM5", Type.ELECTRIC, 461, 462, 463, 464, 465, 466, 467, 468, 469, 28, 29, 30);
+        tag(trs,"GYM6", Type.FAIRY, 245, 250, 248, 243);
+        tag(trs,"GYM7", Type.PSYCHIC, 170, 171, 172, 365, 366);
+        tag(trs,"GYM8", Type.ICE, 168, 169, 31, 32);
 
         // Gym Leaders
-        tag(trs,"GYM1-LEADER", 6);
-        tag(trs,"GYM2-LEADER",76);
-        tag(trs,"GYM3-LEADER",21);
-        tag(trs,"GYM4-LEADER", 22);
-        tag(trs,"GYM5-LEADER", 23);
-        tag(trs,"GYM6-LEADER", 24);
-        tag(trs,"GYM7-LEADER", 25);
-        tag(trs,"GYM8-LEADER", 26);
+        tag(trs,"GYM1-LEADER", Type.BUG, 6);
+        tag(trs,"GYM2-LEADER", Type.ROCK,76);
+        tag(trs,"GYM3-LEADER", Type.FIGHTING,21);
+        tag(trs,"GYM4-LEADER", Type.GRASS, 22);
+        tag(trs,"GYM5-LEADER", Type.ELECTRIC, 23);
+        tag(trs,"GYM6-LEADER", Type.FAIRY, 24);
+        tag(trs,"GYM7-LEADER", Type.PSYCHIC, 25);
+        tag(trs,"GYM8-LEADER", Type.ICE, 26);
 
         tag(trs, 188, "NOTSTRONG"); // Successor Korrina
 
         // Elite 4
-        tag(trs, 269, "ELITE1"); // Malva
-        tag(trs, 271, "ELITE2"); // Siebold
-        tag(trs, 187, "ELITE3"); // Wikstrom
-        tag(trs, 270, "ELITE4"); // Drasna
+        tag(trs, 269, "ELITE1", Type.FIRE); // Malva
+        tag(trs, 271, "ELITE2", Type.WATER); // Siebold
+        tag(trs, 187, "ELITE3", Type.STEEL); // Wikstrom
+        tag(trs, 270, "ELITE4", Type.DRAGON); // Drasna
         tag(trs, 276, "CHAMPION"); // Diantha
 
         tag(trs,"THEMED:LYSANDRE-LEADER", 303, 525, 526);
@@ -1142,30 +1142,30 @@ public class Gen6Constants {
     public static void tagTrainersORAS(List<Trainer> trs) {
 
         // Gym Trainers & Leaders
-        tag(trs,"GYM1",562, 22, 667);
-        tag(trs,"GYM2",60, 56, 59);
-        tag(trs,"GYM3",34, 568, 614, 35);
-        tag(trs,"GYM4",81, 824, 83, 615, 823, 613, 85);
-        tag(trs,"GYM5",63, 64, 65, 66, 67, 68, 69);
-        tag(trs,"GYM6",115, 517, 516, 118, 730);
-        tag(trs,"GYM7",157, 158, 159, 226, 320, 225);
-        tag(trs,"GYM8",647, 342, 594, 646, 338, 339, 340, 341); // Includes Wallace in Delta Episode
+        tag(trs,"GYM1", Type.ROCK, 562, 22, 667);
+        tag(trs,"GYM2", Type.FIGHTING,60, 56, 59);
+        tag(trs,"GYM3", Type.ELECTRIC,34, 568, 614, 35);
+        tag(trs,"GYM4", Type.FIRE,81, 824, 83, 615, 823, 613, 85);
+        tag(trs,"GYM5", Type.NORMAL,63, 64, 65, 66, 67, 68, 69);
+        tag(trs,"GYM6", Type.FLYING,115, 517, 516, 118, 730);
+        tag(trs,"GYM7", Type.PSYCHIC,157, 158, 159, 226, 320, 225);
+        tag(trs,"GYM8", Type.WATER,647, 342, 594, 646, 338, 339, 340, 341); // Includes Wallace in Delta Episode
 
         // Gym Leaders
-        tag(trs,"GYM1-LEADER", 561);
-        tag(trs,"GYM2-LEADER",563);
-        tag(trs,"GYM3-LEADER",567);
-        tag(trs,"GYM4-LEADER", 569);
-        tag(trs,"GYM5-LEADER", 570);
-        tag(trs,"GYM6-LEADER", 571);
-        tag(trs,"GYM7-LEADER", 552);
-        tag(trs,"GYM8-LEADER", 572, 943);
+        tag(trs,"GYM1-LEADER", Type.ROCK, 561);
+        tag(trs,"GYM2-LEADER", Type.FIGHTING,563);
+        tag(trs,"GYM3-LEADER", Type.ELECTRIC,567);
+        tag(trs,"GYM4-LEADER", Type.FIRE, 569);
+        tag(trs,"GYM5-LEADER", Type.NORMAL, 570);
+        tag(trs,"GYM6-LEADER", Type.FLYING, 571);
+        tag(trs,"GYM7-LEADER", Type.PSYCHIC, 552);
+        tag(trs,"GYM8-LEADER", Type.WATER, 572, 943);
 
         // Elite 4
-        tag(trs, "ELITE1", 553, 909); // Sidney
-        tag(trs, "ELITE2", 554, 910); // Phoebe
-        tag(trs, "ELITE3", 555, 911); // Glacia
-        tag(trs, "ELITE4", 556, 912); // Drake
+        tag(trs, "ELITE1", Type.DARK, 553, 909); // Sidney
+        tag(trs, "ELITE2", Type.GHOST, 554, 910); // Phoebe
+        tag(trs, "ELITE3", Type.ICE, 555, 911); // Glacia
+        tag(trs, "ELITE4", Type.DRAGON, 556, 912); // Drake
         tag(trs, "CHAMPION", 557, 913, 680, 942); // Steven (includes other appearances)
 
         tag(trs,"THEMED:MAXIE-LEADER", 235, 236, 271);
@@ -1210,6 +1210,22 @@ public class Gen6Constants {
         for (int num : numbers) {
             if (allTrainers.size() > (num - 1)) {
                 allTrainers.get(num - 1).tag = tag;
+            }
+        }
+    }
+
+    private static void tag(List<Trainer> allTrainers, int number, String tag, Type typeTheme) {
+        if (allTrainers.size() > (number - 1)) {
+            allTrainers.get(number - 1).tag = tag;
+            allTrainers.get(number - 1).typeTheme = typeTheme;
+        }
+    }
+
+    private static void tag(List<Trainer> allTrainers, String tag, Type typeTheme, int... numbers) {
+        for (int num : numbers) {
+            if (allTrainers.size() > (num - 1)) {
+                allTrainers.get(num - 1).tag = tag;
+                allTrainers.get(num - 1).typeTheme = typeTheme;
             }
         }
     }

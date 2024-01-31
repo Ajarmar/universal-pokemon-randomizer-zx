@@ -147,24 +147,24 @@ public class Gen1Constants {
 
     public static void tagTrainersUniversal(List<Trainer> trs) {
         // Gym Leaders
-        tbc(trs, 34, 0, "GYM1");
-        tbc(trs, 35, 0, "GYM2");
-        tbc(trs, 36, 0, "GYM3");
-        tbc(trs, 37, 0, "GYM4");
-        tbc(trs, 38, 0, "GYM5");
-        tbc(trs, 40, 0, "GYM6");
-        tbc(trs, 39, 0, "GYM7");
-        tbc(trs, 29, 2, "GYM8");
+        tbc(trs, 34, 0, "GYM1", Type.ROCK);
+        tbc(trs, 35, 0, "GYM2", Type.WATER);
+        tbc(trs, 36, 0, "GYM3", Type.ELECTRIC);
+        tbc(trs, 37, 0, "GYM4", Type.GRASS);
+        tbc(trs, 38, 0, "GYM5", Type.POISON);
+        tbc(trs, 40, 0, "GYM6", Type.PSYCHIC);
+        tbc(trs, 39, 0, "GYM7", Type.FIRE);
+        tbc(trs, 29, 2, "GYM8", Type.GROUND);
 
         // Other giovanni teams
-        tbc(trs, 29, 0, "GIO1");
-        tbc(trs, 29, 1, "GIO2");
+        tbc(trs, 29, 0, "GIO1", Type.GROUND);
+        tbc(trs, 29, 1, "GIO2", Type.GROUND);
 
         // Elite 4
-        tbc(trs, 44, 0, "ELITE1");
-        tbc(trs, 33, 0, "ELITE2");
-        tbc(trs, 46, 0, "ELITE3");
-        tbc(trs, 47, 0, "ELITE4");
+        tbc(trs, 44, 0, "ELITE1", Type.ICE);
+        tbc(trs, 33, 0, "ELITE2", Type.FIGHTING);
+        tbc(trs, 46, 0, "ELITE3", Type.GHOST);
+        tbc(trs, 47, 0, "ELITE4", Type.DRAGON);
     }
 
     public static void tagTrainersRB(List<Trainer> trs) {
@@ -202,54 +202,54 @@ public class Gen1Constants {
         tbc(trs, 43, 2, "RIVAL8-2");
 
         // Gym Trainers
-        tbc(trs, 5, 0, "GYM1");
+        tbc(trs, 5, 0, "GYM1", Type.ROCK);
 
-        tbc(trs, 15, 0, "GYM2");
-        tbc(trs, 6, 0, "GYM2");
+        tbc(trs, 15, 0, "GYM2", Type.WATER);
+        tbc(trs, 6, 0, "GYM2", Type.WATER);
 
-        tbc(trs, 4, 7, "GYM3");
-        tbc(trs, 20, 0, "GYM3");
-        tbc(trs, 41, 2, "GYM3");
+        tbc(trs, 4, 7, "GYM3", Type.ELECTRIC);
+        tbc(trs, 20, 0, "GYM3", Type.ELECTRIC);
+        tbc(trs, 41, 2, "GYM3", Type.ELECTRIC);
 
-        tbc(trs, 3, 16, "GYM4");
-        tbc(trs, 3, 17, "GYM4");
-        tbc(trs, 6, 10, "GYM4");
-        tbc(trs, 18, 0, "GYM4");
-        tbc(trs, 18, 1, "GYM4");
-        tbc(trs, 18, 2, "GYM4");
-        tbc(trs, 32, 0, "GYM4");
+        tbc(trs, 3, 16, "GYM4", Type.GRASS);
+        tbc(trs, 3, 17, "GYM4", Type.GRASS);
+        tbc(trs, 6, 10, "GYM4", Type.GRASS);
+        tbc(trs, 18, 0, "GYM4", Type.GRASS);
+        tbc(trs, 18, 1, "GYM4", Type.GRASS);
+        tbc(trs, 18, 2, "GYM4", Type.GRASS);
+        tbc(trs, 32, 0, "GYM4", Type.GRASS);
 
-        tbc(trs, 21, 2, "GYM5");
-        tbc(trs, 21, 3, "GYM5");
-        tbc(trs, 21, 6, "GYM5");
-        tbc(trs, 21, 7, "GYM5");
-        tbc(trs, 22, 0, "GYM5");
-        tbc(trs, 22, 1, "GYM5");
+        tbc(trs, 21, 2, "GYM5", Type.POISON);
+        tbc(trs, 21, 3, "GYM5", Type.POISON);
+        tbc(trs, 21, 6, "GYM5", Type.POISON);
+        tbc(trs, 21, 7, "GYM5", Type.POISON);
+        tbc(trs, 22, 0, "GYM5", Type.POISON);
+        tbc(trs, 22, 1, "GYM5", Type.POISON);
 
-        tbc(trs, 19, 0, "GYM6");
-        tbc(trs, 19, 1, "GYM6");
-        tbc(trs, 19, 2, "GYM6");
-        tbc(trs, 19, 3, "GYM6");
-        tbc(trs, 45, 21, "GYM6");
-        tbc(trs, 45, 22, "GYM6");
-        tbc(trs, 45, 23, "GYM6");
+        tbc(trs, 19, 0, "GYM6", Type.PSYCHIC);
+        tbc(trs, 19, 1, "GYM6", Type.PSYCHIC);
+        tbc(trs, 19, 2, "GYM6", Type.PSYCHIC);
+        tbc(trs, 19, 3, "GYM6", Type.PSYCHIC);
+        tbc(trs, 45, 21, "GYM6", Type.PSYCHIC);
+        tbc(trs, 45, 22, "GYM6", Type.PSYCHIC);
+        tbc(trs, 45, 23, "GYM6", Type.PSYCHIC);
 
-        tbc(trs, 8, 8, "GYM7");
-        tbc(trs, 8, 9, "GYM7");
-        tbc(trs, 8, 10, "GYM7");
-        tbc(trs, 8, 11, "GYM7");
-        tbc(trs, 11, 3, "GYM7");
-        tbc(trs, 11, 4, "GYM7");
-        tbc(trs, 11, 5, "GYM7");
+        tbc(trs, 8, 8, "GYM7", Type.FIRE);
+        tbc(trs, 8, 9, "GYM7", Type.FIRE);
+        tbc(trs, 8, 10, "GYM7", Type.FIRE);
+        tbc(trs, 8, 11, "GYM7", Type.FIRE);
+        tbc(trs, 11, 3, "GYM7", Type.FIRE);
+        tbc(trs, 11, 4, "GYM7", Type.FIRE);
+        tbc(trs, 11, 5, "GYM7", Type.FIRE);
 
-        tbc(trs, 22, 2, "GYM8");
-        tbc(trs, 22, 3, "GYM8");
-        tbc(trs, 24, 5, "GYM8");
-        tbc(trs, 24, 6, "GYM8");
-        tbc(trs, 24, 7, "GYM8");
-        tbc(trs, 31, 0, "GYM8");
-        tbc(trs, 31, 8, "GYM8");
-        tbc(trs, 31, 9, "GYM8");
+        tbc(trs, 22, 2, "GYM8", Type.GROUND);
+        tbc(trs, 22, 3, "GYM8", Type.GROUND);
+        tbc(trs, 24, 5, "GYM8", Type.GROUND);
+        tbc(trs, 24, 6, "GYM8", Type.GROUND);
+        tbc(trs, 24, 7, "GYM8", Type.GROUND);
+        tbc(trs, 31, 0, "GYM8", Type.GROUND);
+        tbc(trs, 31, 8, "GYM8", Type.GROUND);
+        tbc(trs, 31, 9, "GYM8", Type.GROUND);
     }
 
     public static void tagTrainersYellow(List<Trainer> trs) {
@@ -285,54 +285,68 @@ public class Gen1Constants {
         tbc(trs, 30, 44, "THEMED:JESSIE&JAMES");
 
         // Gym Trainers
-        tbc(trs, 5, 0, "GYM1");
+        tbc(trs, 5, 0, "GYM1", Type.ROCK);
 
-        tbc(trs, 6, 0, "GYM2");
-        tbc(trs, 15, 0, "GYM2");
+        tbc(trs, 6, 0, "GYM2", Type.WATER);
+        tbc(trs, 15, 0, "GYM2", Type.WATER);
 
-        tbc(trs, 4, 7, "GYM3");
-        tbc(trs, 20, 0, "GYM3");
-        tbc(trs, 41, 2, "GYM3");
+        tbc(trs, 4, 7, "GYM3", Type.ELECTRIC);
+        tbc(trs, 20, 0, "GYM3", Type.ELECTRIC);
+        tbc(trs, 41, 2, "GYM3", Type.ELECTRIC);
 
-        tbc(trs, 3, 16, "GYM4");
-        tbc(trs, 3, 17, "GYM4");
-        tbc(trs, 6, 10, "GYM4");
-        tbc(trs, 18, 0, "GYM4");
-        tbc(trs, 18, 1, "GYM4");
-        tbc(trs, 18, 2, "GYM4");
-        tbc(trs, 32, 0, "GYM4");
+        tbc(trs, 3, 16, "GYM4", Type.GRASS);
+        tbc(trs, 3, 17, "GYM4", Type.GRASS);
+        tbc(trs, 6, 10, "GYM4", Type.GRASS);
+        tbc(trs, 18, 0, "GYM4", Type.GRASS);
+        tbc(trs, 18, 1, "GYM4", Type.GRASS);
+        tbc(trs, 18, 2, "GYM4", Type.GRASS);
+        tbc(trs, 32, 0, "GYM4", Type.GRASS);
 
-        tbc(trs, 21, 2, "GYM5");
-        tbc(trs, 21, 3, "GYM5");
-        tbc(trs, 21, 6, "GYM5");
-        tbc(trs, 21, 7, "GYM5");
-        tbc(trs, 22, 0, "GYM5");
-        tbc(trs, 22, 1, "GYM5");
+        tbc(trs, 21, 2, "GYM5", Type.POISON);
+        tbc(trs, 21, 3, "GYM5", Type.POISON);
+        tbc(trs, 21, 6, "GYM5", Type.POISON);
+        tbc(trs, 21, 7, "GYM5", Type.POISON);
+        tbc(trs, 22, 0, "GYM5", Type.POISON);
+        tbc(trs, 22, 1, "GYM5", Type.POISON);
 
-        tbc(trs, 19, 0, "GYM6");
-        tbc(trs, 19, 1, "GYM6");
-        tbc(trs, 19, 2, "GYM6");
-        tbc(trs, 19, 3, "GYM6");
-        tbc(trs, 45, 21, "GYM6");
-        tbc(trs, 45, 22, "GYM6");
-        tbc(trs, 45, 23, "GYM6");
+        tbc(trs, 19, 0, "GYM6", Type.PSYCHIC);
+        tbc(trs, 19, 1, "GYM6", Type.PSYCHIC);
+        tbc(trs, 19, 2, "GYM6", Type.PSYCHIC);
+        tbc(trs, 19, 3, "GYM6", Type.PSYCHIC);
+        tbc(trs, 45, 21, "GYM6", Type.PSYCHIC);
+        tbc(trs, 45, 22, "GYM6", Type.PSYCHIC);
+        tbc(trs, 45, 23, "GYM6", Type.PSYCHIC);
 
-        tbc(trs, 8, 8, "GYM7");
-        tbc(trs, 8, 9, "GYM7");
-        tbc(trs, 8, 10, "GYM7");
-        tbc(trs, 8, 11, "GYM7");
-        tbc(trs, 11, 3, "GYM7");
-        tbc(trs, 11, 4, "GYM7");
-        tbc(trs, 11, 5, "GYM7");
+        tbc(trs, 8, 8, "GYM7", Type.FIRE);
+        tbc(trs, 8, 9, "GYM7", Type.FIRE);
+        tbc(trs, 8, 10, "GYM7", Type.FIRE);
+        tbc(trs, 8, 11, "GYM7", Type.FIRE);
+        tbc(trs, 11, 3, "GYM7", Type.FIRE);
+        tbc(trs, 11, 4, "GYM7", Type.FIRE);
+        tbc(trs, 11, 5, "GYM7", Type.FIRE);
 
-        tbc(trs, 22, 2, "GYM8");
-        tbc(trs, 22, 3, "GYM8");
-        tbc(trs, 24, 5, "GYM8");
-        tbc(trs, 24, 6, "GYM8");
-        tbc(trs, 24, 7, "GYM8");
-        tbc(trs, 31, 0, "GYM8");
-        tbc(trs, 31, 8, "GYM8");
-        tbc(trs, 31, 9, "GYM8");
+        tbc(trs, 22, 2, "GYM8", Type.GROUND);
+        tbc(trs, 22, 3, "GYM8", Type.GROUND);
+        tbc(trs, 24, 5, "GYM8", Type.GROUND);
+        tbc(trs, 24, 6, "GYM8", Type.GROUND);
+        tbc(trs, 24, 7, "GYM8", Type.GROUND);
+        tbc(trs, 31, 0, "GYM8", Type.GROUND);
+        tbc(trs, 31, 8, "GYM8", Type.GROUND);
+        tbc(trs, 31, 9, "GYM8", Type.GROUND);
+    }
+
+    private static void tbc(List<Trainer> allTrainers, int classNum, int number, String tag, Type typeTheme) {
+        int currnum = -1;
+        for (Trainer t : allTrainers) {
+            if (t.trainerclass == classNum) {
+                currnum++;
+                if (currnum == number) {
+                    t.tag = tag;
+                    t.typeTheme = typeTheme;
+                    return;
+                }
+            }
+        }
     }
 
     private static void tbc(List<Trainer> allTrainers, int classNum, int number, String tag) {

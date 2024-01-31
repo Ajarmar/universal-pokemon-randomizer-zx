@@ -1,7 +1,7 @@
 package com.dabomstew.pkrandom.pokemon;
 
 /*----------------------------------------------------------------------------*/
-/*--  Type.java - represents a Pokemon or move type.                        --*/
+/*--  ExpCurve.java - represents the EXP curves that a Pokemon can have.    --*/
 /*--                                                                        --*/
 /*--  Part of "Universal Pokemon Randomizer ZX" by the UPR-ZX team          --*/
 /*--  Originally part of "Universal Pokemon Randomizer" by Dabomstew        --*/
@@ -24,57 +24,63 @@ package com.dabomstew.pkrandom.pokemon;
 /*--  along with this program. If not, see <http://www.gnu.org/licenses/>.  --*/
 /*----------------------------------------------------------------------------*/
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+public enum ExpYield {
 
-import com.dabomstew.pkrandom.RomFunctions;
+    MINIMAL, AVERAGE, MAXIMAL, HITPOINTS, HIGHESTSTAT, STATAVERAGE;
 
-public enum Type {
-
-    NORMAL, FIGHTING, FLYING, GRASS, WATER, FIRE, ROCK, GROUND, PSYCHIC, BUG, DRAGON, ELECTRIC, GHOST, POISON, ICE, STEEL, DARK, FAIRY,
-    GAS(true), WOOD(true), ABNORMAL(true), WIND(true), SOUND(true), LIGHT(true), TRI(true);
-
-    public boolean isHackOnly;
-
-    Type() {
-        this.isHackOnly = false;
-    }
-
-    Type(boolean isHackOnly) {
-        this.isHackOnly = isHackOnly;
-    }
-
-    private static final List<Type> VALUES = Collections.unmodifiableList(Arrays.asList(values()));
-    private static final int SIZE = VALUES.size();
-
-    public static final List<Type> GEN1 = Collections.unmodifiableList(Arrays.asList(values()).subList(0, ICE.ordinal()+1));
-    public static final List<Type> GEN2THROUGH5 = Collections.unmodifiableList(Arrays.asList(values()).subList(0, DARK.ordinal()+1));
-    public static final List<Type> GEN6PLUS = Collections.unmodifiableList(Arrays.asList(values()).subList(0, FAIRY.ordinal()+1));
-
-    public static List<Type> getAllTypes(int generation) {
-        switch (generation) {
-            case 1:
-                return GEN1;
-            case 2:
-            case 3:
-            case 4:
-            case 5:
-                return GEN2THROUGH5;
-            default:
-                return GEN6PLUS;
+    public static ExpYield fromByte(byte curve) {
+        switch (curve) {
+        case 0:
+            return MINIMAL;
+        case 1:
+            return AVERAGE;
+        case 2:
+            return MAXIMAL;
+        case 3:
+            return HITPOINTS;
+        case 4:
+            return HIGHESTSTAT;
+        case 5:
+            return STATAVERAGE;
         }
+        return null;
     }
 
-
-
-    public static Type randomType(Random random) {
-        return VALUES.get(random.nextInt(SIZE));
+    public byte toByte() {
+        switch (this) {
+        case MINIMAL:
+            return 0;
+        case AVERAGE:
+            return 1;
+        case MAXIMAL:
+            return 2;
+        case HITPOINTS:
+            return 3;
+        case HIGHESTSTAT:
+            return 4;
+        case STATAVERAGE:
+            return 5;
+        }
+        return 0; // default
     }
 
-    public String camelCase() {
-        return RomFunctions.camelCase(this.toString());
+    @Override
+    public String toString() {
+        switch (this) {
+        case MINIMAL:
+            return "Minimal";
+        case AVERAGE:
+            return "Average";
+        case MAXIMAL:
+            return "Maximal";
+        case HITPOINTS:
+            return "Hit Points";
+        case HIGHESTSTAT:
+            return "Highest Stat";
+        case STATAVERAGE:
+            return "Stat Average";
+        }
+        return null;
     }
 
 }

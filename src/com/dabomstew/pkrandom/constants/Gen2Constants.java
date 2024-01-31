@@ -48,7 +48,7 @@ public class Gen2Constants {
 
     public static final int bsHPOffset = 1, bsAttackOffset = 2, bsDefenseOffset = 3, bsSpeedOffset = 4,
             bsSpAtkOffset = 5, bsSpDefOffset = 6, bsPrimaryTypeOffset = 7, bsSecondaryTypeOffset = 8,
-            bsCatchRateOffset = 9, bsCommonHeldItemOffset = 11, bsRareHeldItemOffset = 12, bsPicDimensionsOffset = 17,
+            bsCatchRateOffset = 9, bsExpYieldOffset = 9, bsCommonHeldItemOffset = 11, bsRareHeldItemOffset = 12, bsPicDimensionsOffset = 17,
             bsGrowthCurveOffset = 22, bsTMHMCompatOffset = 24, bsMTCompatOffset = 31;
 
     public static final String[] starterNames = new String[] { "CYNDAQUIL", "TOTODILE", "CHIKORITA" };
@@ -233,28 +233,28 @@ public class Gen2Constants {
 
     public static void universalTrainerTags(List<Trainer> allTrainers) {
         // Gym Leaders
-        tbc(allTrainers, 1, 0, "GYM1");
-        tbc(allTrainers, 3, 0, "GYM2");
-        tbc(allTrainers, 2, 0, "GYM3");
-        tbc(allTrainers, 4, 0, "GYM4");
-        tbc(allTrainers, 7, 0, "GYM5");
-        tbc(allTrainers, 6, 0, "GYM6");
-        tbc(allTrainers, 5, 0, "GYM7");
-        tbc(allTrainers, 8, 0, "GYM8");
-        tbc(allTrainers, 17, 0, "GYM9");
-        tbc(allTrainers, 18, 0, "GYM10");
-        tbc(allTrainers, 19, 0, "GYM11");
-        tbc(allTrainers, 21, 0, "GYM12");
-        tbc(allTrainers, 26, 0, "GYM13");
-        tbc(allTrainers, 35, 0, "GYM14");
-        tbc(allTrainers, 46, 0, "GYM15");
+        tbc(allTrainers, 1, 0, "GYM1", Type.FLYING);
+        tbc(allTrainers, 3, 0, "GYM2", Type.BUG);
+        tbc(allTrainers, 2, 0, "GYM3", Type.NORMAL);
+        tbc(allTrainers, 4, 0, "GYM4", Type.GHOST);
+        tbc(allTrainers, 7, 0, "GYM5", Type.FIGHTING);
+        tbc(allTrainers, 6, 0, "GYM6", Type.STEEL);
+        tbc(allTrainers, 5, 0, "GYM7", Type.ICE);
+        tbc(allTrainers, 8, 0, "GYM8", Type.DRAGON);
+        tbc(allTrainers, 17, 0, "GYM9", Type.ROCK);
+        tbc(allTrainers, 18, 0, "GYM10", Type.WATER);
+        tbc(allTrainers, 19, 0, "GYM11", Type.ELECTRIC);
+        tbc(allTrainers, 21, 0, "GYM12", Type.GRASS);
+        tbc(allTrainers, 26, 0, "GYM13", Type.POISON);
+        tbc(allTrainers, 35, 0, "GYM14", Type.PSYCHIC);
+        tbc(allTrainers, 46, 0, "GYM15", Type.FIRE);
         tbc(allTrainers, 64, 0, "GYM16");
 
         // Elite 4 & Red
-        tbc(allTrainers, 11, 0, "ELITE1");
-        tbc(allTrainers, 15, 0, "ELITE2");
-        tbc(allTrainers, 13, 0, "ELITE3");
-        tbc(allTrainers, 14, 0, "ELITE4");
+        tbc(allTrainers, 11, 0, "ELITE1", Type.PSYCHIC);
+        tbc(allTrainers, 15, 0, "ELITE2", Type.POISON);
+        tbc(allTrainers, 13, 0, "ELITE3", Type.FIGHTING);
+        tbc(allTrainers, 14, 0, "ELITE4", Type.DARK);
         tbc(allTrainers, 16, 0, "CHAMPION");
         tbc(allTrainers, 63, 0, "UBER");
 
@@ -312,107 +312,107 @@ public class Gen2Constants {
     }
 
     public static void goldSilverTags(List<Trainer> allTrainers) {
-        tbc(allTrainers, 24, 0, "GYM1");
-        tbc(allTrainers, 24, 1, "GYM1");
-        tbc(allTrainers, 36, 4, "GYM2");
-        tbc(allTrainers, 36, 5, "GYM2");
-        tbc(allTrainers, 36, 6, "GYM2");
-        tbc(allTrainers, 61, 0, "GYM2");
-        tbc(allTrainers, 61, 3, "GYM2");
-        tbc(allTrainers, 25, 0, "GYM3");
-        tbc(allTrainers, 25, 1, "GYM3");
-        tbc(allTrainers, 29, 0, "GYM3");
-        tbc(allTrainers, 29, 1, "GYM3");
-        tbc(allTrainers, 56, 4, "GYM4");
-        tbc(allTrainers, 56, 5, "GYM4");
-        tbc(allTrainers, 57, 0, "GYM4");
-        tbc(allTrainers, 57, 1, "GYM4");
-        tbc(allTrainers, 50, 1, "GYM5");
-        tbc(allTrainers, 50, 3, "GYM5");
-        tbc(allTrainers, 50, 4, "GYM5");
-        tbc(allTrainers, 50, 6, "GYM5");
-        tbc(allTrainers, 58, 0, "GYM7");
-        tbc(allTrainers, 58, 1, "GYM7");
-        tbc(allTrainers, 58, 2, "GYM7");
-        tbc(allTrainers, 33, 0, "GYM7");
-        tbc(allTrainers, 33, 1, "GYM7");
-        tbc(allTrainers, 27, 2, "GYM8");
-        tbc(allTrainers, 27, 4, "GYM8");
-        tbc(allTrainers, 27, 3, "GYM8");
-        tbc(allTrainers, 28, 2, "GYM8");
-        tbc(allTrainers, 28, 3, "GYM8");
-        tbc(allTrainers, 54, 17, "GYM9");
-        tbc(allTrainers, 38, 20, "GYM10");
-        tbc(allTrainers, 39, 17, "GYM10");
-        tbc(allTrainers, 39, 18, "GYM10");
-        tbc(allTrainers, 49, 2, "GYM11");
-        tbc(allTrainers, 43, 1, "GYM11");
-        tbc(allTrainers, 32, 2, "GYM11");
-        tbc(allTrainers, 61, 4, "GYM12");
-        tbc(allTrainers, 61, 5, "GYM12");
-        tbc(allTrainers, 25, 8, "GYM12");
-        tbc(allTrainers, 53, 18, "GYM12");
-        tbc(allTrainers, 29, 13, "GYM12");
-        tbc(allTrainers, 25, 2, "GYM13");
-        tbc(allTrainers, 25, 5, "GYM13");
-        tbc(allTrainers, 53, 4, "GYM13");
-        tbc(allTrainers, 54, 4, "GYM13");
-        tbc(allTrainers, 57, 5, "GYM14");
-        tbc(allTrainers, 57, 6, "GYM14");
-        tbc(allTrainers, 52, 1, "GYM14");
-        tbc(allTrainers, 52, 10, "GYM14");
+        tbc(allTrainers, 24, 0, "GYM1", Type.FLYING);
+        tbc(allTrainers, 24, 1, "GYM1", Type.FLYING);
+        tbc(allTrainers, 36, 4, "GYM2", Type.BUG);
+        tbc(allTrainers, 36, 5, "GYM2", Type.BUG);
+        tbc(allTrainers, 36, 6, "GYM2", Type.BUG);
+        tbc(allTrainers, 61, 0, "GYM2", Type.BUG);
+        tbc(allTrainers, 61, 3, "GYM2", Type.BUG);
+        tbc(allTrainers, 25, 0, "GYM3", Type.NORMAL);
+        tbc(allTrainers, 25, 1, "GYM3", Type.NORMAL);
+        tbc(allTrainers, 29, 0, "GYM3", Type.NORMAL);
+        tbc(allTrainers, 29, 1, "GYM3", Type.NORMAL);
+        tbc(allTrainers, 56, 4, "GYM4", Type.GHOST);
+        tbc(allTrainers, 56, 5, "GYM4", Type.GHOST);
+        tbc(allTrainers, 57, 0, "GYM4", Type.GHOST);
+        tbc(allTrainers, 57, 1, "GYM4", Type.GHOST);
+        tbc(allTrainers, 50, 1, "GYM5", Type.FIGHTING);
+        tbc(allTrainers, 50, 3, "GYM5", Type.FIGHTING);
+        tbc(allTrainers, 50, 4, "GYM5", Type.FIGHTING);
+        tbc(allTrainers, 50, 6, "GYM5", Type.FIGHTING);
+        tbc(allTrainers, 58, 0, "GYM7", Type.ICE);
+        tbc(allTrainers, 58, 1, "GYM7", Type.ICE);
+        tbc(allTrainers, 58, 2, "GYM7", Type.ICE);
+        tbc(allTrainers, 33, 0, "GYM7", Type.ICE);
+        tbc(allTrainers, 33, 1, "GYM7", Type.ICE);
+        tbc(allTrainers, 27, 2, "GYM8", Type.DRAGON);
+        tbc(allTrainers, 27, 4, "GYM8", Type.DRAGON);
+        tbc(allTrainers, 27, 3, "GYM8", Type.DRAGON);
+        tbc(allTrainers, 28, 2, "GYM8", Type.DRAGON);
+        tbc(allTrainers, 28, 3, "GYM8", Type.DRAGON);
+        tbc(allTrainers, 54, 17, "GYM9", Type.ROCK);
+        tbc(allTrainers, 38, 20, "GYM10", Type.WATER);
+        tbc(allTrainers, 39, 17, "GYM10", Type.WATER);
+        tbc(allTrainers, 39, 18, "GYM10", Type.WATER);
+        tbc(allTrainers, 49, 2, "GYM11", Type.ELECTRIC);
+        tbc(allTrainers, 43, 1, "GYM11", Type.ELECTRIC);
+        tbc(allTrainers, 32, 2, "GYM11", Type.ELECTRIC);
+        tbc(allTrainers, 61, 4, "GYM12", Type.GRASS);
+        tbc(allTrainers, 61, 5, "GYM12", Type.GRASS);
+        tbc(allTrainers, 25, 8, "GYM12", Type.GRASS);
+        tbc(allTrainers, 53, 18, "GYM12", Type.GRASS);
+        tbc(allTrainers, 29, 13, "GYM12", Type.GRASS);
+        tbc(allTrainers, 25, 2, "GYM13", Type.POISON);
+        tbc(allTrainers, 25, 5, "GYM13", Type.POISON);
+        tbc(allTrainers, 53, 4, "GYM13", Type.POISON);
+        tbc(allTrainers, 54, 4, "GYM13", Type.POISON);
+        tbc(allTrainers, 57, 5, "GYM14", Type.PSYCHIC);
+        tbc(allTrainers, 57, 6, "GYM14", Type.PSYCHIC);
+        tbc(allTrainers, 52, 1, "GYM14", Type.PSYCHIC);
+        tbc(allTrainers, 52, 10, "GYM14", Type.PSYCHIC);
     }
 
     public static void crystalTags(List<Trainer> allTrainers) {
-        tbc(allTrainers, 24, 0, "GYM1");
-        tbc(allTrainers, 24, 1, "GYM1");
-        tbc(allTrainers, 36, 4, "GYM2");
-        tbc(allTrainers, 36, 5, "GYM2");
-        tbc(allTrainers, 36, 6, "GYM2");
-        tbc(allTrainers, 61, 0, "GYM2");
-        tbc(allTrainers, 61, 3, "GYM2");
-        tbc(allTrainers, 25, 0, "GYM3");
-        tbc(allTrainers, 25, 1, "GYM3");
-        tbc(allTrainers, 29, 0, "GYM3");
-        tbc(allTrainers, 29, 1, "GYM3");
-        tbc(allTrainers, 56, 4, "GYM4");
-        tbc(allTrainers, 56, 5, "GYM4");
-        tbc(allTrainers, 57, 0, "GYM4");
-        tbc(allTrainers, 57, 1, "GYM4");
-        tbc(allTrainers, 50, 1, "GYM5");
-        tbc(allTrainers, 50, 3, "GYM5");
-        tbc(allTrainers, 50, 4, "GYM5");
-        tbc(allTrainers, 50, 6, "GYM5");
-        tbc(allTrainers, 58, 0, "GYM7");
-        tbc(allTrainers, 58, 1, "GYM7");
-        tbc(allTrainers, 58, 2, "GYM7");
-        tbc(allTrainers, 33, 0, "GYM7");
-        tbc(allTrainers, 33, 1, "GYM7");
-        tbc(allTrainers, 27, 2, "GYM8");
-        tbc(allTrainers, 27, 4, "GYM8");
-        tbc(allTrainers, 27, 3, "GYM8");
-        tbc(allTrainers, 28, 2, "GYM8");
-        tbc(allTrainers, 28, 3, "GYM8");
-        tbc(allTrainers, 54, 17, "GYM9");
-        tbc(allTrainers, 38, 20, "GYM10");
-        tbc(allTrainers, 39, 17, "GYM10");
-        tbc(allTrainers, 39, 18, "GYM10");
-        tbc(allTrainers, 49, 2, "GYM11");
-        tbc(allTrainers, 43, 1, "GYM11");
-        tbc(allTrainers, 32, 2, "GYM11");
-        tbc(allTrainers, 61, 4, "GYM12");
-        tbc(allTrainers, 61, 5, "GYM12");
-        tbc(allTrainers, 25, 8, "GYM12");
-        tbc(allTrainers, 53, 18, "GYM12");
-        tbc(allTrainers, 29, 13, "GYM12");
-        tbc(allTrainers, 25, 2, "GYM13");
-        tbc(allTrainers, 25, 5, "GYM13");
-        tbc(allTrainers, 53, 4, "GYM13");
-        tbc(allTrainers, 54, 4, "GYM13");
-        tbc(allTrainers, 57, 5, "GYM14");
-        tbc(allTrainers, 57, 6, "GYM14");
-        tbc(allTrainers, 52, 1, "GYM14");
-        tbc(allTrainers, 52, 10, "GYM14");
+        tbc(allTrainers, 24, 0, "GYM1", Type.FLYING);
+        tbc(allTrainers, 24, 1, "GYM1", Type.FLYING);
+        tbc(allTrainers, 36, 4, "GYM2", Type.BUG);
+        tbc(allTrainers, 36, 5, "GYM2", Type.BUG);
+        tbc(allTrainers, 36, 6, "GYM2", Type.BUG);
+        tbc(allTrainers, 61, 0, "GYM2", Type.BUG);
+        tbc(allTrainers, 61, 3, "GYM2", Type.BUG);
+        tbc(allTrainers, 25, 0, "GYM3", Type.NORMAL);
+        tbc(allTrainers, 25, 1, "GYM3", Type.NORMAL);
+        tbc(allTrainers, 29, 0, "GYM3", Type.NORMAL);
+        tbc(allTrainers, 29, 1, "GYM3", Type.NORMAL);
+        tbc(allTrainers, 56, 4, "GYM4", Type.GHOST);
+        tbc(allTrainers, 56, 5, "GYM4", Type.GHOST);
+        tbc(allTrainers, 57, 0, "GYM4", Type.GHOST);
+        tbc(allTrainers, 57, 1, "GYM4", Type.GHOST);
+        tbc(allTrainers, 50, 1, "GYM5", Type.FIGHTING);
+        tbc(allTrainers, 50, 3, "GYM5", Type.FIGHTING);
+        tbc(allTrainers, 50, 4, "GYM5", Type.FIGHTING);
+        tbc(allTrainers, 50, 6, "GYM5", Type.FIGHTING);
+        tbc(allTrainers, 58, 0, "GYM7", Type.ICE);
+        tbc(allTrainers, 58, 1, "GYM7", Type.ICE);
+        tbc(allTrainers, 58, 2, "GYM7", Type.ICE);
+        tbc(allTrainers, 33, 0, "GYM7", Type.ICE);
+        tbc(allTrainers, 33, 1, "GYM7", Type.ICE);
+        tbc(allTrainers, 27, 2, "GYM8", Type.DRAGON);
+        tbc(allTrainers, 27, 4, "GYM8", Type.DRAGON);
+        tbc(allTrainers, 27, 3, "GYM8", Type.DRAGON);
+        tbc(allTrainers, 28, 2, "GYM8", Type.DRAGON);
+        tbc(allTrainers, 28, 3, "GYM8", Type.DRAGON);
+        tbc(allTrainers, 54, 17, "GYM9", Type.ROCK);
+        tbc(allTrainers, 38, 20, "GYM10", Type.WATER);
+        tbc(allTrainers, 39, 17, "GYM10", Type.WATER);
+        tbc(allTrainers, 39, 18, "GYM10", Type.WATER);
+        tbc(allTrainers, 49, 2, "GYM11", Type.ELECTRIC);
+        tbc(allTrainers, 43, 1, "GYM11", Type.ELECTRIC);
+        tbc(allTrainers, 32, 2, "GYM11", Type.ELECTRIC);
+        tbc(allTrainers, 61, 4, "GYM12", Type.GRASS);
+        tbc(allTrainers, 61, 5, "GYM12", Type.GRASS);
+        tbc(allTrainers, 25, 8, "GYM12", Type.GRASS);
+        tbc(allTrainers, 53, 18, "GYM12", Type.GRASS);
+        tbc(allTrainers, 29, 13, "GYM12", Type.GRASS);
+        tbc(allTrainers, 25, 2, "GYM13", Type.POISON);
+        tbc(allTrainers, 25, 5, "GYM13", Type.POISON);
+        tbc(allTrainers, 53, 4, "GYM13", Type.POISON);
+        tbc(allTrainers, 54, 4, "GYM13", Type.POISON);
+        tbc(allTrainers, 57, 5, "GYM14", Type.PSYCHIC);
+        tbc(allTrainers, 57, 6, "GYM14", Type.PSYCHIC);
+        tbc(allTrainers, 52, 1, "GYM14", Type.PSYCHIC);
+        tbc(allTrainers, 52, 10, "GYM14", Type.PSYCHIC);
     }
 
     private static void tbc(List<Trainer> allTrainers, int classNum, int number, String tag) {
@@ -423,6 +423,20 @@ public class Gen2Constants {
                 currnum++;
                 if (currnum == number) {
                     t.tag = tag;
+                    return;
+                }
+            }
+        }
+    }
+
+    private static void tbc(List<Trainer> allTrainers, int classNum, int number, String tag, Type typeTheme) {
+        int currnum = -1;
+        for (Trainer t : allTrainers) {
+            if (t.trainerclass == classNum - 1) {
+                currnum++;
+                if (currnum == number) {
+                    t.tag = tag;
+                    t.typeTheme = typeTheme;
                     return;
                 }
             }

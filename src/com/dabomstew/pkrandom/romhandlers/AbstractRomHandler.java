@@ -42,15 +42,34 @@ public abstract class AbstractRomHandler implements RomHandler {
     private boolean restrictionsSet;
     protected List<Pokemon> mainPokemonList;
     protected List<Pokemon> mainPokemonListInclFormes;
+
+    protected List<Pokemon> basePokemonList;
+    protected List<Pokemon> evolvingPokemonList;
+
+    protected List<Pokemon> finalEvolutionPokemonList;
     private List<Pokemon> altFormesList;
     private List<MegaEvolution> megaEvolutionsList;
     private List<Pokemon> noLegendaryList, onlyLegendaryList, ultraBeastList;
     private List<Pokemon> noLegendaryListInclFormes, onlyLegendaryListInclFormes;
     private List<Pokemon> noLegendaryAltsList, onlyLegendaryAltsList;
+    private List<Pokemon> noBigPokemonList, onlyBigPokemonList;
+
+    private List<Pokemon> baseSPTSort, updatedSPTSort;
+
+    private int initialMinBST = 780;
+    private int initialMaxBST = 175;
+
+    private int randomizedMinBST = 780;
+    private int randomizedMaxBST = 175;
     private List<Pokemon> pickedStarters;
+    private Map<Pokemon, Pokemon> globalWildPokemonTranslateMap = new TreeMap<>();
     protected final Random random;
     private final Random cosmeticRandom;
     protected PrintStream logStream;
+
+    private Map<Type,Integer> moveTypeCounts = new HashMap<>();
+    private Map<Type,Integer> nonStabMoveTypeCounts = new HashMap<>();
+    private Map<Trainer,Integer> originalPartySize = new HashMap<>();
     private List<Pokemon> alreadyPicked = new ArrayList<>();
     private Map<Pokemon, Integer> placementHistory = new HashMap<>();
     private Map<Integer, Integer> itemPlacementHistory = new HashMap<>();
@@ -58,6 +77,7 @@ public abstract class AbstractRomHandler implements RomHandler {
     boolean isORAS = false;
     boolean isSM = false;
     int perfectAccuracy = 100;
+    boolean startersFailed = false;
 
     /* Constructor */
 
@@ -215,6 +235,16 @@ public abstract class AbstractRomHandler implements RomHandler {
         }
     }
 
+    private double mapValueBetween(int valueToMap, int oldMinValue, int oldMaxValue, int newMinValue, int newMaxValue) {
+        double valueToMapD = valueToMap;
+        double oldMinValueD = oldMinValue;
+        double oldMaxValueD = oldMaxValue;
+        double newMinValueD = newMinValue;
+        double newMaxValueD = newMaxValue;
+        return ((valueToMapD - oldMinValueD) / (oldMaxValueD - oldMinValueD)) * (newMaxValueD - newMinValueD) + newMinValueD;
+    }
+
+
     @Override
     public void shufflePokemonStats(Settings settings) {
         boolean evolutionSanity = settings.isBaseStatsFollowEvolutions();
@@ -248,6 +278,7 @@ public abstract class AbstractRomHandler implements RomHandler {
             }
         }
     }
+
 
     @Override
     public void randomizePokemonStats(Settings settings) {
@@ -292,6 +323,85 @@ public abstract class AbstractRomHandler implements RomHandler {
                     megaEvo.to.assignNewStatsForEvolution(megaEvo.from, this.random);
                 } else {
                     megaEvo.to.copyRandomizedStatsUpEvolution(megaEvo.from);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void randomizePokemonBSTs(Settings settings) {
+        boolean evolutionSanity = settings.isBaseStatsFollowEvolutions();
+        boolean megaEvolutionSanity = settings.isBaseStatsFollowMegaEvolutions();
+
+
+        List<Pokemon> allPokes = this.getPokemonInclFormes();
+        for (Pokemon pk : allPokes) {
+            if (pk != null) {
+                pk.randomizeBST(this.random);
+            }
+        }
+
+        if (evolutionSanity) {
+            copyUpEvolutionsHelper(pk -> pk.randomizeBST(AbstractRomHandler.this.random),
+                    (evFrom, evTo, toMonIsFinalEvo) -> evTo.scaleBSTUpEvolution(evFrom, this.random)
+            );
+        }
+
+        for (Pokemon pk : allPokes) {
+            if (pk != null && pk.actuallyCosmetic) {
+                pk.copyBaseFormeBaseStats(pk.baseForme);
+            }
+        }
+
+        if (megaEvolutionSanity) {
+            List<MegaEvolution> allMegaEvos = getMegaEvolutions();
+            for (MegaEvolution megaEvo: allMegaEvos) {
+                megaEvo.to.scaleBSTUpEvolution(megaEvo.from,this.random);
+            }
+        }
+    }
+
+    @Override
+    public void shufflePokemonBSTs(Settings settings) {
+        boolean evolutionSanity = settings.isBaseStatsFollowEvolutions();
+        List<Pokemon> allPokes = this.getPokemon();
+
+        if (evolutionSanity) {
+            copyUpEvolutionsHelper(new BasePokemonAction() {
+                public void applyTo(Pokemon pk) {
+                    if (pk.evoStageNumber == 1) {
+                        Pokemon swapWith = pickShufflePokeReplacement(allPokes, pk, evolutionSanity);
+                        while (swapWith == null) {
+                            swapWith = allPokes
+                                    .get(AbstractRomHandler.this.random.nextInt(allPokes.size()));
+                        }
+
+                        System.out.println(pk.name + " " + pk.bst() + " -> " + swapWith.name + " " + swapWith.bst());
+                        int startingPKBST = pk.bst();
+                        pk.scaleStats(swapWith.bst());
+                        swapWith.scaleStats(startingPKBST);
+                        System.out.println(pk.name + " " + pk.bst() + " :: " + swapWith.name + " " + swapWith.bst());
+                    }
+                }
+            }, new EvolvedPokemonAction() {
+                public void applyTo(Pokemon evFrom, Pokemon evTo, boolean toMonIsFinalEvo) {
+                    evTo.scaleBSTUpEvolution(evFrom,
+                            AbstractRomHandler.this.random);
+                }
+            });
+        } else {
+            for (Pokemon pk : allPokes) {
+                if (pk != null) {
+                    Pokemon swapWith = pickShufflePokeReplacement(allPokes, pk, evolutionSanity);
+                    while (swapWith == null) {
+                        swapWith = allPokes.get(this.random.nextInt(allPokes.size()));
+                    }
+
+                    System.out.println(pk.name + " " + pk.bst() + " -> " + swapWith.name + " " + swapWith.bst());
+                    int startingPKBST = pk.bst();
+                    pk.scaleStats(swapWith.bst());
+                    swapWith.scaleStats(startingPKBST);
+                    System.out.println(pk.name + " " + pk.bst() + " :: " + swapWith.name + " " + swapWith.bst());
                 }
             }
         }
@@ -346,6 +456,253 @@ public abstract class AbstractRomHandler implements RomHandler {
         }
     }
 
+
+
+    public void scalePokemonStats(Settings settings) {
+        List<Pokemon> pokes = getPokemonInclFormes();
+
+        int oldMinBST = 600;
+        int oldMaxBST = 0;
+
+        boolean first = true;
+        for (Pokemon pk : pokes) {
+            if (pk != null) {
+                oldMinBST = Math.min(oldMinBST, pk.bst());
+                oldMaxBST = Math.max(oldMaxBST, pk.bst());
+            }
+        }
+
+        int newMinBST = settings.isMinimumBST() ? settings.getMinimumBST() : oldMinBST;
+        int newMaxBST = settings.isMaximumBST() ? settings.getMaximumBST() : oldMaxBST;
+
+        for (Pokemon pk : pokes) {
+            if (pk != null) {
+                int oldBST = pk.bst();
+                int newBST = (int) Math.round(mapValueBetween(oldBST, oldMinBST, oldMaxBST, newMinBST, newMaxBST));
+
+                pk.scaleStats(newBST);
+            }
+        }
+
+    }
+
+    public void findInitialBSTRange(){
+        List<Pokemon> pokes = getPokemonInclFormes();
+
+        int floorBST = 1200;
+        int ceilingBST = 0;
+
+        boolean first = true;
+        for (Pokemon pk : pokes) {
+            if (pk != null) {
+                floorBST = Math.min(floorBST, pk.bst());
+                ceilingBST = Math.max(ceilingBST, pk.bst());
+            }
+        }
+
+        initialMinBST = floorBST;
+        initialMaxBST = ceilingBST;
+    }
+
+    public void findRandomizedBSTRange(){
+        List<Pokemon> pokes = getPokemonInclFormes();
+
+        int floorBST = 1200;
+        int ceilingBST = 0;
+
+        boolean first = true;
+        for (Pokemon pk : pokes) {
+            if (pk != null) {
+                floorBST = Math.min(floorBST, pk.bst());
+                ceilingBST = Math.max(ceilingBST, pk.bst());
+            }
+        }
+
+        randomizedMinBST = floorBST;
+        randomizedMaxBST = ceilingBST;
+    }
+
+    public void roundPokemonStats(Settings settings) {
+        List<Pokemon> pokes = getPokemonInclFormes();
+        int rounding = settings.getBSTRounding();
+
+        for (Pokemon pk : pokes) {
+            if (pk != null) {
+                double oldBST = pk.bst();
+                int newBST = pk.bst();
+
+                switch (settings.getBSTRoundingType()) {
+                    case DOWN:
+                        newBST = (int) Math.floor(oldBST/rounding)*rounding;
+                        break;
+                    case UP:
+                        newBST = (int) Math.ceil(oldBST/rounding)*rounding;
+                        break;
+                    case NATURAL:
+                    default:
+                        newBST = (int) Math.round(oldBST/rounding)*rounding;
+                }
+
+                System.out.println(pk.name + " " + (int)oldBST + " " + rounding + " " + newBST);
+
+                pk.scaleStats(newBST);
+            }
+        }
+
+    }
+
+    public void findBigPokemon(){
+        List<Pokemon> pokes = getPokemonInclFormes();
+
+        noBigPokemonList = new ArrayList<>();
+        onlyBigPokemonList = new ArrayList<>();
+
+        for (Pokemon pk : pokes) {
+            if (pk != null) {
+                if (pk.determineBigPoke(randomizedMinBST, randomizedMaxBST)) {
+                    onlyBigPokemonList.add(pk);
+                } else { noBigPokemonList.add(pk); }
+            }
+        }
+    }
+
+    public void findBasePokemon(){
+        List<Pokemon> pokes = getPokemon();
+
+        basePokemonList = new ArrayList<Pokemon>();
+
+        for (Pokemon pk : pokes) {
+            if (pk != null) {
+                int numEvos = pk.evolutionsFrom.size();
+                if (numEvos > 0) {
+                    if (pk.evolutionsTo.size() == 0) {
+                        basePokemonList.add(pk);
+                    }
+                }
+            }
+        }
+    }
+
+    public void findEvolvingPokemon(){
+        List<Pokemon> pokes = getPokemon();
+
+        evolvingPokemonList = new ArrayList<Pokemon>();
+
+        for (Pokemon pk : pokes) {
+            if (pk != null) {
+                int numEvos = pk.evolutionsFrom.size();
+                if (numEvos > 0) {
+                    evolvingPokemonList.add(pk);
+                }
+            }
+        }
+    }
+
+    public void findFinalEvolutionPokemon(){
+        List<Pokemon> pokes = getPokemon();
+
+        finalEvolutionPokemonList = new ArrayList<Pokemon>();
+
+        for (Pokemon pk : pokes) {
+            if (pk != null) {
+                if (pk.evolutionsFrom.size() == 0 && pk.evolutionsTo.size() > 0) {
+                    finalEvolutionPokemonList.add(pk);
+                }
+            }
+        }
+
+        for (Pokemon pk : finalEvolutionPokemonList) {
+            if (pk != null) {
+                if (pk.evolutionsFrom.size() == 0 && pk.evolutionsTo.size() > 0) {
+                    pk.determineEvoStageNumber();
+                }
+            }
+        }
+
+        for (Pokemon pk : pokes) {
+            if (pk != null) {
+                pk.findFinalEvoStageNumber();
+            }
+        }
+    }
+
+    public void findEvoPowerLevels(boolean initial){
+        List<Pokemon> pokes = getPokemon();
+
+        List<Pokemon> BSTSort = new ArrayList<>();
+        if (initial) BSTSort = baseSPTSort;
+        else BSTSort = updatedSPTSort;
+
+        for (Pokemon pk : pokes) {
+            if (pk != null) {
+                pk.findFinalBST();
+                pk.findFinalSPT();
+                pk.findFinalSPTIndex(BSTSort, initial);
+            }
+        }
+    }
+
+    @Override
+    public void organizeBSTs(boolean initial){
+        List<Pokemon> pokes = getPokemonInclFormes();
+
+        double totalStats = 0;
+        double count = 0;
+        double averageStat;
+        for (Pokemon pk : pokes) {
+            if (pk != null) {
+                if (generationOfPokemon() == 1) count += 5;
+                else count += 6;
+
+                totalStats += pk.bst();
+            }
+        }
+        averageStat = totalStats / count;
+
+        if (initial) {
+            baseSPTSort = new ArrayList<>();
+            for (Pokemon pk : pokes) {
+                if (pk != null) {
+                    pk.determineStatPowerTotal(averageStat);
+                    baseSPTSort.add(pk);
+                }
+            }
+            Collections.sort(baseSPTSort, new sortBySPT());
+            for (Pokemon pk : pokes) {
+                if (pk != null) {
+                    pk.baseSPTIndex = baseSPTSort.indexOf(pk);
+                }
+            }
+        } else {
+            updatedSPTSort = new ArrayList<>();
+            for (Pokemon pk : pokes) {
+                if (pk != null) {
+                    pk.determineStatPowerTotal(averageStat);
+                    updatedSPTSort.add(pk);
+                }
+            }
+            Collections.sort(updatedSPTSort, new sortBySPT());
+            for (Pokemon pk : pokes) {
+                if (pk != null) {
+                    pk.updatedSPTIndex = updatedSPTSort.indexOf(pk);
+                }
+            }
+        }
+
+
+    }
+
+    @Override
+    public List<Pokemon> getBaseSPTSort() {
+        return baseSPTSort;
+    }
+
+    @Override
+    public List<Pokemon> getUpdatedSPTSort() {
+        return updatedSPTSort;
+    }
+
+
     public Pokemon randomPokemon() {
         checkPokemonRestrictions();
         return mainPokemonList.get(this.random.nextInt(mainPokemonList.size()));
@@ -361,6 +718,16 @@ public abstract class AbstractRomHandler implements RomHandler {
     public Pokemon randomNonLegendaryPokemon() {
         checkPokemonRestrictions();
         return noLegendaryList.get(this.random.nextInt(noLegendaryList.size()));
+    }
+
+    public Pokemon randomNonBigPokemon() {
+        checkPokemonRestrictions();
+        return noBigPokemonList.get(this.random.nextInt(noBigPokemonList.size()));
+    }
+
+    public Pokemon randomBigPokemon() {
+        checkPokemonRestrictions();
+        return onlyBigPokemonList.get(this.random.nextInt(onlyBigPokemonList.size()));
     }
 
     private Pokemon randomNonLegendaryPokemonInclFormes() {
@@ -419,53 +786,103 @@ public abstract class AbstractRomHandler implements RomHandler {
         boolean evolutionSanity = settings.getTypesMod() == Settings.TypesMod.RANDOM_FOLLOW_EVOLUTIONS;
         boolean megaEvolutionSanity = settings.isTypesFollowMegaEvolutions();
         boolean dualTypeOnly = settings.isDualTypeOnly();
+        boolean secondTypeOnly = settings.isSecondTypeOnly();
 
         List<Pokemon> allPokes = this.getPokemonInclFormes();
         if (evolutionSanity) {
-            // Type randomization with evolution sanity
-            copyUpEvolutionsHelper(pk -> {
-                // Step 1: Basic or Excluded From Copying Pokemon
-                // A Basic/EFC pokemon has a 35% chance of a second type if
-                // it has an evolution that copies type/stats, a 50% chance
-                // otherwise
-                pk.primaryType = randomType();
-                pk.secondaryType = null;
-                if (pk.evolutionsFrom.size() == 1 && pk.evolutionsFrom.get(0).carryStats) {
-                    if (AbstractRomHandler.this.random.nextDouble() < 0.35 || dualTypeOnly) {
-                        pk.secondaryType = randomType();
-                        while (pk.secondaryType == pk.primaryType) {
-                            pk.secondaryType = randomType();
-                        }
-                    }
-                } else {
-                    if (AbstractRomHandler.this.random.nextDouble() < 0.5 || dualTypeOnly) {
-                        pk.secondaryType = randomType();
-                        while (pk.secondaryType == pk.primaryType) {
-                            pk.secondaryType = randomType();
-                        }
-                    }
-                }
-            }, (evFrom, evTo, toMonIsFinalEvo) -> {
-                evTo.primaryType = evFrom.primaryType;
-                evTo.secondaryType = evFrom.secondaryType;
+            if (!secondTypeOnly) {
+                // Type randomization with evolution sanity
+                copyUpEvolutionsHelper(pk -> {
+                    // Step 1: Basic or Excluded From Copying Pokemon
+                    // A Basic/EFC pokemon has a 35% chance of a second type if
+                    // it has an evolution that copies type/stats, a 50% chance
+                    // otherwise
 
-                if (evTo.secondaryType == null) {
-                    double chance = toMonIsFinalEvo ? 0.25 : 0.15;
-                    if (AbstractRomHandler.this.random.nextDouble() < chance || dualTypeOnly) {
-                        evTo.secondaryType = randomType();
-                        while (evTo.secondaryType == evTo.primaryType) {
-                            evTo.secondaryType = randomType();
+                    pk.primaryType = randomType();
+                    pk.secondaryType = null;
+                    if (pk.evolutionsFrom.size() == 1 && pk.evolutionsFrom.get(0).carryStats) {
+                        if (AbstractRomHandler.this.random.nextDouble() < 0.35 || dualTypeOnly) {
+                            pk.secondaryType = randomType();
+                            while (pk.secondaryType == pk.primaryType) {
+                                pk.secondaryType = randomType();
+                            }
+                        }
+                    } else {
+                        if (AbstractRomHandler.this.random.nextDouble() < 0.5 || dualTypeOnly) {
+                            pk.secondaryType = randomType();
+                            while (pk.secondaryType == pk.primaryType) {
+                                pk.secondaryType = randomType();
+                            }
                         }
                     }
-                }
-            });
+                }, (evFrom, evTo, toMonIsFinalEvo) -> {
+                    evTo.primaryType = evFrom.primaryType;
+                    evTo.secondaryType = AbstractRomHandler.this.random.nextDouble() < 0.9 ?
+                            evFrom.secondaryType : null;
+
+                    if (evTo.secondaryType == null) {
+                        double chance = ((double)evTo.evoStageNumber / (evTo.finalStageNumber * 3));
+                        if (evFrom.secondaryType != null) chance = 1;
+
+                        if (AbstractRomHandler.this.random.nextDouble() < chance || dualTypeOnly) {
+                            evTo.secondaryType = randomType();
+                            while (evTo.secondaryType == evTo.primaryType) {
+                                evTo.secondaryType = randomType();
+                            }
+                        }
+                    }
+                });
+            } else {
+                // Type randomization with evolution sanity
+                copyUpEvolutionsHelper(pk -> {
+                    // Step 1: Basic or Excluded From Copying Pokemon
+                    // A Basic/EFC pokemon has a 35% chance of a second type if
+                    // it has an evolution that copies type/stats, a 50% chance
+                    // otherwise
+                    if (AbstractRomHandler.this.random.nextDouble() < 0.9 || dualTypeOnly) {
+                        if (pk.primaryType == Type.NORMAL && pk.secondaryType == Type.FLYING) {
+                            pk.primaryType = randomType();
+                            while (pk.primaryType == pk.secondaryType) {
+                                pk.primaryType = randomType();
+                            }
+                        } else {
+                            pk.secondaryType = randomType();
+                            while (pk.secondaryType == pk.primaryType) {
+                                pk.secondaryType = randomType();
+                            }
+                        }
+                    }
+
+                }, (evFrom, evTo, toMonIsFinalEvo) -> {
+                    if (evTo.primaryType == Type.NORMAL && evTo.secondaryType == Type.FLYING)
+                        evTo.primaryType = evFrom.primaryType;
+                    else evTo.secondaryType = evFrom.secondaryType;
+
+                    if (evTo.secondaryType == null) {
+                        if (evTo.primaryType != evFrom.primaryType) {
+                            evTo.secondaryType = evFrom.primaryType;
+                        } else {
+                            double chance = ((double)evTo.evoStageNumber / (evTo.finalStageNumber + 1));
+
+                            if (AbstractRomHandler.this.random.nextDouble() < chance || dualTypeOnly) {
+                                evTo.secondaryType = randomType();
+                                while (evTo.secondaryType == evTo.primaryType) {
+                                    evTo.secondaryType = randomType();
+                                }
+                            }
+                        }
+                    }
+                });
+            }
         } else {
             // Entirely random types
             for (Pokemon pkmn : allPokes) {
                 if (pkmn != null) {
-                    pkmn.primaryType = randomType();
+                    if (!secondTypeOnly) {
+                        pkmn.primaryType = randomType();
+                    }
                     pkmn.secondaryType = null;
-                    if (this.random.nextDouble() < 0.5||settings.isDualTypeOnly()) {
+                    if (this.random.nextDouble() < 0.5 || settings.isDualTypeOnly()) {
                         pkmn.secondaryType = randomType();
                         while (pkmn.secondaryType == pkmn.primaryType) {
                             pkmn.secondaryType = randomType();
@@ -512,6 +929,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         boolean weighDuplicatesTogether = settings.isWeighDuplicateAbilitiesTogether();
         boolean ensureTwoAbilities = settings.isEnsureTwoAbilities();
         boolean doubleBattleMode = settings.isDoubleBattleMode();
+        boolean emptyAbilitiesOnly = settings.isEmptyAbilitiesOnly();
 
         // Abilities don't exist in some games...
         if (this.abilitiesPerPokemon() == 0) {
@@ -559,31 +977,60 @@ public abstract class AbstractRomHandler implements RomHandler {
                         && pk.ability2 != Abilities.wonderGuard
                         && pk.ability3 != Abilities.wonderGuard) {
                     // Pick first ability
-                    pk.ability1 = pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether);
+                    if (!emptyAbilitiesOnly) {
+                        pk.ability1 = pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether);
 
-                    // Second ability?
-                    if (ensureTwoAbilities || AbstractRomHandler.this.random.nextDouble() < 0.5) {
-                        // Yes, second ability
-                        pk.ability2 = pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether,
-                                pk.ability1);
+                        // Second ability?
+                        if (ensureTwoAbilities || AbstractRomHandler.this.random.nextDouble() < 0.5) {
+                            // Yes, second ability
+                            pk.ability2 = pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether,
+                                    pk.ability1);
+                        } else {
+                            // Nope
+                            pk.ability2 = 0;
+                        }
+
+                        // Third ability?
+                        if (hasDWAbilities) {
+                            pk.ability3 = pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether,
+                                    pk.ability1, pk.ability2);
+                        }
                     } else {
-                        // Nope
-                        pk.ability2 = 0;
-                    }
+                        if (pk.ability2 == pk.ability1) pk.ability2 = 0;
+                        if (hasDWAbilities && (pk.ability3 == pk.ability1 || pk.ability3 == pk.ability2)) pk.ability3 = 0;
 
-                    // Third ability?
-                    if (hasDWAbilities) {
-                        pk.ability3 = pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether,
-                                pk.ability1, pk.ability2);
+                        if (pk.ability2 == 0) pk.ability2 = pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether,
+                                pk.ability1);
+
+                        // Third ability?
+                        if (hasDWAbilities && pk.ability3 == 0) {
+                            pk.ability3 = pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether,
+                                    pk.ability1, pk.ability2);
+                        }
                     }
                 }
             }, (evFrom, evTo, toMonIsFinalEvo) -> {
                 if (evTo.ability1 != Abilities.wonderGuard
                         && evTo.ability2 != Abilities.wonderGuard
                         && evTo.ability3 != Abilities.wonderGuard) {
-                    evTo.ability1 = evFrom.ability1;
-                    evTo.ability2 = evFrom.ability2;
-                    evTo.ability3 = evFrom.ability3;
+                    if (!emptyAbilitiesOnly) {
+                        evTo.ability1 = evFrom.ability1;
+                        evTo.ability2 = evFrom.ability2;
+                        evTo.ability3 = evFrom.ability3;
+                    }
+                    else {
+                        if (evTo.ability2 == evTo.ability1) evTo.ability2 = 0;
+                        if (hasDWAbilities && (evTo.ability3 == evTo.ability1 || evTo.ability3 == evTo.ability2)) evTo.ability3 = 0;
+
+                        if (evTo.ability1 == 0) evTo.ability1 = evFrom.ability1;
+                        if (evTo.ability2 == 0) {
+                            if (evTo.ability1 != evFrom.ability1) {
+                                evTo.ability2 = AbstractRomHandler.this.random.nextDouble() < .5 ? evFrom.ability1 : evFrom.ability2;
+                            }
+                            else evTo.ability2 = evFrom.ability2;
+                        }
+                        if (evTo.ability3 == 0) evTo.ability3 = evFrom.ability3;
+                    }
                 }
             });
         } else {
@@ -597,23 +1044,36 @@ public abstract class AbstractRomHandler implements RomHandler {
                 if (pk.ability1 != Abilities.wonderGuard
                         && pk.ability2 != Abilities.wonderGuard
                         && pk.ability3 != Abilities.wonderGuard) {
-                    // Pick first ability
-                    pk.ability1 = this.pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether);
+                    if (!emptyAbilitiesOnly) {
+                        // Pick first ability
+                        pk.ability1 = this.pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether);
 
-                    // Second ability?
-                    if (ensureTwoAbilities || this.random.nextDouble() < 0.5) {
-                        // Yes, second ability
-                        pk.ability2 = this.pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether,
-                                pk.ability1);
+                        // Second ability?
+                        if (ensureTwoAbilities || this.random.nextDouble() < 0.5) {
+                            // Yes, second ability
+                            pk.ability2 = this.pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether,
+                                    pk.ability1);
+                        } else {
+                            // Nope
+                            pk.ability2 = 0;
+                        }
+
+                        // Third ability?
+                        if (hasDWAbilities) {
+                            pk.ability3 = pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether,
+                                    pk.ability1, pk.ability2);
+                        }
                     } else {
-                        // Nope
-                        pk.ability2 = 0;
-                    }
+                        if (pk.ability2 == pk.ability1) pk.ability2 = 0;
+                        if (hasDWAbilities && (pk.ability3 == pk.ability1 || pk.ability3 == pk.ability2)) pk.ability3 = 0;
 
-                    // Third ability?
-                    if (hasDWAbilities) {
-                        pk.ability3 = pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether,
-                                pk.ability1, pk.ability2);
+                        if (pk.ability2 == 0) pk.ability2 = pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether,
+                                pk.ability1);
+                        // Third ability?
+                        if (hasDWAbilities && pk.ability3 == 0) {
+                            pk.ability3 = pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether,
+                                    pk.ability1, pk.ability2);
+                        }
                     }
                 }
             }
@@ -1194,6 +1654,8 @@ public abstract class AbstractRomHandler implements RomHandler {
             }
         }
 
+        this.globalWildPokemonTranslateMap = translateMap;
+
         List<EncounterSet> currentEncounters = this.getEncounters(useTimeOfDay);
 
         for (EncounterSet area : currentEncounters) {
@@ -1237,6 +1699,11 @@ public abstract class AbstractRomHandler implements RomHandler {
 
         setEncounters(useTimeOfDay, currentEncounters);
 
+    }
+
+    @Override
+    public Map<Pokemon, Pokemon> getGlobalWildPokemonTranslateMap() {
+        return globalWildPokemonTranslateMap;
     }
 
     @Override
@@ -1621,12 +2088,16 @@ public abstract class AbstractRomHandler implements RomHandler {
     @Override
     public void randomizeTrainerPokes(Settings settings) {
         boolean usePowerLevels = settings.isTrainersUsePokemonOfSimilarStrength();
+        boolean buffedEliteFour = settings.isBuffEliteFour();
         boolean weightByFrequency = settings.isTrainersMatchTypingDistribution();
         boolean noLegendaries = settings.isTrainersBlockLegendaries();
         boolean noEarlyWonderGuard = settings.isTrainersBlockEarlyWonderGuard();
         int levelModifier = settings.isTrainersLevelModified() ? settings.getTrainersLevelModifier() : 0;
         boolean isTypeThemed = settings.getTrainersMod() == Settings.TrainersMod.TYPE_THEMED;
+        boolean noThemeForUnique = settings.isTrainersNoThemeForUnique();
+        boolean themeTrainerClasses = settings.isTrainersThemeByClass();
         boolean isTypeThemedEliteFourGymOnly = settings.getTrainersMod() == Settings.TrainersMod.TYPE_THEMED_ELITE4_GYMS;
+        boolean isSimilarTypes = settings.getTrainersMod() == Settings.TrainersMod.SIMILAR_TYPES;
         boolean distributionSetting = settings.getTrainersMod() == Settings.TrainersMod.DISTRIBUTED;
         boolean mainPlaythroughSetting = settings.getTrainersMod() == Settings.TrainersMod.MAINPLAYTHROUGH;
         boolean includeFormes = settings.isAllowTrainerAlternateFormes();
@@ -1639,6 +2110,10 @@ public abstract class AbstractRomHandler implements RomHandler {
         int forceFullyEvolvedLevel = settings.getTrainersForceFullyEvolvedLevel();
         boolean forceChallengeMode = (settings.getCurrentMiscTweaks() & MiscTweak.FORCE_CHALLENGE_MODE.getValue()) > 0;
         boolean rivalCarriesStarter = settings.isRivalCarriesStarterThroughout();
+        boolean additionalPokemonOnly = settings.isAdditionalPokemonOnly();
+        int numberAdditionalPokemon = 0;
+
+        List<String> trainerClasses = this.getTrainerClassNames();
 
         checkPokemonRestrictions();
 
@@ -1671,6 +2146,52 @@ public abstract class AbstractRomHandler implements RomHandler {
 
         List<Trainer> currentTrainers = this.getTrainers();
 
+        // Finding trainer groups and tagged trainers in game
+        List<Trainer> atypicalTrainers = new ArrayList<>();
+        Map<String, List<Trainer>> groups = new TreeMap<>();
+        for (Trainer t : currentTrainers) {
+            if (t.tag != null) {
+                atypicalTrainers.add(t);
+            }
+
+            if (t.tag != null && t.tag.equals("IRIVAL")) {
+                // This is the first rival in Yellow. His Pokemon is used to determine the non-player
+                // starter, so we can't change it here. Just skip it.
+                continue;
+            }
+
+            String group = t.tag == null ? "" : t.tag;
+            if (group.contains("-")) {
+                group = group.substring(0, group.indexOf('-'));
+            }
+            if (t.tag == null && (themeTrainerClasses || isSimilarTypes)) {
+                for (int tClass = 0; tClass < trainerClasses.size(); tClass++) {
+                    if (t.fullDisplayName.startsWith(trainerClasses.get(tClass))) {
+                        group = trainerClasses.get(tClass);
+                        break;
+                    }
+                }
+                if (!groups.containsKey(group)) {
+                    groups.put(group, new ArrayList<>());
+                }
+                groups.get(group).add(t);
+            }
+            if (group.startsWith("GYM") || group.startsWith("ELITE") ||
+                    ((group.contains("CHAMPION") || group.startsWith("THEMED")) && !isTypeThemedEliteFourGymOnly)) {
+                // Yep this is a group
+                if (!groups.containsKey(group)) {
+                    groups.put(group, new ArrayList<>());
+                }
+                groups.get(group).add(t);
+            } else if (group.startsWith("GIO")) {
+                // Giovanni has same grouping as his gym, gym 8
+                if (!groups.containsKey("GYM8")) {
+                    groups.put("GYM8", new ArrayList<>());
+                }
+                groups.get("GYM8").add(t);
+            }
+        }
+
         // Type Themed related
         Map<Trainer, Type> trainerTypes = new TreeMap<>();
         Set<Type> usedUberTypes = new TreeSet<>();
@@ -1679,32 +2200,6 @@ public abstract class AbstractRomHandler implements RomHandler {
             totalTypeWeighting = 0;
             // Construct groupings for types
             // Anything starting with GYM or ELITE or CHAMPION is a group
-            Map<String, List<Trainer>> groups = new TreeMap<>();
-            for (Trainer t : currentTrainers) {
-                if (t.tag != null && t.tag.equals("IRIVAL")) {
-                    // This is the first rival in Yellow. His Pokemon is used to determine the non-player
-                    // starter, so we can't change it here. Just skip it.
-                    continue;
-                }
-                String group = t.tag == null ? "" : t.tag;
-                if (group.contains("-")) {
-                    group = group.substring(0, group.indexOf('-'));
-                }
-                if (group.startsWith("GYM") || group.startsWith("ELITE") ||
-                        ((group.startsWith("CHAMPION") || group.startsWith("THEMED")) && !isTypeThemedEliteFourGymOnly)) {
-                    // Yep this is a group
-                    if (!groups.containsKey(group)) {
-                        groups.put(group, new ArrayList<>());
-                    }
-                    groups.get(group).add(t);
-                } else if (group.startsWith("GIO")) {
-                    // Giovanni has same grouping as his gym, gym 8
-                    if (!groups.containsKey("GYM8")) {
-                        groups.put("GYM8", new ArrayList<>());
-                    }
-                    groups.get("GYM8").add(t);
-                }
-            }
 
             // Give a type to each group
             // Gym & elite types have to be unique
@@ -1713,8 +2208,10 @@ public abstract class AbstractRomHandler implements RomHandler {
             Set<Type> usedEliteTypes = new TreeSet<>();
             for (String group : groups.keySet()) {
                 List<Trainer> trainersInGroup = groups.get(group);
+
                 // Shuffle ordering within group to promote randomness
                 Collections.shuffle(trainersInGroup, random);
+
                 Type typeForGroup = pickType(weightByFrequency, noLegendaries, includeFormes);
                 if (group.startsWith("GYM")) {
                     while (usedGymTypes.contains(typeForGroup)) {
@@ -1728,12 +2225,90 @@ public abstract class AbstractRomHandler implements RomHandler {
                     }
                     usedEliteTypes.add(typeForGroup);
                 }
-                if (group.equals("CHAMPION")) {
+                if (group.startsWith("CHAMPION") || group.startsWith("UBER")) {
+                    while (usedUberTypes.contains(typeForGroup)) {
+                        typeForGroup = pickType(weightByFrequency, noLegendaries, includeFormes);
+                    }
                     usedUberTypes.add(typeForGroup);
                 }
 
                 for (Trainer t : trainersInGroup) {
                     trainerTypes.put(t, typeForGroup);
+                }
+            }
+
+        }
+
+
+        Map<Trainer, Map<Type, Integer>> groupTypes = new TreeMap<>();
+        if (isSimilarTypes) {
+            for (String group : groups.keySet()) {
+                List<Trainer> trainersInGroup = groups.get(group);
+                HashMap<Type, Integer> typeCount = new HashMap<>();
+                Map<Type, Integer> primaryTypeCount = new TreeMap<>();
+                Map<Type, Integer> secondaryTypeCount = new TreeMap<>();
+                double pokemonCount = 0;
+                for (Trainer trainer : trainersInGroup) {
+                    for (TrainerPokemon tp : trainer.pokemon) {
+                        pokemonCount++;
+                        Type primary = tp.pokemon.primaryType;
+                        Type secondary = tp.pokemon.secondaryType;
+
+                        if (primary == Type.NORMAL && secondary == Type.FLYING) {
+                            primary = Type.FLYING;
+                            secondary = null;
+                        }
+
+                        if (typeCount.containsKey(primary)) {
+                            typeCount.replace(primary, typeCount.get(primary) + 1);
+                        } else {
+                            typeCount.put(primary, 1);
+                        }
+                        if (primaryTypeCount.containsKey(primary)) {
+                            primaryTypeCount.replace(primary, primaryTypeCount.get(primary) + 1);
+                        } else {
+                            primaryTypeCount.put(primary, 1);
+                        }
+
+                        if (secondary != null) {
+                            if (typeCount.containsKey(secondary)) {
+                                typeCount.replace(secondary, typeCount.get(secondary) + 1);
+                            } else {
+                                typeCount.put(secondary, 1);
+                            }
+                            if (secondaryTypeCount.containsKey(secondary)) {
+                                secondaryTypeCount.replace(secondary, secondaryTypeCount.get(secondary) + 1);
+                            } else {
+                                secondaryTypeCount.put(secondary, 1);
+                            }
+                        }
+                    }
+                }
+//                System.out.print(group + " - ");
+//                System.out.print(typeCount + " - ");
+//                System.out.println(primaryTypeCount);
+//                System.out.println(secondaryTypeCount);
+
+                int valueOfMostFrequent = typeCount.values().stream().max(Integer::compare).get();
+                // System.out.println(valueOfMostFrequent);
+                boolean typeVastPlurality = valueOfMostFrequent >= pokemonCount * 0.85;
+                Type typeForGroup = Type.NORMAL;
+
+                for (Map.Entry<Type, Integer> entry : typeCount.entrySet()) {
+                    if (entry.getValue() == valueOfMostFrequent) {
+                        // Print the key with max value
+                        typeForGroup = entry.getKey();
+//                        System.out.println(typeForGroup);
+                        break;
+                    }
+                }
+
+                for (Trainer t : trainersInGroup) {
+                    if (typeVastPlurality && t.typeTheme == null) {
+                        t.typeTheme = typeForGroup;
+                    }
+                    trainerTypes.put(t, typeForGroup);
+                    groupTypes.put(t, typeCount);
                 }
             }
         }
@@ -1774,12 +2349,18 @@ public abstract class AbstractRomHandler implements RomHandler {
             }
         }
 
+
+
         List<Integer> mainPlaythroughTrainers = getMainPlaythroughTrainers();
 
         // Randomize Trainer Pokemon
         // The result after this is done will not be final if "Force Fully Evolved" or "Rival Carries Starter"
         // are used, as they are applied later
         for (Trainer t : scrambledTrainers) {
+
+            boolean championRival = (hasRivalFinalBattle() && t.tag != null
+                    && (t.tag.startsWith("RIVAL8") || t.tag.startsWith("RIVAL9")));
+
             applyLevelModifierToTrainerPokemon(t, levelModifier);
             if (t.tag != null && t.tag.equals("IRIVAL")) {
                 // This is the first rival in Yellow. His Pokemon is used to determine the non-player
@@ -1788,16 +2369,11 @@ public abstract class AbstractRomHandler implements RomHandler {
             }
 
             // If type themed, give a type to each unassigned trainer
+            // Except Rivals, Friends, and Ubers (atypical trainers)
             Type typeForTrainer = trainerTypes.get(t);
-            if (typeForTrainer == null && isTypeThemed) {
+            boolean trainerExempt = atypicalTrainers.contains(t) && noThemeForUnique;
+            if (typeForTrainer == null && isTypeThemed && !trainerExempt) {
                 typeForTrainer = pickType(weightByFrequency, noLegendaries, includeFormes);
-                // Ubers: can't have the same type as each other
-                if (t.tag != null && t.tag.equals("UBER")) {
-                    while (usedUberTypes.contains(typeForTrainer)) {
-                        typeForTrainer = pickType(weightByFrequency, noLegendaries, includeFormes);
-                    }
-                    usedUberTypes.add(typeForTrainer);
-                }
             }
 
             List<Pokemon> evolvesIntoTheWrongType = new ArrayList<>();
@@ -1828,6 +2404,7 @@ public abstract class AbstractRomHandler implements RomHandler {
                 }
             }
 
+            int pokemonDone = 0;
             for (TrainerPokemon tp : trainerPokemonList) {
                 boolean swapThisMegaEvo = swapMegaEvos && tp.canMegaEvolve();
                 boolean wgAllowed = (!noEarlyWonderGuard) || tp.level >= 20;
@@ -1852,27 +2429,53 @@ public abstract class AbstractRomHandler implements RomHandler {
                     bannedList.addAll(evolvesIntoTheWrongType);
                 }
 
-                Pokemon newPK = pickTrainerPokeReplacement(
-                                oldPK,
-                                usePowerLevels,
-                                typeForTrainer,
-                                noLegendaries,
-                                wgAllowed,
-                                distributionSetting || (mainPlaythroughSetting && mainPlaythroughTrainers.contains(t.index)),
-                                swapThisMegaEvo,
-                                abilitiesAreRandomized,
-                                includeFormes,
-                                banIrregularAltFormes
-                        );
+                boolean buffPokemon = buffedEliteFour && (t.isElite()
+                        || championRival);
+
+                // if (buffPokemon) System.out.println(t.name);
+
+                List<Pokemon> donePokes = new ArrayList<>();
+                for (int i = 0; i < pokemonDone; i++) {
+                    donePokes.add(t.pokemon.get(i).pokemon);
+                }
+
+                if (t.isBoss()) numberAdditionalPokemon = settings.getAdditionalBossTrainerPokemon();
+                else if (t.isImportant()) numberAdditionalPokemon = settings.getAdditionalImportantTrainerPokemon();
+                else numberAdditionalPokemon = settings.getAdditionalRegularTrainerPokemon();
+
+                int originalTeamSize = originalPartySize.get(t);
+                boolean additionalPokemonIsNext = pokemonDone >= originalTeamSize - 1 && pokemonDone < t.pokemon.size() - 1;
+                Pokemon newPK = tp.pokemon;
+                if (!additionalPokemonOnly || additionalPokemonIsNext) {
+                    newPK = pickTrainerPokeReplacement(
+                            oldPK,
+                            donePokes,
+                            usePowerLevels,
+                            buffPokemon,
+                            typeForTrainer,
+                            t.typeTheme,
+                            isSimilarTypes,
+                            groupTypes.get(t),
+                            noLegendaries,
+                            wgAllowed,
+                            distributionSetting || (mainPlaythroughSetting && mainPlaythroughTrainers.contains(t.index)),
+                            swapThisMegaEvo,
+                            abilitiesAreRandomized,
+                            includeFormes,
+                            banIrregularAltFormes
+                    );
+                }
 
                 // Chosen Pokemon is locked in past here
                 if (distributionSetting || (mainPlaythroughSetting && mainPlaythroughTrainers.contains(t.index))) {
                     setPlacementHistory(newPK);
                 }
                 tp.pokemon = newPK;
-                setFormeForTrainerPokemon(tp, newPK);
-                tp.abilitySlot = getRandomAbilitySlot(newPK);
-                tp.resetMoves = true;
+                if (!additionalPokemonOnly || additionalPokemonIsNext) {
+                    setFormeForTrainerPokemon(tp, newPK);
+                    tp.abilitySlot = getRandomAbilitySlot(newPK);
+                    tp.resetMoves = true;
+                }
 
                 if (!eliteFourRival) {
                     if (eliteFourSetUniquePokemon) {
@@ -1915,11 +2518,18 @@ public abstract class AbstractRomHandler implements RomHandler {
                         tp.IVs |= (1 << 30);
                     }
                 }
+                pokemonDone++;
             }
         }
 
         // Save it all up
         this.setTrainers(currentTrainers, false);
+    }
+
+    @Override
+    public int[] getPokemonLevelMoves(TrainerPokemon tpk) {
+        Map<Integer, List<MoveLearnt>> movesets = this.getMovesLearnt();
+        return RomFunctions.getMovesAtLevel(tpk.pokemon.number, movesets, tpk.level);
     }
 
     @Override
@@ -2017,6 +2627,15 @@ public abstract class AbstractRomHandler implements RomHandler {
     }
 
     @Override
+    public void rivalCarriesTeam() {
+        checkPokemonRestrictions();
+        List<Trainer> currentTrainers = this.getTrainers();
+        rivalCarriesTeamUpdate(currentTrainers, "RIVAL", isORAS ? 0 : 1);
+        rivalCarriesTeamUpdate(currentTrainers, "FRIEND", 2);
+        this.setTrainers(currentTrainers, false);
+    }
+
+    @Override
     public boolean hasRivalFinalBattle() {
         return false;
     }
@@ -2062,6 +2681,7 @@ public abstract class AbstractRomHandler implements RomHandler {
 
         List<Trainer> currentTrainers = this.getTrainers();
         for (Trainer t: currentTrainers) {
+            originalPartySize.put(t,t.pokemon.size());
             int additional;
             if (t.isBoss()) {
                 additional = additionalBoss;
@@ -2075,8 +2695,9 @@ public abstract class AbstractRomHandler implements RomHandler {
             if (additional == 0) {
                 continue;
             }
-
+            int highest = 1;
             int lowest = 100;
+            int highestLevelCount = 1;
             List<TrainerPokemon> potentialPokes = new ArrayList<>();
 
             // First pass: find lowest level
@@ -2084,13 +2705,19 @@ public abstract class AbstractRomHandler implements RomHandler {
                 if (tpk.level < lowest) {
                     lowest = tpk.level;
                 }
+                if (tpk.level > highest) {
+                    highestLevelCount = 1;
+                    highest = tpk.level;
+                } else if (tpk.level == highest) {
+                    highestLevelCount++;
+                }
             }
+
+            boolean noLevelGap = highest == lowest;
 
             // Second pass: find all Pokemon at lowest level
             for (TrainerPokemon tpk: t.pokemon) {
-                if (tpk.level == lowest) {
-                    potentialPokes.add(tpk);
-                }
+                if (noLevelGap || highestLevelCount > 1 || tpk.level < highest) potentialPokes.add(tpk);
             }
 
             // If a trainer can appear in a Multi Battle (i.e., a Double Battle where the enemy consists
@@ -2103,7 +2730,18 @@ public abstract class AbstractRomHandler implements RomHandler {
                 // We want to preserve the original last Pokemon because the order is sometimes used to
                 // determine the rival's starter
                 int secondToLastIndex = t.pokemon.size() - 1;
-                TrainerPokemon newPokemon = potentialPokes.get(i % potentialPokes.size()).copy();
+                // TrainerPokemon newPokemon = potentialPokes.get(i % potentialPokes.size()).copy();
+                int randomPotientialPokeIndex = (int)Math.floor(Math.random()*potentialPokes.size());
+                TrainerPokemon newPokemon = potentialPokes.get(randomPotientialPokeIndex).copy();
+
+                if (noLevelGap)
+                    newPokemon.level = (int) Math.round(newPokemon.level * ((7/8.0) + (Math.random() * (1/8.0))));
+                else if (highestLevelCount > 1)
+                    newPokemon.level = (int) Math.round(lowest + (Math.random() * (highest - lowest)));
+                else if (newPokemon.level < highest)
+                    newPokemon.level = (int) Math.floor(lowest + (Math.random() * (highest - lowest)));
+
+                newPokemon.moves = getPokemonLevelMoves(newPokemon);
 
                 // Clear out the held item because we only want one Pokemon with a mega stone if we're
                 // swapping mega evolvables
@@ -2184,8 +2822,7 @@ public abstract class AbstractRomHandler implements RomHandler {
                 preEvo = preEvo.evolutionsTo.get(0).from;
                 moveSelectionPoolAtLevel.addAll(allLevelUpMoves.get(preEvo.number)
                         .stream()
-                        .filter(ml -> ml.level <= tp.level)
-                        .filter(ml -> this.random.nextDouble() < preEvoMoveProbability)
+                        .filter(ml -> moves.get(ml.move).efficacyTier <= (tp.level/10) + 1)
                         .map(ml -> moves.get(ml.move))
                         .distinct()
                         .collect(Collectors.toList()));
@@ -2197,11 +2834,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         for (int tmMove: allTMMoves) {
             if (tmCompat[allTMMoves.indexOf(tmMove) + 1]) {
                 Move thisMove = moves.get(tmMove);
-                if (thisMove.power > 1 && tp.level * 3 > thisMove.power * thisMove.hitCount &&
-                        this.random.nextDouble() < tmMoveProbability) {
-                    moveSelectionPoolAtLevel.add(thisMove);
-                } else if ((thisMove.power <= 1 && this.random.nextInt(100) < tp.level) ||
-                        this.random.nextInt(200) < tp.level) {
+                if (thisMove.efficacyTier <= (tp.level/10) + 1) {
                     moveSelectionPoolAtLevel.add(thisMove);
                 }
             }
@@ -2213,11 +2846,7 @@ public abstract class AbstractRomHandler implements RomHandler {
             for (int tutorMove: allTutorMoves) {
                 if (tutorCompat[allTutorMoves.indexOf(tutorMove) + 1]) {
                     Move thisMove = moves.get(tutorMove);
-                    if (thisMove.power > 1 && tp.level * 3 > thisMove.power * thisMove.hitCount &&
-                            this.random.nextDouble() < tutorMoveProbability) {
-                        moveSelectionPoolAtLevel.add(thisMove);
-                    } else if ((thisMove.power <= 1 && this.random.nextInt(100) < tp.level) ||
-                            this.random.nextInt(200) < tp.level) {
+                    if (thisMove.efficacyTier <= (tp.level/10) + 1) {
                         moveSelectionPoolAtLevel.add(thisMove);
                     }
                 }
@@ -2225,7 +2854,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         }
 
         // Egg Moves
-        if (!cyclicEvolutions) {
+        if (!cyclicEvolutions && tp.level >= 30) {
             Pokemon firstEvo;
             if (altFormesCanHaveDifferentEvolutions()) {
                 firstEvo = getAltFormeOfPokemon(tp.pokemon, tp.forme);
@@ -2238,25 +2867,47 @@ public abstract class AbstractRomHandler implements RomHandler {
             if (allEggMoves.get(firstEvo.number) != null) {
                 moveSelectionPoolAtLevel.addAll(allEggMoves.get(firstEvo.number)
                         .stream()
-                        .filter(egm -> this.random.nextDouble() < eggMoveProbability)
                         .map(moves::get)
                         .collect(Collectors.toList()));
             }
         }
 
-
+        moveSelectionPoolAtLevel = moveSelectionPoolAtLevel.stream()
+                .filter(mv -> mv.power <= 0 || mv.efficacyTier >= Math.min((tp.level / 10) - 1,3))
+                .collect(Collectors.toList());
 
         return moveSelectionPoolAtLevel.stream().distinct().collect(Collectors.toList());
     }
 
     @Override
     public void pickTrainerMovesets(Settings settings) {
+        boolean giveToBossPokemon = settings.isBetterBossTrainerMovesets();
+        boolean giveToImportantPokemon = settings.isBetterImportantTrainerMovesets();
+        boolean giveToRegularPokemon = settings.isBetterRegularTrainerMovesets();
         boolean isCyclicEvolutions = settings.getEvolutionsMod() == Settings.EvolutionsMod.RANDOM_EVERY_LEVEL;
         boolean doubleBattleMode = settings.isDoubleBattleMode();
 
         List<Trainer> trainers = getTrainers();
 
         for (Trainer t: trainers) {
+
+            boolean championRival = (hasRivalFinalBattle() && t.tag != null
+                    && (t.tag.startsWith("RIVAL8") || t.tag.startsWith("RIVAL9")));
+
+            if (trainerShouldNotGetBuffs(t)) {
+                continue;
+            }
+            if (!giveToRegularPokemon && (!t.isImportant() && !t.isBoss() && !championRival)) {
+                continue;
+            }
+            if (!giveToImportantPokemon && (t.isImportant() && !championRival)) {
+                continue;
+            }
+            if (!giveToBossPokemon && (t.isBoss() || championRival)) {
+                continue;
+            }
+
+
             t.setPokemonHaveCustomMoves(true);
 
             for (TrainerPokemon tp: t.pokemon) {
@@ -2276,11 +2927,12 @@ public abstract class AbstractRomHandler implements RomHandler {
                 } else if (t.isBoss()) {
                     trainerTypeModifier = 2;
                 }
+
                 double movePoolSizeModifier = movesAtLevel.size() / 10.0;
                 double bonusModifier = trainerTypeModifier * movePoolSizeModifier;
 
                 double atkSpatkRatioModifier = 0.75;
-                double stabMoveBias = 0.25 * bonusModifier;
+                double stabMoveBias = 1 * bonusModifier;
                 double hardAbilityMoveBias = 1 * bonusModifier;
                 double softAbilityMoveBias = 0.5 * bonusModifier;
                 double statBias = 0.5 * bonusModifier;
@@ -2453,6 +3105,12 @@ public abstract class AbstractRomHandler implements RomHandler {
                     }
                 }
 
+                // Removing all instances of the move RETURN
+                // Happiness for trainer pokemon is not controlled,
+                // making Return a deceptively weak move to the randomizer
+                List<Move> allReturns = movesAtLevel.stream().filter(mv -> mv.internalId == Moves.returnTheMoveNotTheKeyword).collect(Collectors.toList());
+                movesAtLevel.removeAll(allReturns);
+
                 // Pick moves
 
                 List<Move> pickedMoves = new ArrayList<>();
@@ -2464,10 +3122,17 @@ public abstract class AbstractRomHandler implements RomHandler {
                     if (i == 1) {
                         pickFrom = movesAtLevel
                                 .stream()
-                                .filter(mv -> mv.isGoodDamaging(perfectAccuracy))
+                                .filter(mv -> mv.isGoodDamaging(Math.min(tp.level/10,4)))
+                                .filter(mv -> (mv.type == pk.primaryType || mv.type == pk.secondaryType) && mv.category != MoveCategory.STATUS)
                                 .collect(Collectors.toList());
                         if (pickFrom.isEmpty()) {
-                            pickFrom = movesAtLevel;
+                            pickFrom = movesAtLevel
+                                    .stream()
+                                    .filter(mv -> mv.isGoodDamaging(Math.min(tp.level/10,4)))
+                                    .collect(Collectors.toList());
+                            if (pickFrom.isEmpty()) {
+                                pickFrom = movesAtLevel;
+                            }
                         }
                     } else {
                         pickFrom = movesAtLevel;
@@ -2804,11 +3469,87 @@ public abstract class AbstractRomHandler implements RomHandler {
     // All randomizers don't touch move ID 165 (Struggle)
     // They also have other exclusions where necessary to stop things glitching.
 
+    public void findMoveEfficacies(){
+        // Get current sets
+        Map<Integer, List<MoveLearnt>> movesets = this.getMovesLearnt();
+        List<Move> allMoves = this.getMoves();
+
+
+
+
+        for (Integer pkmnNum : movesets.keySet()) {
+            List<MoveLearnt> moves = movesets.get(pkmnNum);
+            Pokemon pkmn = findPokemonInPoolWithSpeciesID(mainPokemonListInclFormes, pkmnNum);
+            if (pkmn != null) {
+                for (MoveLearnt ml : moves) {
+                    Move moveAtLevel = this.getMoves().get(ml.move);
+                    Type type = moveAtLevel.type;
+
+                    if (!((pkmn.evolutionsTo.size() > 0 || pkmn.evolutionsFrom.size() == 0) && ml.level == 1)) {
+                        moveAtLevel.learnRate++;
+                        moveAtLevel.levelLearnRate += ml.level;
+                        moveAtLevel.efficacy = moveAtLevel.levelLearnRate / moveAtLevel.learnRate;
+                    }
+
+                    if (moveTypeCounts.containsKey(type))
+                        moveTypeCounts.replace(type,moveTypeCounts.get(type) + 1);
+                    else
+                        moveTypeCounts.put(type,1);
+
+                    if (type != pkmn.primaryType && type != pkmn.secondaryType) {
+                        if (nonStabMoveTypeCounts.containsKey(type))
+                            nonStabMoveTypeCounts.replace(type, nonStabMoveTypeCounts.get(type) + 1);
+                        else
+                            nonStabMoveTypeCounts.put(type, 1);
+                    }
+                }
+            }
+        }
+        // System.out.println(moveTypeCounts);
+        // System.out.println(nonStabMoveTypeCounts);
+
+        for (Move mv : allMoves) {
+            if (mv != null) {
+                double eff = mv.efficacy;
+
+                if (eff <= 1 || eff >= 65) {
+                    if (mv.internalId == Moves.barrage || mv.internalId == Moves.conversion
+                            || mv.internalId == Moves.conversion2 || mv.internalId == Moves.firePledge
+                            || mv.internalId == Moves.flash || mv.internalId == Moves.frostBreath
+                            || mv.internalId == Moves.grassPledge || mv.internalId == Moves.present
+                            || mv.internalId == Moves.rockSmash || mv.internalId == Moves.scratch
+                            || mv.internalId == Moves.snarl
+                            || mv.internalId == Moves.splash || mv.internalId == Moves.stringShot
+                            || mv.internalId == Moves.switcheroo || mv.internalId == Moves.transform
+                            || mv.internalId == Moves.trickRoom || mv.internalId == Moves.waterPledge)
+                        mv.efficacyTier = 0;
+                    else
+                        mv.efficacyTier = 6;
+                } else if (eff < 10) {
+                    mv.efficacyTier = 0;
+                } else if (eff < 20) {
+                    mv.efficacyTier = 1;
+                } else if (eff < 30) {
+                    mv.efficacyTier = 2;
+                } else if (eff < 40) {
+                    mv.efficacyTier = 3;
+                } else if (eff < 50) {
+                    mv.efficacyTier = 4;
+                } else {
+                    mv.efficacyTier = 5;
+                }
+            }
+        }
+
+    }
+
+
     @Override
     public void randomizeMovePowers() {
         List<Move> moves = this.getMoves();
         for (Move mv : moves) {
             if (mv != null && mv.internalId != Moves.struggle && mv.power >= 10) {
+                double startPower = mv.power;
                 // "Generic" damaging move to randomize power
                 if (random.nextInt(3) != 2) {
                     // "Regular" move
@@ -2832,6 +3573,16 @@ public abstract class AbstractRomHandler implements RomHandler {
                         mv.power = 5;
                     }
                 }
+                double diffPower = (double)mv.power / startPower;
+                double tierExponent = 1 + 1/(Math.pow(Math.floor(mv.efficacyTier/2) + 1, 1.4) + 1);
+                if (diffPower > 1) {
+                    int powerDiff = (int) Math.floor(Math.log(diffPower)/Math.log(tierExponent));
+                    mv.efficacyTier = Math.min(mv.efficacyTier + powerDiff, 6);
+                }
+                else if (diffPower < 1) {
+                    int powerDiff = (int) Math.floor(Math.log(diffPower)/Math.log(1/tierExponent));
+                    mv.efficacyTier = Math.max(mv.efficacyTier - powerDiff, 0);
+                }
             }
         }
     }
@@ -2853,48 +3604,100 @@ public abstract class AbstractRomHandler implements RomHandler {
     }
 
     @Override
-    public void randomizeMoveAccuracies() {
+    public void changeMoveAccuracies(Settings settings) {
         List<Move> moves = this.getMoves();
+        Settings.MoveAccuracyMod moveAccuracyMod = settings.getMoveAccuracyMod();
+        boolean powerMovesOnly = settings.isPowerMovesOnly();
+        boolean keepPowerRatio = settings.isKeepPowerRatio();
+
         for (Move mv : moves) {
-            if (mv != null && mv.internalId != Moves.struggle && mv.hitratio >= 5) {
+            if (mv != null && mv.internalId != Moves.struggle && mv.hitratio >= 5
+                    && (!powerMovesOnly || mv.power >= 5)) {
+                double startAcc = mv.hitratio;
+                double startPower = mv.power;
                 // "Sane" accuracy randomization
                 // Broken into three tiers based on original accuracy
                 // Designed to limit the chances of 100% accurate OHKO moves and
                 // keep a decent base of 100% accurate regular moves.
 
-                if (mv.hitratio <= 50) {
-                    // lowest tier (acc <= 50)
-                    // new accuracy = rand(20...50) inclusive
-                    // with a 10% chance to increase by 50%
-                    mv.hitratio = random.nextInt(7) * 5 + 20;
-                    if (random.nextInt(10) == 0) {
-                        mv.hitratio = (mv.hitratio * 3 / 2) / 5 * 5;
-                    }
-                } else if (mv.hitratio < 90) {
-                    // middle tier (50 < acc < 90)
-                    // count down from 100% to 20% in 5% increments with 20%
-                    // chance to "stop" and use the current accuracy at each
-                    // increment
-                    // gives decent-but-not-100% accuracy most of the time
-                    mv.hitratio = 100;
-                    while (mv.hitratio > 20) {
-                        if (random.nextInt(10) < 2) {
-                            break;
+                switch (moveAccuracyMod) {
+                    case RANDOM:
+                        if (mv.hitratio <= 50) {
+                            // lowest tier (acc <= 50)
+                            // new accuracy = rand(20...50) inclusive
+                            // with a 10% chance to increase by 50%
+                            mv.hitratio = random.nextInt(7) * 5 + 20;
+                            if (random.nextInt(10) == 0) {
+                                mv.hitratio = (mv.hitratio * 3 / 2) / 5 * 5;
+                            }
+                        } else if (mv.hitratio < 90) {
+                            // middle tier (50 < acc < 90)
+                            // count down from 100% to 20% in 5% increments with 20%
+                            // chance to "stop" and use the current accuracy at each
+                            // increment
+                            // gives decent-but-not-100% accuracy most of the time
+                            mv.hitratio = 100;
+                            while (mv.hitratio > 20) {
+                                if (random.nextInt(10) < 2) {
+                                    break;
+                                }
+                                mv.hitratio -= 5;
+                            }
+                        } else {
+                            // highest tier (90 <= acc <= 100)
+                            // count down from 100% to 20% in 5% increments with 40%
+                            // chance to "stop" and use the current accuracy at each
+                            // increment
+                            // gives high accuracy most of the time
+                            mv.hitratio = 100;
+                            while (mv.hitratio > 20) {
+                                if (random.nextInt(10) < 4) {
+                                    break;
+                                }
+                                mv.hitratio -= 5;
+                            }
                         }
-                        mv.hitratio -= 5;
+                        break;
+                    case MAX:
+                        if (mv.internalId == Moves.fissure || mv.internalId == Moves.guillotine ||
+                                mv.internalId == Moves.hornDrill || mv.internalId == Moves.sheerCold)
+                            break;
+
+                        mv.hitratio = 100;
+                }
+
+                double diffAcc = mv.hitratio / startAcc;
+
+                if (keepPowerRatio && mv.power >= 5) {
+                    mv.power *= 1/diffAcc;
+                    if (mv.power < 35) mv.power = Math.round(mv.power);
+                    else mv.power = (int)Math.round(mv.power / 5.0) * 5;
+
+                    if (mv.power == startPower) {
+                        if (mv.hitratio < startAcc) mv.power += 5;
+                        if (mv.hitratio > startAcc) mv.power -= 5;
                     }
+
+                    if (mv.power > 255) {
+                        mv.power = 255;
+                        mv.hitratio = startAcc * startPower/mv.power;
+                        mv.hitratio = (int)Math.ceil(mv.hitratio / 5.0) * 5;
+                    }
+                    if (mv.power < 10) {
+                        mv.power = 10;
+                        mv.hitratio = startAcc * startPower/mv.power;
+                        mv.hitratio = (int)Math.ceil(mv.hitratio / 5.0) * 5;
+                    }
+
                 } else {
-                    // highest tier (90 <= acc <= 100)
-                    // count down from 100% to 20% in 5% increments with 40%
-                    // chance to "stop" and use the current accuracy at each
-                    // increment
-                    // gives high accuracy most of the time
-                    mv.hitratio = 100;
-                    while (mv.hitratio > 20) {
-                        if (random.nextInt(10) < 4) {
-                            break;
-                        }
-                        mv.hitratio -= 5;
+                    double tierExponent = 1 + 1/(Math.pow(Math.floor(mv.efficacyTier/2) + 1, 1.4) + 1);
+                    if (diffAcc > 1) {
+                        int powerDiff = (int) Math.floor(Math.log(diffAcc)/Math.log(tierExponent));
+                        mv.efficacyTier = Math.min(mv.efficacyTier + powerDiff, 6);
+                    }
+                    else if (diffAcc < 1) {
+                        int powerDiff = (int) Math.floor(Math.log(diffAcc)/Math.log(1/tierExponent));
+                        mv.efficacyTier = Math.max(mv.efficacyTier - powerDiff, 0);
                     }
                 }
             }
@@ -3320,7 +4123,48 @@ public abstract class AbstractRomHandler implements RomHandler {
                 updateMovePower(moves, Moves.multiAttack, 120);
             }
         }
+
+        if (generation >= 9 && generationOfPokemon() < 9) {
+            // Gen 1
+            // Recover 5 PP
+            updateMovePP(moves, Moves.recover, 5);
+            // Soft-Boiled 5 PP
+            updateMovePP(moves, Moves.softBoiled, 5);
+            // Rest 5 PP
+            updateMovePP(moves, Moves.rest, 5);
+
+            if (generationOfPokemon() >= 2) {
+                // Milk Drink 5 PP
+                updateMovePP(moves, Moves.milkDrink, 5);
+            }
+
+            if (generationOfPokemon() >= 3) {
+                // Slack Off 5 PP
+                updateMovePP(moves, Moves.slackOff, 5);
+            }
+
+            if (generationOfPokemon() >= 4) {
+                // Roost 5 PP
+                updateMovePP(moves, Moves.roost, 5);
+            }
+
+            if (generationOfPokemon() >= 7) {
+                // Shore Up 5 PP
+                updateMovePP(moves, Moves.shoreUp, 5);
+            }
+
+            if (generationOfPokemon() >= 8) {
+                // Grassy Glide 60 Power
+                updateMovePower(moves, Moves.grassyGlide, 60);
+                // Wicked Blow 75 Power
+                updateMovePower(moves, Moves.wickedBlow, 75);
+                // Glacial Lance 120 Power
+                updateMovePower(moves, Moves.glacialLance, 120);
+            }
+        }
     }
+
+    public int getPerfectAccuracy() { return perfectAccuracy; }
 
     private Map<Integer, boolean[]> moveUpdates;
 
@@ -3419,6 +4263,25 @@ public abstract class AbstractRomHandler implements RomHandler {
                 // should this move be forced damaging?
                 boolean attemptDamaging = i == lv1index || goodDamagingLeft > 0;
 
+                int levelOfMove = moves.get(i).level;
+                int levelTier;
+
+                if (levelOfMove < 10) {
+                    levelTier = 0;
+                } else if (levelOfMove < 20) {
+                    levelTier = 1;
+                } else if (levelOfMove < 30) {
+                    levelTier = 2;
+                } else if (levelOfMove < 40) {
+                    levelTier = 3;
+                } else if (levelOfMove < 50) {
+                    levelTier = 4;
+                } else if (levelOfMove < 65) {
+                    levelTier = 5;
+                } else {
+                    levelTier = 6;
+                }
+
                 // type themed?
                 Type typeOfMove = null;
                 if (typeThemed) {
@@ -3428,27 +4291,46 @@ public abstract class AbstractRomHandler implements RomHandler {
 
                         Type otherType = pkmn.primaryType == Type.NORMAL ? pkmn.secondaryType : pkmn.primaryType;
 
-                        // Normal/OTHER: 10% normal, 30% other, 60% random
-                        if (picked < 0.1) {
+                        // Normal/OTHER: 15% normal, 30% other, 55% random
+                        if (picked < 0.15) {
                             typeOfMove = Type.NORMAL;
-                        } else if (picked < 0.4) {
+                        } else if (picked < 0.45) {
                             typeOfMove = otherType;
                         }
                         // else random
                     } else if (pkmn.secondaryType != null) {
-                        // Primary/Secondary: 20% primary, 20% secondary, 60% random
-                        if (picked < 0.2) {
+                        // Primary/Secondary: 25% primary, 20% secondary, 55% random
+                        if (picked < 0.25) {
                             typeOfMove = pkmn.primaryType;
-                        } else if (picked < 0.4) {
+                        } else if (picked < 0.45) {
                             typeOfMove = pkmn.secondaryType;
                         }
                         // else random
                     } else {
-                        // Primary/None: 40% primary, 60% random
-                        if (picked < 0.4) {
+                        // Primary/None: 45% primary, 55% random
+                        if (picked < 0.45) {
                             typeOfMove = pkmn.primaryType;
                         }
                         // else random
+                    }
+
+                    if (typeOfMove == null) {
+                        Type chosenType = Type.NORMAL;
+                        double totalCount = 0;
+                        for (Map.Entry<Type, Integer> nonStabMoveType : nonStabMoveTypeCounts.entrySet()) {
+                            totalCount += nonStabMoveType.getValue();
+                        }
+                        double currentCount = 0;
+                        double randomType = random.nextDouble();
+                        for (Map.Entry<Type, Integer> nonStabMoveType : nonStabMoveTypeCounts.entrySet()) {
+                            currentCount += nonStabMoveType.getValue();
+
+                            if (randomType < (currentCount / totalCount)) {
+                                chosenType = nonStabMoveType.getKey();
+                                break;
+                            }
+                        }
+                        typeOfMove = chosenType;
                     }
                 }
 
@@ -3479,8 +4361,15 @@ public abstract class AbstractRomHandler implements RomHandler {
 
                 // now pick a move until we get a valid one
                 Move mv = pickList.get(random.nextInt(pickList.size()));
-                while (learnt.contains(mv.number)) {
+                int count = 0;
+                int range = 0;
+                while (learnt.contains(mv.number) || Math.abs(levelTier - mv.efficacyTier) >= range) {
                     mv = pickList.get(random.nextInt(pickList.size()));
+                    count++;
+                    if (count > 1000) {
+                        range++;
+                        count = 0;
+                    }
                 }
 
                 if (i == lv1index) {
@@ -3492,16 +4381,16 @@ public abstract class AbstractRomHandler implements RomHandler {
 
             }
 
-            Collections.shuffle(learnt, random);
-            if (learnt.get(lv1index) != lv1AttackingMove) {
-                for (int i = 0; i < learnt.size(); i++) {
-                    if (learnt.get(i) == lv1AttackingMove) {
-                        learnt.set(i, learnt.get(lv1index));
-                        learnt.set(lv1index, lv1AttackingMove);
-                        break;
-                    }
-                }
-            }
+//            Collections.shuffle(learnt, random);
+//            if (learnt.get(lv1index) != lv1AttackingMove) {
+//                for (int i = 0; i < learnt.size(); i++) {
+//                    if (learnt.get(i) == lv1AttackingMove) {
+//                        learnt.set(i, learnt.get(lv1index));
+//                        learnt.set(lv1index, lv1AttackingMove);
+//                        break;
+//                    }
+//                }
+//            }
 
             // write all moves for the pokemon
             for (int i = 0; i < learnt.size(); i++) {
@@ -3568,27 +4457,46 @@ public abstract class AbstractRomHandler implements RomHandler {
 
                         Type otherType = pkmn.primaryType == Type.NORMAL ? pkmn.secondaryType : pkmn.primaryType;
 
-                        // Normal/OTHER: 10% normal, 30% other, 60% random
-                        if (picked < 0.1) {
+                        // Normal/OTHER: 15% normal, 30% other, 55% random
+                        if (picked < 0.15) {
                             typeOfMove = Type.NORMAL;
-                        } else if (picked < 0.4) {
+                        } else if (picked < 0.45) {
                             typeOfMove = otherType;
                         }
                         // else random
                     } else if (pkmn.secondaryType != null) {
-                        // Primary/Secondary: 20% primary, 20% secondary, 60% random
-                        if (picked < 0.2) {
+                        // Primary/Secondary: 25% primary, 20% secondary, 55% random
+                        if (picked < 0.25) {
                             typeOfMove = pkmn.primaryType;
-                        } else if (picked < 0.4) {
+                        } else if (picked < 0.45) {
                             typeOfMove = pkmn.secondaryType;
                         }
                         // else random
                     } else {
-                        // Primary/None: 40% primary, 60% random
-                        if (picked < 0.4) {
+                        // Primary/None: 45% primary, 55% random
+                        if (picked < 0.45) {
                             typeOfMove = pkmn.primaryType;
                         }
                         // else random
+                    }
+
+                    if (typeOfMove == null) {
+                        Type chosenType = Type.NORMAL;
+                        double totalCount = 0;
+                        for (Map.Entry<Type, Integer> nonStabMoveType : nonStabMoveTypeCounts.entrySet()) {
+                            totalCount += nonStabMoveType.getValue();
+                        }
+                        double currentCount = 0;
+                        double randomType = random.nextDouble();
+                        for (Map.Entry<Type, Integer> nonStabMoveType : nonStabMoveTypeCounts.entrySet()) {
+                            currentCount += nonStabMoveType.getValue();
+
+                            if (randomType < (currentCount / totalCount)) {
+                                chosenType = nonStabMoveType.getKey();
+                                break;
+                            }
+                        }
+                        typeOfMove = chosenType;
                     }
                 }
 
@@ -3619,8 +4527,15 @@ public abstract class AbstractRomHandler implements RomHandler {
 
                 // now pick a move until we get a valid one
                 Move mv = pickList.get(random.nextInt(pickList.size()));
-                while (learnt.contains(mv.number)) {
+                int count = 0;
+                int minTier = 3;
+                while (learnt.contains(mv.number) || mv.efficacyTier < minTier) {
                     mv = pickList.get(random.nextInt(pickList.size()));
+                    count++;
+                    if (count > 1000) {
+                        minTier--;
+                        count = 0;
+                    }
                 }
 
                 goodDamagingLeft--;
@@ -3658,7 +4573,7 @@ public abstract class AbstractRomHandler implements RomHandler {
                 }
 
                 if (!GlobalConstants.bannedForDamagingMove[mv.number]) {
-                    if (mv.isGoodDamaging(perfectAccuracy)) {
+                    if (mv.power > 0) {
                         validDamagingMoves.add(mv);
                         if (mv.type != null) {
                             if (!validTypeDamagingMoves.containsKey(mv.type)) {
@@ -3929,6 +4844,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         int starterCount = starterCount();
         pickedStarters = new ArrayList<>();
         List<Pokemon> banned = getBannedFormesForPlayerPokemon();
+
         if (abilitiesUnchanged) {
             List<Pokemon> abilityDependentFormes = getAbilityDependentFormes();
             banned.addAll(abilityDependentFormes);
@@ -3936,16 +4852,171 @@ public abstract class AbstractRomHandler implements RomHandler {
         if (banIrregularAltFormes) {
             banned.addAll(getIrregularFormes());
         }
-        for (int i = 0; i < starterCount; i++) {
+
+        int maxSetTries = 5;
+        int maxPokeTries = 3000;
+        int count = 0;
+        for (int i = 0; i < starterCount && count < maxSetTries; i++) {
             Pokemon pkmn = allowAltFormes ? randomPokemonInclFormes() : randomPokemon();
-            while (pickedStarters.contains(pkmn) || banned.contains(pkmn) || pkmn.actuallyCosmetic) {
+            int subCount = 0;
+            while (subCount < maxPokeTries
+                    && (pickedStarters.contains(pkmn)
+                    || banned.contains(pkmn)
+                    || pkmn.actuallyCosmetic
+                    || !meetsStarterRequirements(settings, pkmn, i, subCount, maxPokeTries))) {
                 pkmn = allowAltFormes ? randomPokemonInclFormes() : randomPokemon();
+                subCount++;
+                // if (subCount % 590 == 0) System.out.println("Sub: " + subCount);
             }
             pickedStarters.add(pkmn);
+            if (subCount >= maxPokeTries) {
+                pickedStarters.clear();
+                i = -1;
+                count++;
+            }
+            // System.out.println("Count: " + count);
         }
-        setStarters(pickedStarters);
+
+        if (count >= maxSetTries) {
+            if (startersFailed) {
+                pickedStarters.addAll(getStarters());
+                setStarters(pickedStarters);
+            }
+            else {
+                startersFailed = true;
+                randomizeStarters(settings);
+            }
+        } else {
+            setStarters(pickedStarters);
+        }
     }
 
+    private boolean meetsStarterRequirements (Settings settings, Pokemon pk, int starterIndex, int tries, int maxTries) {
+        List<Pokemon> allPokes = getPokemon();
+        int pokeIndex = pk.updatedSPTIndex;
+        int numEvos = settings.getNumStarterEvos();
+
+        // The highest percent above and below the initial target we are willing to go to
+        int maxPercent = 20;
+        double attemptScale = Math.log(maxPercent)/Math.log(maxTries);
+        // Attempt modifier starts at 0 and very gradually increases to the max percent as we fail attempts
+        int attemptModifier = (int)(Math.pow(tries,attemptScale)/100.0*(double)updatedSPTSort.size());
+
+        boolean usePowerLevels = settings.areStartersSimilarStrength();
+        boolean evoPowers = settings.isStartersSSEvos();
+        boolean exactEvos = settings.areStartersExactEvos();
+        boolean baseEvosOnly = settings.areStartersBaseEvosOnly();
+        boolean noSplitEvos = settings.areStartersNoSplitEvos();
+        boolean distinctTypes = settings.areStartersDistinctTypes();
+        StarterStrength starterStrength = startersFailed || starterIndex > 0 ? StarterStrength.EACHOTHER : settings.getStarterStrength();
+        Pokemon currentStarter = getStarters().get(starterIndex);
+
+        boolean requirementsMet = true;
+
+        // Always check if the number of evolutions from the chosen pokemon is correct
+        if (exactEvos) requirementsMet = requirementsMet && pk.finalStageNumber - pk.evoStageNumber == numEvos;
+        else  requirementsMet = requirementsMet && pk.finalStageNumber - pk.evoStageNumber >= numEvos;
+
+        if (noSplitEvos) requirementsMet = requirementsMet && pk.hasSplitEvo() == 0;
+        if (baseEvosOnly) requirementsMet = requirementsMet && pk.evolutionsTo.size() == 0;
+
+        if (distinctTypes) {
+            for (Pokemon starter : pickedStarters) {
+                requirementsMet = requirementsMet && pk.primaryType != starter.primaryType
+                        && pk.primaryType != starter.secondaryType && pk.secondaryType != starter.primaryType;
+                if ((double)maxTries/tries <= .8) {
+                    requirementsMet = requirementsMet && pk.secondaryType != starter.secondaryType;
+                }
+            }
+        }
+
+        if (usePowerLevels) {
+            Pokemon compare;
+            int compareIndex;
+
+            switch (starterStrength) {
+                // We are going to check the pokemon's relative power after the stats have been changed
+                // against the relative power of the original starter before stats were changed
+                case ORIGINAL:
+                    compare = currentStarter;
+                    compareIndex = compare.baseSPTIndex;
+                    if (evoPowers) {
+                        pokeIndex = pk.updatedFinalSPTIndex;
+                        compareIndex = compare.baseFinalSPTIndex;
+                    }
+                    requirementsMet = requirementsMet
+                            && pokeIndex >= (compareIndex - updatedSPTSort.size() / 40) - attemptModifier
+                            && pokeIndex <= (compareIndex + updatedSPTSort.size() / 40) + attemptModifier;
+                    break;
+
+                // Only run this case if we've already chosen our first starter
+                // We will compare the last two starters against the first starter
+                case EACHOTHER:
+                    if (starterIndex > 0) {
+                        compare = pickedStarters.get(0);
+                        compareIndex = compare.updatedSPTIndex;
+                        if (starterIndex == 2) {
+                            compareIndex = (compareIndex + pickedStarters.get(1).updatedSPTIndex) / 2;
+                        }
+                        if (evoPowers) {
+                            pokeIndex = pk.updatedFinalSPTIndex;
+                            compareIndex = compare.updatedFinalSPTIndex;
+                            if (starterIndex == 2) {
+                                compareIndex = (compareIndex + pickedStarters.get(1).updatedFinalSPTIndex) / 2;
+                            }
+                        }
+                        requirementsMet = requirementsMet
+                                && pokeIndex >= (compareIndex - updatedSPTSort.size() / 50) - attemptModifier
+                                && pokeIndex <= (compareIndex + updatedSPTSort.size() / 50) + attemptModifier;
+                    }
+                    break;
+
+                // We look for pokemon at the bottom of the power list
+                case WEAKEST:
+                    if (evoPowers) {
+                        pokeIndex = pk.updatedFinalSPTIndex;
+                    }
+                    requirementsMet = requirementsMet
+                            && pokeIndex <= (updatedSPTSort.size() / 10) + (2 * attemptModifier);
+                    break;
+
+                // We look for pokemon at the top of the power list
+                case STRONGEST:
+                    if (evoPowers) {
+                        pokeIndex = pk.updatedFinalSPTIndex;
+                    }
+                    requirementsMet = requirementsMet
+                            && pokeIndex >= (updatedSPTSort.size() - updatedSPTSort.size() / 10) - (2 * attemptModifier);
+                    break;
+
+                // We look for pokemon at the top of the power list
+                case MODERATE:
+                    if (evoPowers) {
+                        pokeIndex = pk.updatedFinalSPTIndex;
+                    }
+                    requirementsMet = requirementsMet
+                            && pokeIndex >= ((updatedSPTSort.size() / 2) - updatedSPTSort.size() / 20) - attemptModifier
+                            && pokeIndex <= ((updatedSPTSort.size() / 2) + updatedSPTSort.size() / 20) + attemptModifier;
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+//        if (usePowerLevels && starterIndex > 0)  {
+//            requirementsMet = requirementsMet
+//                    && pk.baseFinalSPTIndex >= pickedStarters.get(0).baseFinalSPTIndex - updatedSPTSort.size()/30
+//                    && pk.baseFinalSPTIndex <= pickedStarters.get(0).baseFinalSPTIndex + updatedSPTSort.size()/30;
+//        }
+
+        return requirementsMet;
+    }
+
+
+
+
+    /* Randomize for Two Evos is now Obsolete
     @Override
     public void randomizeBasicTwoEvosStarters(Settings settings) {
         boolean abilitiesUnchanged = settings.getAbilitiesMod() == Settings.AbilitiesMod.UNCHANGED;
@@ -3955,6 +5026,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         int starterCount = starterCount();
         pickedStarters = new ArrayList<>();
         List<Pokemon> banned = getBannedFormesForPlayerPokemon();
+
         if (abilitiesUnchanged) {
             List<Pokemon> abilityDependentFormes = getAbilityDependentFormes();
             banned.addAll(abilityDependentFormes);
@@ -3962,6 +5034,8 @@ public abstract class AbstractRomHandler implements RomHandler {
         if (banIrregularAltFormes) {
             banned.addAll(getIrregularFormes());
         }
+
+
         for (int i = 0; i < starterCount; i++) {
             Pokemon pkmn = random2EvosPokemon(allowAltFormes);
             while (pickedStarters.contains(pkmn) || banned.contains(pkmn)) {
@@ -3969,8 +5043,10 @@ public abstract class AbstractRomHandler implements RomHandler {
             }
             pickedStarters.add(pkmn);
         }
+
+
         setStarters(pickedStarters);
-    }
+    }*/
 
     @Override
     public List<Pokemon> getPickedStarters() {
@@ -4112,7 +5188,7 @@ public abstract class AbstractRomHandler implements RomHandler {
                 if (old.forme > 0) {
                     oldPK = getAltFormeOfPokemon(oldPK, old.forme);
                 }
-                Integer oldBST = oldPK.bstForPowerLevels();
+                Integer oldBST = oldPK.bst();
                 if (oldBST >= 600 && limit600) {
                     if (reallySwapMegaEvos && old.canMegaEvolve()) {
                         newPK = getMegaEvoPokemon(mainPokemonList, pokemonLeft, newStatic);
@@ -4408,7 +5484,7 @@ public abstract class AbstractRomHandler implements RomHandler {
             if (GlobalConstants.bannedRandomMoves[mv.number] || GlobalConstants.zMoves.contains(mv.number) ||
                     hms.contains(mv.number) || banned.contains(mv.number)) {
                 unusableMoves.add(mv);
-            } else if (GlobalConstants.bannedForDamagingMove[mv.number] || !mv.isGoodDamaging(perfectAccuracy)) {
+            } else if (GlobalConstants.bannedForDamagingMove[mv.number] || !(mv.power > 0)) {
                 unusableDamagingMoves.add(mv);
             }
         }
@@ -4424,11 +5500,32 @@ public abstract class AbstractRomHandler implements RomHandler {
         int goodDamagingLeft = (int)Math.round(goodDamagingPercentage * (tmCount - preservedFieldMoveCount));
 
         for (int i = 0; i < tmCount - preservedFieldMoveCount; i++) {
-            Move chosenMove;
-            if (goodDamagingLeft > 0 && usableDamagingMoves.size() > 0) {
-                chosenMove = usableDamagingMoves.get(random.nextInt(usableDamagingMoves.size()));
+            Move chosenMove = null;
+            double tierRandomizer = random.nextDouble();
+            if (tierRandomizer < .15) {
+                while (chosenMove == null || chosenMove.efficacyTier > 1) {
+                    if (goodDamagingLeft > 0 && usableDamagingMoves.size() > 0) {
+                        chosenMove = usableDamagingMoves.get(random.nextInt(usableDamagingMoves.size()));
+                    } else {
+                        chosenMove = usableMoves.get(random.nextInt(usableMoves.size()));
+                    }
+                }
+            } else if (tierRandomizer > .85) {
+                while (chosenMove == null || chosenMove.efficacyTier < 5) {
+                    if (goodDamagingLeft > 0 && usableDamagingMoves.size() > 0) {
+                        chosenMove = usableDamagingMoves.get(random.nextInt(usableDamagingMoves.size()));
+                    } else {
+                        chosenMove = usableMoves.get(random.nextInt(usableMoves.size()));
+                    }
+                }
             } else {
-                chosenMove = usableMoves.get(random.nextInt(usableMoves.size()));
+                while (chosenMove == null || chosenMove.efficacyTier < 2 || chosenMove.efficacyTier > 4) {
+                    if (goodDamagingLeft > 0 && usableDamagingMoves.size() > 0) {
+                        chosenMove = usableDamagingMoves.get(random.nextInt(usableDamagingMoves.size()));
+                    } else {
+                        chosenMove = usableMoves.get(random.nextInt(usableMoves.size()));
+                    }
+                }
             }
             pickedMoves.add(chosenMove.number);
             usableMoves.remove(chosenMove);
@@ -4669,9 +5766,9 @@ public abstract class AbstractRomHandler implements RomHandler {
 
         for (Move mv : usableMoves) {
             if (GlobalConstants.bannedRandomMoves[mv.number] || tms.contains(mv.number) || hms.contains(mv.number)
-                    || banned.contains(mv.number) || GlobalConstants.zMoves.contains(mv.number)) {
+                    || banned.contains(mv.number) || GlobalConstants.zMoves.contains(mv.number) || mv.efficacyTier < 4) {
                 unusableMoves.add(mv);
-            } else if (GlobalConstants.bannedForDamagingMove[mv.number] || !mv.isGoodDamaging(perfectAccuracy)) {
+            } else if (GlobalConstants.bannedForDamagingMove[mv.number] || !(mv.power > 0)) {
                 unusableDamagingMoves.add(mv);
             }
         }
@@ -5335,26 +6432,131 @@ public abstract class AbstractRomHandler implements RomHandler {
     }
 
     @Override
-    public void condenseLevelEvolutions(int maxLevel, int maxIntermediateLevel) {
+    public void condenseLevelEvolutions(int maxLevel) {
         List<Pokemon> allPokemon = this.getPokemon();
-        // search for level evolutions
+        double minLevelToReduce = maxLevel * 0.6;
+
+        List<Pokemon> finalPokemon = finalEvolutionPokemonList;
+
+//        for (Pokemon pk : finalPokemon) {
+//            if (pk != null) {
+//                Evolution checkEvo = pk.evolutionsTo.get(0);
+//                if (checkEvo.type.usesLevel()) {
+//                    if (checkEvo.extraInfo > maxLevel) {
+//                        double changeRate = (double)maxLevel/(double)pk.evolutionsTo.get(0).extraInfo;
+//                        checkEvo.extraInfo *= changeRate;
+//
+//                        pk = checkEvo.from;
+//                        checkEvo = pk.evolutionsTo.get(0);
+//                        while (pk.evoStageNumber > 1) {
+//                            if (checkEvo.type.usesLevel()) {
+//                                checkEvo.extraInfo *= changeRate;
+//                            }
+//                            pk = checkEvo.from;
+//                            checkEvo = pk.evolutionsTo.get(0);
+//                        }
+//                    }
+//                }
+//            }
+//        }
+
+        double currentMax = 1;
+        double currentMin = 100;
+
         for (Pokemon pk : allPokemon) {
             if (pk != null) {
                 for (Evolution checkEvo : pk.evolutionsFrom) {
                     if (checkEvo.type.usesLevel()) {
-                        // If evo is intermediate and too high, bring it down
-                        // Else if it's just too high, bring it down
-                        if (checkEvo.extraInfo > maxIntermediateLevel && checkEvo.to.evolutionsFrom.size() > 0) {
-                            checkEvo.extraInfo = maxIntermediateLevel;
-                            addEvoUpdateCondensed(easierEvolutionUpdates, checkEvo, false);
-                        } else if (checkEvo.extraInfo > maxLevel) {
-                            checkEvo.extraInfo = maxLevel;
-                            addEvoUpdateCondensed(easierEvolutionUpdates, checkEvo, false);
+                        currentMax = Math.max(checkEvo.extraInfo, currentMax);
+                        currentMin = Math.min(checkEvo.extraInfo, currentMin);
+                    }
+                }
+            }
+        }
+
+
+        //search for level evolutions
+        for (Pokemon pk : allPokemon) {
+            if (pk != null) {
+                for (Evolution checkEvo : pk.evolutionsFrom) {
+                    if (checkEvo.type.usesLevel() && checkEvo.extraInfo > minLevelToReduce) {
+                        double positionOfLevel = (checkEvo.extraInfo - minLevelToReduce) / (currentMax - minLevelToReduce);
+                        int newLevel = (int) Math.ceil((positionOfLevel * (maxLevel - minLevelToReduce) + minLevelToReduce));
+                        if (pk.evoStageNumber == pk.finalStageNumber - 1) {
+                            if (checkEvo.extraInfo > maxLevel) {
+                                checkEvo.extraInfo = newLevel;
+                            }
+                        } else {
+                            checkEvo.extraInfo = newLevel;
                         }
                     }
                     if (checkEvo.type == EvolutionType.LEVEL_UPSIDE_DOWN) {
                         checkEvo.type = EvolutionType.LEVEL;
                         addEvoUpdateCondensed(easierEvolutionUpdates, checkEvo, false);
+                    }
+                }
+            }
+        }
+
+    }
+
+    @Override
+    public void spaceLevelEvolutions(Settings settings) {
+        List<Pokemon> allPokemon = this.getPokemon();
+
+        double currentMaxLevel = 1;
+        double currentMinLevel = 100;
+        double maxFinalStageNumber = 1;
+
+        for (Pokemon pk : allPokemon) {
+            if (pk != null) {
+                maxFinalStageNumber = Math.max(pk.finalStageNumber, maxFinalStageNumber);
+                for (Evolution checkEvo : pk.evolutionsFrom) {
+                    if (checkEvo.type.usesLevel()) {
+                        currentMaxLevel = Math.max(checkEvo.extraInfo, currentMaxLevel);
+                        currentMinLevel = Math.min(checkEvo.extraInfo, currentMinLevel);
+                    }
+                }
+            }
+        }
+
+        if (settings.isEvosMaxThreeStages()) {
+            int twoStageMax = 24;
+            int threeStageMin = 18;
+            int threeStageMax = 36;
+
+            for (Pokemon pk : allPokemon) {
+                if (pk != null) {
+                    for (Evolution checkEvo : pk.evolutionsFrom) {
+                        if (checkEvo.type == EvolutionType.LEVEL_UPSIDE_DOWN) {
+                            checkEvo.type = EvolutionType.LEVEL;
+                        }
+                        if (checkEvo.type.usesLevel()) {
+                            if (pk.finalStageNumber == 2) {
+                                if (checkEvo.extraInfo > twoStageMax)
+                                    checkEvo.extraInfo = twoStageMax;
+                            } else {
+                                int min = threeStageMin - ((pk.finalStageNumber - 3) * 2);
+                                int max = threeStageMax + ((pk.finalStageNumber - 3) * 4);
+                                int levelMark = (int) (min + ((pk.evoStageNumber - 1) * ((double) (max - min) / (pk.finalStageNumber - 2))));
+                                checkEvo.extraInfo = levelMark;
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            for (Pokemon pk : allPokemon) {
+                if (pk != null) {
+                    for (Evolution checkEvo : pk.evolutionsFrom) {
+                        if (checkEvo.type.usesLevel()) {
+                            double medianLevel = (currentMaxLevel + currentMinLevel) / 2;
+                            double rangeMagnitude = (currentMaxLevel - currentMinLevel) * ((double)pk.finalStageNumber/maxFinalStageNumber);
+                            double rangeMin = medianLevel - (rangeMagnitude/2);
+                            double increment = rangeMagnitude/((double)pk.finalStageNumber - 2);
+                            int levelMark = pk.finalStageNumber == 2 ? (int) medianLevel : (int) (rangeMin + (increment * ((double)pk.evoStageNumber - 1)));
+                            checkEvo.extraInfo = levelMark;
+                        }
                     }
                 }
             }
@@ -5618,7 +6820,9 @@ public abstract class AbstractRomHandler implements RomHandler {
             } else {
                 loops++;
             }
+
         }
+
 
         // If we made it out of the loop, we weren't able to randomize evos.
         throw new RandomizationException("Not able to randomize evolutions in a sane amount of retries.");
@@ -5791,31 +6995,71 @@ public abstract class AbstractRomHandler implements RomHandler {
         throw new RandomizationException("Not able to randomize evolutions in a sane amount of retries.");
     }
 
+    public List<Pokemon> getBasePokemon() { return basePokemonList; }
+
+    public List<Pokemon> getEvolvingPokemon() { return evolvingPokemonList; }
+
+    public void scaleCatchRates() {
+        List<Pokemon> pokes = getPokemonInclFormes();
+
+
+        double minBSTStatPower = 1000;
+        double maxBSTStatPower = 0;
+        for (Pokemon pk : pokes) {
+            if (pk != null) {
+                minBSTStatPower = Math.min(minBSTStatPower, pk.statPowerTotal);
+                maxBSTStatPower = Math.max(maxBSTStatPower, pk.statPowerTotal);
+            }
+        }
+
+        for (Pokemon pkmn : pokes) {
+            if (pkmn == null) {
+                continue;
+            }
+
+//            double positionOfBST = (pkmn.bst() - (double)randomizedMinBST) / ((double)randomizedMaxBST - (double)randomizedMinBST);
+//            positionOfBST = Math.pow(1 - positionOfBST,1.5);
+
+            double positionOfBST = (pkmn.statPowerTotal - maxBSTStatPower) / (minBSTStatPower - maxBSTStatPower);
+            // Pokemon with a BST Stat Power below 20% have a maxed catch rate
+            if (positionOfBST > .80) positionOfBST = 1;
+            else if (positionOfBST < .72 && positionOfBST > .62) positionOfBST = Math.pow(positionOfBST,1.33);
+            else if (positionOfBST > .47) positionOfBST = Math.pow(positionOfBST,1.66);
+            else positionOfBST = Math.pow(positionOfBST,2);
+
+            pkmn.catchRate = (int) (positionOfBST * 252 + 3);
+        }
+
+    }
+
     @Override
     public void changeCatchRates(Settings settings) {
         int minimumCatchRateLevel = settings.getMinimumCatchRateLevel();
 
-        int normalMin, legendaryMin;
+        int normalMin, bigMin;
         switch (minimumCatchRateLevel) {
             case 1:
             default:
                 normalMin = 75;
-                legendaryMin = 37;
+                bigMin = 37;
                 break;
             case 2:
                 normalMin = 128;
-                legendaryMin = 64;
+                bigMin = 64;
                 break;
             case 3:
                 normalMin = 200;
-                legendaryMin = 100;
+                bigMin = 100;
                 break;
             case 4:
-                normalMin = legendaryMin = 255;
+                normalMin = bigMin = 255;
                 break;
         }
-        minimumCatchRate(normalMin, legendaryMin);
+        minimumCatchRate(normalMin, bigMin);
     }
+
+
+
 
     @Override
     public void shuffleShopItems() {
@@ -5976,17 +7220,95 @@ public abstract class AbstractRomHandler implements RomHandler {
     }
 
     @Override
-    public void minimumCatchRate(int rateNonLegendary, int rateLegendary) {
+    public void minimumCatchRate(int rateNonBig, int rateBig) {
         List<Pokemon> pokes = getPokemonInclFormes();
         for (Pokemon pkmn : pokes) {
             if (pkmn == null) {
                 continue;
             }
-            int minCatchRate = pkmn.isLegendary() ? rateLegendary : rateNonLegendary;
+            int minCatchRate = pkmn.isBigPoke() ? rateBig : rateNonBig;
             pkmn.catchRate = Math.max(pkmn.catchRate, minCatchRate);
         }
 
     }
+
+
+    @Override
+    public void adjustExpYield(Settings settings) {
+        ExpYield mod = settings.getSelectedEXPYield();
+
+        List<Pokemon> pokes = getPokemonInclFormes();
+
+        switch (mod) {
+            case MINIMAL:
+                for (Pokemon pkmn : pokes) {
+                    if (pkmn == null) {
+                        continue;
+                    }
+                    pkmn.expYield = 1;
+                }
+                break;
+            case AVERAGE:
+                double count = 0;
+                double sum = 0;
+                for (Pokemon pkmn : pokes) {
+                    if (pkmn == null) {
+                        continue;
+                    }
+                    count++;
+                    sum += pkmn.expYield;
+                }
+                int average = (int)Math.floor(sum/count);
+                for (Pokemon pkmn : pokes) {
+                    if (pkmn == null) {
+                        continue;
+                    }
+                    pkmn.expYield = average;
+                }
+                break;
+            case MAXIMAL:
+                int maxExp = 1;
+                for (Pokemon pkmn : pokes) {
+                    if (pkmn == null) {
+                        continue;
+                    }
+                    maxExp = Math.max(maxExp, pkmn.expYield);
+                }
+                for (Pokemon pkmn : pokes) {
+                    if (pkmn == null) {
+                        continue;
+                    }
+                    pkmn.expYield = maxExp;
+                }
+                break;
+            case HITPOINTS:
+                for (Pokemon pkmn : pokes) {
+                    if (pkmn == null) {
+                        continue;
+                    }
+                    pkmn.expYield = pkmn.hp;
+                }
+                break;
+            case HIGHESTSTAT:
+                for (Pokemon pkmn : pokes) {
+                    if (pkmn == null) {
+                        continue;
+                    }
+                    pkmn.expYield = Math.max(pkmn.hp, Math.max(pkmn.attack, Math.max(pkmn.defense, Math.max(pkmn.spatk, Math.max(pkmn.spdef,pkmn.speed)))));
+                }
+                break;
+            case STATAVERAGE:
+                for (Pokemon pkmn : pokes) {
+                    if (pkmn == null) {
+                        continue;
+                    }
+                    pkmn.expYield = (int)pkmn.bst()/6;
+                }
+                break;
+        }
+    }
+
+
 
     @Override
     public void standardizeEXPCurves(Settings settings) {
@@ -6026,9 +7348,22 @@ public abstract class AbstractRomHandler implements RomHandler {
 
     private void updateMovePower(List<Move> moves, int moveNum, int power) {
         Move mv = moves.get(moveNum);
+        double startPower =  mv.power;
+
         if (mv.power != power) {
             mv.power = power;
             addMoveUpdate(moveNum, 0);
+        }
+
+        double diffPower = (double)mv.power / startPower;
+        double tierExponent = 1 + 1/(Math.pow(Math.floor(mv.efficacyTier/2) + 1, 1.4) + 1);
+        if (diffPower > 1) {
+            int powerDiff = (int) Math.floor(Math.log(diffPower)/Math.log(tierExponent));
+            mv.efficacyTier = Math.min(mv.efficacyTier + powerDiff, 6);
+        }
+        else if (diffPower < 1) {
+            int powerDiff = (int) Math.floor(Math.log(diffPower)/Math.log(1/tierExponent));
+            mv.efficacyTier = Math.max(mv.efficacyTier - powerDiff, 0);
         }
     }
 
@@ -6042,9 +7377,22 @@ public abstract class AbstractRomHandler implements RomHandler {
 
     private void updateMoveAccuracy(List<Move> moves, int moveNum, int accuracy) {
         Move mv = moves.get(moveNum);
+        double startAcc = mv.hitratio;
+
         if (Math.abs(mv.hitratio - accuracy) >= 1) {
             mv.hitratio = accuracy;
             addMoveUpdate(moveNum, 2);
+        }
+
+        double diffAcc = mv.hitratio / startAcc;
+        double tierExponent = 1 + 1/(Math.pow(Math.floor(mv.efficacyTier/2) + 1, 1.4) + 1);
+        if (diffAcc > 1) {
+            int powerDiff = (int) Math.floor(Math.log(diffAcc)/Math.log(tierExponent));
+            mv.efficacyTier = Math.min(mv.efficacyTier + powerDiff, 6);
+        }
+        else if (diffAcc < 1) {
+            int powerDiff = (int) Math.floor(Math.log(diffAcc)/Math.log(1/tierExponent));
+            mv.efficacyTier = Math.max(mv.efficacyTier - powerDiff, 0);
         }
     }
 
@@ -6126,26 +7474,61 @@ public abstract class AbstractRomHandler implements RomHandler {
         // start with within 10% and add 5% either direction till we find
         // something
         int currentBST = current.bstForPowerLevels();
-        int minTarget = currentBST - currentBST / 10;
-        int maxTarget = currentBST + currentBST / 10;
+        int minTarget = baseSPTSort.indexOf(current) - baseSPTSort.size() / 20;
+        int maxTarget = baseSPTSort.indexOf(current) + baseSPTSort.size() / 20;
         List<Pokemon> canPick = new ArrayList<>();
         List<Pokemon> emergencyPick = new ArrayList<>();
         int expandRounds = 0;
         while (canPick.isEmpty() || (canPick.size() < 3 && expandRounds < 3)) {
             for (Pokemon pk : pokemonPool) {
-                if (pk.bstForPowerLevels() >= minTarget && pk.bstForPowerLevels() <= maxTarget && !canPick.contains(pk) && !emergencyPick.contains(pk)) {
-                    if (alreadyPicked.contains(pk)) {
-                        emergencyPick.add(pk);
-                    } else {
-                        canPick.add(pk);
+                if (pk != null) {
+                    if (pk.baseSPTIndex >= minTarget && pk.baseSPTIndex <= maxTarget && !emergencyPick.contains(pk)) {
+                        if (alreadyPicked.contains(pk)) {
+                            emergencyPick.add(pk);
+                        } else {
+                            canPick.add(pk);
+                        }
                     }
                 }
             }
             if (expandRounds >= 2 && canPick.isEmpty()) {
                 canPick.addAll(emergencyPick);
             }
-            minTarget -= currentBST / 20;
-            maxTarget += currentBST / 20;
+            minTarget -= baseSPTSort.size() / 30;
+            maxTarget += baseSPTSort.size() / 30;
+            expandRounds++;
+        }
+        return canPick.get(this.random.nextInt(canPick.size()));
+    }
+
+    private Pokemon pickShufflePokeReplacement(List<Pokemon> pokemonPool, Pokemon current, boolean evoSane) {
+        // start with within 10% and add 5% either direction till we find
+        // something
+        List<Pokemon> canPick = new ArrayList<>();
+        List<Pokemon> emergencyPick = new ArrayList<>();
+        int currEvoDiff = current.finalStageNumber - current.evoStageNumber;
+        int expandRounds = 0;
+        while (canPick.isEmpty() || (canPick.size() < 3 && expandRounds < 3)) {
+            for (Pokemon pk : pokemonPool) {
+                if (pk != null) {
+                    int pkEvoDiff = pk.finalStageNumber - pk.evoStageNumber;
+                    // The criteria for which Pokemon are acceptable as a swap
+                    // depends on if we are using evolution sanity
+                    boolean sanityCheck = (evoSane && pk.evoStageNumber == current.evoStageNumber && pk.finalStageNumber == current.finalStageNumber)
+                            || (!evoSane && pkEvoDiff == currEvoDiff);
+
+                    if (sanityCheck && !emergencyPick.contains(pk)) {
+                        if (alreadyPicked.contains(pk)) {
+                            emergencyPick.add(pk);
+                        } else {
+                            canPick.add(pk);
+                        }
+                    }
+                }
+            }
+            if (expandRounds >= 2 && canPick.isEmpty()) {
+                canPick.addAll(emergencyPick);
+            }
             expandRounds++;
         }
         return canPick.get(this.random.nextInt(canPick.size()));
@@ -6423,6 +7806,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         return allPokes;
     }
 
+
     private Set<Pokemon> pokemonInArea(EncounterSet area) {
         Set<Pokemon> inArea = new TreeSet<>();
         for (Encounter enc : area.encounters) {
@@ -6580,6 +7964,74 @@ public abstract class AbstractRomHandler implements RomHandler {
                         changeStarterWithTag(currentTrainers, prefix + j + "-" + i, thisStarter, evolvedAbilitySlot);
                     }
                 }
+            }
+        }
+
+    }
+
+    private void rivalCarriesTeamUpdate(List<Trainer> currentTrainers, String prefix, int pokemonOffset) {
+        // Find the highest rival battle #
+        int highestRivalNum = 0;
+        List<Trainer> rivals = new ArrayList<>();
+        Trainer finalRival = null;
+        for (Trainer t : currentTrainers) {
+            if (t.tag != null && t.tag.startsWith(prefix)) {
+                rivals.add(t);
+                int rivalNumber = Integer.parseInt(t.tag.substring(prefix.length(), t.tag.indexOf('-')));
+                if (rivalNumber > highestRivalNum) {
+                    highestRivalNum = rivalNumber;
+                    finalRival = t;
+                }
+            }
+        }
+
+        if (highestRivalNum == 0) {
+            // This rival type not used in this game
+            return;
+        }
+
+        // Get Rival pokemon at highest placement
+        List<TrainerPokemon> rivalFinalTeam = finalRival.pokemon;
+        for (Trainer t : rivals) {
+            int teamSizeOffset = rivalFinalTeam.size() - t.pokemon.size();
+            for (int i = t.pokemon.size() - 1; i >= 0; i--) {
+                TrainerPokemon tpk = t.pokemon.get(i);
+                TrainerPokemon finalTPK = rivalFinalTeam.get(i + teamSizeOffset);
+
+                if (finalTPK.pokemon.evoStageNumber > 1) {
+                    Evolution preEvo = finalTPK.pokemon.evolutionsTo.get(0);
+                    Pokemon currentPokemon = finalTPK.pokemon;
+                    boolean deevolveMaybe = true;
+                    while (deevolveMaybe) {
+                        if (preEvo.type.usesLevel()) {
+                            if (tpk.level < preEvo.extraInfo) {
+                                currentPokemon = preEvo.from;
+                                if (currentPokemon.evolutionsTo.size() > 0)
+                                    preEvo = currentPokemon.evolutionsTo.get(0);
+                                else
+                                    deevolveMaybe = false;
+                            } else {
+                                deevolveMaybe = false;
+                            }
+                        } else {
+                            if (tpk.level < 25) {
+                                currentPokemon = preEvo.from;
+                                if (currentPokemon.evolutionsTo.size() > 0)
+                                    preEvo = currentPokemon.evolutionsTo.get(0);
+                                else
+                                    deevolveMaybe = false;
+                            } else {
+                                deevolveMaybe = false;
+                            }
+                        }
+                    }
+                    tpk.pokemon = currentPokemon;
+                } else {
+                    tpk.pokemon = finalTPK.pokemon;
+                }
+
+                tpk.moves = getPokemonLevelMoves(t.pokemon.get(i));
+                tpk.abilitySlot = finalTPK.abilitySlot;
             }
         }
 
@@ -6766,7 +8218,9 @@ public abstract class AbstractRomHandler implements RomHandler {
     private List<Pokemon> usedAsUniqueList = new ArrayList<>();
 
 
-    private Pokemon pickTrainerPokeReplacement(Pokemon current, boolean usePowerLevels, Type type,
+    private Pokemon pickTrainerPokeReplacement(Pokemon current, List<Pokemon> tPokes, boolean usePowerLevels,
+                                               boolean buffPokemon, Type typeToUse, Type typeFromTrainer,
+                                               boolean useClassTypes, Map<Type, Integer> classTypes,
                                                boolean noLegendaries, boolean wonderGuardAllowed,
                                                boolean usePlacementHistory, boolean swapMegaEvos,
                                                boolean abilitiesAreRandomized, boolean allowAltFormes,
@@ -6795,11 +8249,40 @@ public abstract class AbstractRomHandler implements RomHandler {
             if (pickFrom.isEmpty()) {
                 pickFrom = cachedAllList;
             }
-        } else if (type != null && cachedReplacementLists != null) {
-            // "Type Themed" settings
-            if (!cachedReplacementLists.containsKey(type)) {
-                List<Pokemon> pokemonOfType = allowAltFormes ? pokemonOfTypeInclFormes(type, noLegendaries) :
-                        pokemonOfType(type, noLegendaries);
+        } else if (classTypes != null && useClassTypes) {
+            // "Similar Types" setting
+            Type chosenType = Type.NORMAL;
+            double totalCount = 0;
+            for (Map.Entry<Type, Integer> classType : classTypes.entrySet()) {
+//                if (classType.getKey() == typeFromTrainer) totalCount += 2 * classType.getValue();
+//                else totalCount += classType.getValue();
+                totalCount += classType.getValue();
+            }
+            double currentCount = 0;
+            double trainerAssignedTypeFactor = .5;
+            double randomType = random.nextDouble();
+            if (typeFromTrainer == null) randomType *= trainerAssignedTypeFactor;
+            if (randomType > trainerAssignedTypeFactor) chosenType = typeFromTrainer;
+            else {
+                for (Map.Entry<Type, Integer> classType : classTypes.entrySet()) {
+//                if (classType.getKey() == typeFromTrainer) currentCount += 2 * classType.getValue();
+//                else currentCount += classType.getValue();
+                    currentCount += classType.getValue();
+
+                    if (randomType < (currentCount / totalCount) * trainerAssignedTypeFactor) {
+                        chosenType = classType.getKey();
+                        break;
+                    }
+                }
+            }
+//            System.out.print(classTypes + " - ");
+//            System.out.print(typeFromTrainer + " - ");
+//            System.out.print((int)(randomType * 100) + " - ");
+//            System.out.println(chosenType);
+
+            if (!cachedReplacementLists.containsKey(chosenType)) {
+                List<Pokemon> pokemonOfType = allowAltFormes ? pokemonOfTypeInclFormes(chosenType, noLegendaries) :
+                        pokemonOfType(chosenType, noLegendaries);
                 pokemonOfType.removeAll(this.getBannedFormesForPlayerPokemon());
                 if (!abilitiesAreRandomized) {
                     List<Pokemon> abilityDependentFormes = getAbilityDependentFormes();
@@ -6808,18 +8291,44 @@ public abstract class AbstractRomHandler implements RomHandler {
                 if (banIrregularAltFormes) {
                     pokemonOfType.removeAll(getIrregularFormes());
                 }
-                cachedReplacementLists.put(type, pokemonOfType);
+                cachedReplacementLists.put(chosenType, pokemonOfType);
             }
             if (swapMegaEvos) {
-                pickFrom = cachedReplacementLists.get(type)
+                pickFrom = cachedReplacementLists.get(chosenType)
                         .stream()
                         .filter(pickFrom::contains)
                         .collect(Collectors.toList());
                 if (pickFrom.isEmpty()) {
-                    pickFrom = cachedReplacementLists.get(type);
+                    pickFrom = cachedReplacementLists.get(chosenType);
                 }
             } else {
-                pickFrom = cachedReplacementLists.get(type);
+                pickFrom = cachedReplacementLists.get(chosenType);
+            }
+        } else if (typeToUse != null && cachedReplacementLists != null) {
+            // "Type Themed" settings
+            if (!cachedReplacementLists.containsKey(typeToUse)) {
+                List<Pokemon> pokemonOfType = allowAltFormes ? pokemonOfTypeInclFormes(typeToUse, noLegendaries) :
+                        pokemonOfType(typeToUse, noLegendaries);
+                pokemonOfType.removeAll(this.getBannedFormesForPlayerPokemon());
+                if (!abilitiesAreRandomized) {
+                    List<Pokemon> abilityDependentFormes = getAbilityDependentFormes();
+                    pokemonOfType.removeAll(abilityDependentFormes);
+                }
+                if (banIrregularAltFormes) {
+                    pokemonOfType.removeAll(getIrregularFormes());
+                }
+                cachedReplacementLists.put(typeToUse, pokemonOfType);
+            }
+            if (swapMegaEvos) {
+                pickFrom = cachedReplacementLists.get(typeToUse)
+                        .stream()
+                        .filter(pickFrom::contains)
+                        .collect(Collectors.toList());
+                if (pickFrom.isEmpty()) {
+                    pickFrom = cachedReplacementLists.get(typeToUse);
+                }
+            } else {
+                pickFrom = cachedReplacementLists.get(typeToUse);
             }
         }
 
@@ -6828,25 +8337,33 @@ public abstract class AbstractRomHandler implements RomHandler {
             pickFrom = withoutBannedPokemon;
         }
 
-        if (usePowerLevels) {
+        if (usePowerLevels || buffPokemon) {
             // start with within 10% and add 5% either direction till we find
             // something
             int currentBST = current.bstForPowerLevels();
-            int minTarget = currentBST - currentBST / 10;
-            int maxTarget = currentBST + currentBST / 10;
+            int minTarget = baseSPTSort.indexOf(current) - baseSPTSort.size() / 20;
+            int maxTarget = baseSPTSort.indexOf(current) + baseSPTSort.size() / 20;
+
+            if (buffPokemon) {
+                minTarget = baseSPTSort.size() - (baseSPTSort.size() * 20 / 100);
+                maxTarget = baseSPTSort.size();
+            }
+
             List<Pokemon> canPick = new ArrayList<>();
             int expandRounds = 0;
             while (canPick.isEmpty() || (canPick.size() < 3 && expandRounds < 2)) {
                 for (Pokemon pk : pickFrom) {
-                    if (pk.bstForPowerLevels() >= minTarget
-                            && pk.bstForPowerLevels() <= maxTarget
+                    if (updatedSPTSort.indexOf(pk) >= minTarget && updatedSPTSort.indexOf(pk) <= maxTarget
+                            && (!tPokes.contains(pk) || random.nextDouble() < .05)
                             && (wonderGuardAllowed || (pk.ability1 != Abilities.wonderGuard
                                     && pk.ability2 != Abilities.wonderGuard && pk.ability3 != Abilities.wonderGuard))) {
                         canPick.add(pk);
                     }
                 }
-                minTarget -= currentBST / 20;
-                maxTarget += currentBST / 20;
+
+                minTarget -= baseSPTSort.size() / 30;
+                maxTarget += baseSPTSort.size() / 30;
+
                 expandRounds++;
             }
             // If usePlacementHistory is True, then we need to do some
@@ -6884,24 +8401,22 @@ public abstract class AbstractRomHandler implements RomHandler {
 
     private Pokemon pickWildPowerLvlReplacement(List<Pokemon> pokemonPool, Pokemon current, boolean banSamePokemon,
             List<Pokemon> usedUp, int bstBalanceLevel) {
-        // start with within 10% and add 5% either direction till we find
+        // start with within 5% and add 3% either direction till we find
         // something
-        int balancedBST = bstBalanceLevel * 10 + 250;
-        int currentBST = Math.min(current.bstForPowerLevels(), balancedBST);
-        int minTarget = currentBST - currentBST / 10;
-        int maxTarget = currentBST + currentBST / 10;
+        int minTarget = baseSPTSort.indexOf(current) - baseSPTSort.size() / 20;
+        int maxTarget = baseSPTSort.indexOf(current) + baseSPTSort.size() / 20;
         List<Pokemon> canPick = new ArrayList<>();
         int expandRounds = 0;
         while (canPick.isEmpty() || (canPick.size() < 3 && expandRounds < 3)) {
             for (Pokemon pk : pokemonPool) {
-                if (pk.bstForPowerLevels() >= minTarget && pk.bstForPowerLevels() <= maxTarget
+                if (updatedSPTSort.indexOf(pk) >= minTarget && updatedSPTSort.indexOf(pk) <= maxTarget
                         && (!banSamePokemon || pk != current) && (usedUp == null || !usedUp.contains(pk))
                         && !canPick.contains(pk)) {
                     canPick.add(pk);
                 }
             }
-            minTarget -= currentBST / 20;
-            maxTarget += currentBST / 20;
+            minTarget -= baseSPTSort.size() / 30;
+            maxTarget += baseSPTSort.size() / 30;
             expandRounds++;
         }
         return canPick.get(this.random.nextInt(canPick.size()));
@@ -6964,19 +8479,19 @@ public abstract class AbstractRomHandler implements RomHandler {
         // start with within 10% and add 5% either direction till we find
         // something
         int currentBST = current.bstForPowerLevels();
-        int minTarget = limitBST ? currentBST - currentBST / 5 : currentBST - currentBST / 10;
-        int maxTarget = limitBST ? currentBST : currentBST + currentBST / 10;
+        int minTarget = baseSPTSort.indexOf(current) - baseSPTSort.size() / 20;
+        int maxTarget = baseSPTSort.indexOf(current) + baseSPTSort.size() / 20;
         List<Pokemon> canPick = new ArrayList<>();
         int expandRounds = 0;
         while (canPick.isEmpty() || (canPick.size() < 3 && expandRounds < 3)) {
             for (Pokemon pk : pokemonPool) {
-                if (pk.bstForPowerLevels() >= minTarget && pk.bstForPowerLevels() <= maxTarget
+                if (updatedSPTSort.indexOf(pk) >= minTarget && updatedSPTSort.indexOf(pk) <= maxTarget
                         && (!banSamePokemon || pk != current) && !canPick.contains(pk)) {
                     canPick.add(pk);
                 }
             }
-            minTarget -= currentBST / 20;
-            maxTarget += currentBST / 20;
+            minTarget -= baseSPTSort.size() / 30;
+            maxTarget += baseSPTSort.size() / 30;
             expandRounds++;
         }
         return canPick.get(this.random.nextInt(canPick.size()));
@@ -7478,5 +8993,20 @@ public abstract class AbstractRomHandler implements RomHandler {
     @Override
     public void setPickupItems(List<PickupItem> pickupItems) {
         // do nothing
+    }
+
+    public boolean getStartersFailed() {
+        return startersFailed;
+    }
+}
+
+class sortBySPT implements Comparator<Pokemon> {
+    public int compare(Pokemon a, Pokemon b) {
+
+        return (int)((a.statPowerTotal - b.statPowerTotal));
+
+        // Original sort used BSTs
+        // Current sort used a weighted stat average
+        // return a.bstForPowerLevels() - b.bstForPowerLevels();
     }
 }

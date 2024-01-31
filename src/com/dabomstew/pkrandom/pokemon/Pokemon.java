@@ -27,11 +27,8 @@ package com.dabomstew.pkrandom.pokemon;
 
 import com.dabomstew.pkrandom.constants.Species;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Pokemon implements Comparable<Pokemon> {
 
@@ -49,6 +46,9 @@ public class Pokemon implements Comparable<Pokemon> {
     public Type primaryType, secondaryType;
 
     public int hp, attack, defense, spatk, spdef, speed, special;
+    public double statPowerTotal;
+
+    public boolean isBig;
 
     public int ability1, ability2, ability3;
 
@@ -63,6 +63,12 @@ public class Pokemon implements Comparable<Pokemon> {
     public int callRate;
 
     public ExpCurve growthCurve;
+
+    public int evoStageNumber = 1, finalStageNumber = 1;
+    public int baseSPTIndex = 0, updatedSPTIndex = 0;
+    public int finalBST = 0;
+    public double finalSPT = 0;
+    public int baseFinalSPTIndex = 0, updatedFinalSPTIndex = 0;
 
     public List<Evolution> evolutionsFrom = new ArrayList<>();
     public List<Evolution> evolutionsTo = new ArrayList<>();
@@ -128,9 +134,10 @@ public class Pokemon implements Comparable<Pokemon> {
             spatk = (int) Math.max(1, Math.round(spaW / totW * bst)) + 10;
             spdef = (int) Math.max(1, Math.round(spdW / totW * bst)) + 10;
             speed = (int) Math.max(1, Math.round(speW / totW * bst)) + 10;
-        } else {
-            // Minimum 20 HP, 10 everything else
-            int bst = bst() - 70;
+        }
+        else {
+
+            int bst = bst() - 60;
 
             // Make weightings
             double hpW = random.nextDouble(), atkW = random.nextDouble(), defW = random.nextDouble();
@@ -138,7 +145,7 @@ public class Pokemon implements Comparable<Pokemon> {
 
             double totW = hpW + atkW + defW + spaW + spdW + speW;
 
-            hp = (int) Math.max(1, Math.round(hpW / totW * bst)) + 20;
+            hp = (int) Math.max(1, Math.round(hpW / totW * bst)) + 10;
             attack = (int) Math.max(1, Math.round(atkW / totW * bst)) + 10;
             defense = (int) Math.max(1, Math.round(defW / totW * bst)) + 10;
             spatk = (int) Math.max(1, Math.round(spaW / totW * bst)) + 10;
@@ -154,18 +161,428 @@ public class Pokemon implements Comparable<Pokemon> {
 
     }
 
+    public void randomizeBST(Random random) {
+        double randomBST = random.nextGaussian();
+
+        if (evoStageNumber == 1 && finalStageNumber == 1) {
+            if (random.nextDouble() < .5) randomBST = Math.max((randomBST * 45) + 620, 580);
+            else randomBST = Math.max((randomBST * 45) + 440, 315);
+        } else if (evoStageNumber == 1 && finalStageNumber == 2) {
+            randomBST = Math.max((randomBST * 25) + 320, 245);
+        }  else if (evoStageNumber == 1) {
+            randomBST = Math.max((randomBST * 25) + 290, 215);
+        } else if (evoStageNumber == 2 && finalStageNumber == 2) {
+            randomBST = Math.max((randomBST * 25) + 475, 400);
+        } else if (evoStageNumber > 2 && evoStageNumber == finalStageNumber) {
+            if (random.nextDouble() > .9) randomBST = Math.max((randomBST * 15) + 610, 575);
+            else randomBST = Math.max((randomBST * 20) + 500, 440);
+        } else {
+            double average = 290 * Math.pow((1 + (1/(double)finalStageNumber)),evoStageNumber-1);
+            double min = average - 75;
+            randomBST = Math.max((randomBST * 25) + average, min);
+        }
+
+        scaleStats((int)randomBST);
+
+        // Check for something we can't store
+        if (hp > 255 || attack > 255 || defense > 255 || spatk > 255 || spdef > 255 || speed > 255) {
+            // re roll
+            randomizeBST(random);
+        }
+    }
+
     public void copyRandomizedStatsUpEvolution(Pokemon evolvesFrom) {
         double ourBST = bst();
+
+        // ourBST *= ourBST/theirBST;
+
+//        if (finalStageNumber == evoStageNumber && evoStageNumber == 2) {
+//            bstRatio = 3;
+//        } else if (evolutionsFrom.size() == 0) {
+//            bstRatio = (nextGaussian() * 0.1) + 1.43;
+//        } else {
+//            bstRatio = (nextGaussian() * 0.1) + 1.27;
+//        }
+
+//        bstRatio = Math.max(1.23,bstRatio);
+//        bstRatio = Math.min(1.57,bstRatio);
+
+        scaleStats((int)ourBST, evolvesFrom);
+    }
+
+    public void scaleBSTUpEvolution(Pokemon evolvesFrom,Random random) {
+        double ourBST = bst();
         double theirBST = evolvesFrom.bst();
+        double minimumBSTRatio = 1 + (1/(double)(finalStageNumber+1));
+        double averageBSTRatio = 1 + (1/(double)finalStageNumber);
+        double randomRatioMod = random.nextGaussian() * (averageBSTRatio - minimumBSTRatio)/3;
+        double bstRatio = Math.max((randomRatioMod + averageBSTRatio), minimumBSTRatio);
 
-        double bstRatio = ourBST / theirBST;
+        // double bstRatio = 1 + (1/(double)finalStageNumber);
 
-        hp = (int) Math.min(255, Math.max(1, Math.round(evolvesFrom.hp * bstRatio)));
-        attack = (int) Math.min(255, Math.max(1, Math.round(evolvesFrom.attack * bstRatio)));
-        defense = (int) Math.min(255, Math.max(1, Math.round(evolvesFrom.defense * bstRatio)));
-        speed = (int) Math.min(255, Math.max(1, Math.round(evolvesFrom.speed * bstRatio)));
-        spatk = (int) Math.min(255, Math.max(1, Math.round(evolvesFrom.spatk * bstRatio)));
-        spdef = (int) Math.min(255, Math.max(1, Math.round(evolvesFrom.spdef * bstRatio)));
+//        if (finalStageNumber == evoStageNumber && evoStageNumber == 2) {
+//            bstRatio = 3;
+//        } else if (evolutionsFrom.size() == 0) {
+//            bstRatio = (nextGaussian() * 0.1) + 1.43;
+//        } else {
+//            bstRatio = (nextGaussian() * 0.1) + 1.27;
+//        }
+
+//        bstRatio = Math.max(1.23,bstRatio);
+//        bstRatio = Math.min(1.57,bstRatio);
+
+        if (ourBST < theirBST * bstRatio) ourBST = theirBST * bstRatio;
+
+        scaleStats((int)ourBST);
+    }
+
+    public void scaleStats(int newBSTI) {
+        double newBST = newBSTI;
+        double oldBST = bst();
+        double[][] stats = {{hp, attack, defense, spatk, spdef, speed},
+                {0, 1, 2, 3, 4, 5}};
+
+        // Sort stats from Highest to Lowest
+        for (int i = 0; i < stats[0].length - 1; i++) {
+            if (stats[0][i] < stats[0][i + 1]) {
+                double temp = stats[0][i];
+                stats[0][i] = stats[0][i + 1];
+                stats[0][i + 1] = temp;
+
+                temp = stats[1][i];
+                stats[1][i] = stats[1][i + 1];
+                stats[1][i + 1] = temp;
+
+                i = -1;
+            }
+        }
+
+        /*
+        if (newBST > oldBST) {
+
+            // Stat Proportional Growth Method
+            // Higher Stats grow Slower
+            double amountToGrow = newBST - oldBST;
+            double roomForGrowth = 0;
+
+            for (int i = 0; i <= stats[0].length - 1; i++) {
+                if (number == Species.shedinja && stats[1][i] == 0) {
+                    continue;
+                }
+                roomForGrowth += 255 - stats[0][i];
+            }
+
+            for (int i = 0; i <= stats[0].length - 1; i++) {
+                double oldStat = stats[0][i];
+                if (number == Species.shedinja && stats[1][i] == 0) {
+                    continue;
+                }
+                stats[0][i] += ((255 - stats[0][i])/roomForGrowth) * amountToGrow;
+                stats[0][i] = Math.round(stats[0][i]);
+                if (stats[0][i] > 255) {
+                    stats[0][i] = 255;
+                }
+            }
+        } else if (newBST < oldBST) {
+
+            // Stat Proportional Reduction Method
+            // Lower Stats fall slower
+            double amountToReduce = oldBST - newBST;
+            double roomForReduction = 0;
+
+            for (int i = 0; i <= stats[0].length - 1; i++) {
+                if ((number == Species.shedinja && stats[1][i] == 0) || stats[0][i] <= 10) {
+                    continue;
+                }
+                roomForReduction += stats[0][i] - 10;
+            }
+
+            for (int i = 0; i <= stats[0].length - 1; i++) {
+                if ((number == Species.shedinja && stats[1][i] == 0) || stats[0][i] <= 10) {
+                    continue;
+                }
+                stats[0][i] -= ((stats[0][i] - 10)/roomForReduction) * amountToReduce;
+                stats[0][i] = Math.round(stats[0][i]);
+                if (stats[0][i] < 10) {
+                    stats[0][i] = 10;
+                }
+            }
+        }
+         */
+
+        if (newBST > oldBST) {
+
+            // Direct Proportion Growth Method
+            // Stats grow in direct proportion to new BST
+            // Highest stat is checked for maxing out
+            // Repeat for all remaining stats
+            double currentStatTotal = oldBST;
+            double goalStatTotal = newBST;
+            double ratioToGoal = goalStatTotal/currentStatTotal;
+
+            for (int i = 0; i <= stats[0].length - 1; i++) {
+                double oldStat = stats[0][i];
+
+                if (!(number == Species.shedinja && stats[1][i] == 0)) {
+                    stats[0][i] *= ratioToGoal;
+                    stats[0][i] = Math.round(stats[0][i]);
+                    if (stats[0][i] > 255) {
+                        stats[0][i] = 255;
+                    }
+                }
+
+                currentStatTotal -= oldStat;
+                goalStatTotal -= stats[0][i];
+                ratioToGoal = goalStatTotal/currentStatTotal;
+            }
+        } else if (newBST < oldBST) {
+
+            // Stat Proportional Reduction Method
+            // Stats fall in direct proportion to new BST
+            // Lowest stat is checked for maxing out
+            // Repeat for all remaining stats
+            double currentStatTotal = oldBST;
+            double goalStatTotal = newBST;
+            double ratioToGoal = goalStatTotal/currentStatTotal;
+
+            for (int i = stats[0].length - 1; i >=0 ; i--) {
+                double oldStat = stats[0][i];
+
+                if (!((number == Species.shedinja && stats[1][i] == 0) || stats[0][i] <= 10)) {
+                    stats[0][i] *= ratioToGoal;
+                    stats[0][i] = Math.round(stats[0][i]);
+                    if (stats[0][i] < 10) {
+                        stats[0][i] = 10;
+                    }
+                }
+
+                currentStatTotal -= oldStat;
+                goalStatTotal -= stats[0][i];
+                ratioToGoal = goalStatTotal/currentStatTotal;
+            }
+        }
+
+        int currentTotal = 0;
+        for (int i = 0; i <= stats[0].length - 1; i++) {
+            currentTotal += (int)stats[0][i];
+        }
+
+        if (currentTotal != newBSTI) {
+            int diff = newBSTI - currentTotal;
+            int statIndex = stats[0].length - 1;
+            int miss = 0;
+            while (Math.abs(diff) > 0 && miss < stats[0].length) {
+                if ((int)stats[0][statIndex] < 255 && (int)stats[0][statIndex] > 10) {
+                    stats[0][statIndex] += Math.abs(diff)/diff;
+                    diff -= Math.abs(diff)/diff;
+                } else {
+                    miss++;
+                }
+                if (statIndex > 0) statIndex--;
+                else statIndex = stats[0].length - 1;
+            }
+        }
+
+        for (int i = stats[0].length - 1; i >= 0; i--) {
+            switch ((int) stats[1][i]) {
+                case 0:
+                    hp = (int) stats[0][i];
+                    break;
+                case 1:
+                    attack = (int) stats[0][i];
+                    break;
+                case 2:
+                    defense = (int) stats[0][i];
+                    break;
+                case 3:
+                    spatk = (int) stats[0][i];
+                    break;
+                case 4:
+                    spdef = (int) stats[0][i];
+                    break;
+                case 5:
+                    speed = (int) stats[0][i];
+                    break;
+                default:
+                    break;
+            }
+        }
+
+
+    }
+
+    public void scaleStats(int newBSTI, Pokemon pk) {
+        double newBST = newBSTI;
+        double oldBST = pk.bst();
+        double[][] stats = {{pk.hp, pk.attack, pk.defense, pk.spatk, pk.spdef, pk.speed},
+                {0, 1, 2, 3, 4, 5}};
+
+        for (int i = 0; i < stats[0].length - 1; i++) {
+            if (stats[0][i] < stats[0][i + 1]) {
+                double temp = stats[0][i];
+                stats[0][i] = stats[0][i + 1];
+                stats[0][i + 1] = temp;
+
+                temp = stats[1][i];
+                stats[1][i] = stats[1][i + 1];
+                stats[1][i + 1] = temp;
+
+                i = -1;
+            }
+        }
+
+        /*
+        if (newBST > oldBST) {
+
+            // Stat Proportional Growth Method
+            // Higher Stats grow Slower
+            double amountToGrow = newBST - oldBST;
+            double roomForGrowth = 0;
+
+            for (int i = 0; i <= stats[0].length - 1; i++) {
+                if (number == Species.shedinja && stats[1][i] == 0) {
+                    continue;
+                }
+                roomForGrowth += 255 - stats[0][i];
+            }
+
+            for (int i = 0; i <= stats[0].length - 1; i++) {
+                double oldStat = stats[0][i];
+                if (number == Species.shedinja && stats[1][i] == 0) {
+                    continue;
+                }
+                stats[0][i] += ((255 - stats[0][i])/roomForGrowth) * amountToGrow;
+                stats[0][i] = Math.round(stats[0][i]);
+                if (stats[0][i] > 255) {
+                    stats[0][i] = 255;
+                }
+            }
+        } else if (newBST < oldBST) {
+
+            // Stat Proportional Reduction Method
+            // Lower Stats fall slower
+            double amountToReduce = oldBST - newBST;
+            double roomForReduction = 0;
+
+            for (int i = 0; i <= stats[0].length - 1; i++) {
+                if ((number == Species.shedinja && stats[1][i] == 0) || stats[0][i] <= 10) {
+                    continue;
+                }
+                roomForReduction += stats[0][i] - 10;
+            }
+
+            for (int i = 0; i <= stats[0].length - 1; i++) {
+                if ((number == Species.shedinja && stats[1][i] == 0) || stats[0][i] <= 10) {
+                    continue;
+                }
+                stats[0][i] -= ((stats[0][i] - 10)/roomForReduction) * amountToReduce;
+                stats[0][i] = Math.round(stats[0][i]);
+                if (stats[0][i] < 10) {
+                    stats[0][i] = 10;
+                }
+            }
+        }
+         */
+
+        if (newBST > oldBST) {
+
+            // Direct Proportion Growth Method
+            // Stats grow in direct proportion to new BST
+            // Highest stat is checked for maxing out
+            // Repeat for all remaining stats
+            double currentStatTotal = oldBST;
+            double goalStatTotal = newBST;
+            double ratioToGoal = goalStatTotal/currentStatTotal;
+
+            for (int i = 0; i <= stats[0].length - 1; i++) {
+                double oldStat = stats[0][i];
+
+                if (!(number == Species.shedinja && stats[1][i] == 0)) {
+                    stats[0][i] *= ratioToGoal;
+                    stats[0][i] = Math.round(stats[0][i]);
+                    if (stats[0][i] > 255) {
+                        stats[0][i] = 255;
+                    }
+                }
+
+                currentStatTotal -= oldStat;
+                goalStatTotal -= stats[0][i];
+                ratioToGoal = goalStatTotal/currentStatTotal;
+            }
+        } else if (newBST < oldBST) {
+
+            // Stat Proportional Reduction Method
+            // Stats fall in direct proportion to new BST
+            // Lowest stat is checked for maxing out
+            // Repeat for all remaining stats
+            double currentStatTotal = oldBST;
+            double goalStatTotal = newBST;
+            double ratioToGoal = goalStatTotal/currentStatTotal;
+
+            for (int i = stats[0].length - 1; i >=0 ; i--) {
+                double oldStat = stats[0][i];
+
+                if (!((number == Species.shedinja && stats[1][i] == 0) || stats[0][i] <= 10)) {
+                    stats[0][i] *= ratioToGoal;
+                    stats[0][i] = Math.round(stats[0][i]);
+                    if (stats[0][i] < 10) {
+                        stats[0][i] = 10;
+                    }
+                }
+
+                currentStatTotal -= oldStat;
+                goalStatTotal -= stats[0][i];
+                ratioToGoal = goalStatTotal/currentStatTotal;
+            }
+        }
+
+        int currentTotal = 0;
+        for (int i = 0; i <= stats[0].length - 1; i++) {
+            currentTotal += (int)stats[0][i];
+        }
+
+        if (currentTotal != newBSTI) {
+            int diff = newBSTI - currentTotal;
+            int statIndex = stats[0].length - 1;
+            int miss = 0;
+            while (Math.abs(diff) > 0 && miss < stats[0].length) {
+                if ((int)stats[0][statIndex] < 255 && (int)stats[0][statIndex] > 10) {
+                    stats[0][statIndex] += Math.abs(diff)/diff;
+                    diff -= Math.abs(diff)/diff;
+                } else {
+                    miss++;
+                }
+                if (statIndex > 0) statIndex--;
+                else statIndex = stats[0].length - 1;
+            }
+        }
+
+        for (int i = stats[0].length - 1; i >= 0; i--) {
+            switch ((int) stats[1][i]) {
+                case 0:
+                    hp = (int) stats[0][i];
+                    break;
+                case 1:
+                    attack = (int) stats[0][i];
+                    break;
+                case 2:
+                    defense = (int) stats[0][i];
+                    break;
+                case 3:
+                    spatk = (int) stats[0][i];
+                    break;
+                case 4:
+                    spdef = (int) stats[0][i];
+                    break;
+                case 5:
+                    speed = (int) stats[0][i];
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        //if (bst() != newBSTI) speed += newBSTI - bst();
     }
 
     public void assignNewStatsForEvolution(Pokemon evolvesFrom, Random random) {
@@ -196,8 +613,26 @@ public class Pokemon implements Comparable<Pokemon> {
         spdef = (int) Math.min(255, Math.max(1, evolvesFrom.spdef + spdDiff));
     }
 
-    protected int bst() {
+    public int bst() {
         return hp + attack + defense + spatk + spdef + speed;
+    }
+
+    public void determineStatPowerTotal(double statAverage) {
+        double statRatioMax = 255/statAverage;
+        double statRatioMin = 1/statRatioMax;
+        double[] stats = {hp, attack, defense, spatk, spdef, speed};
+
+        statPowerTotal = 0;
+        for (int i = 0; i < stats.length; i++) {
+
+            stats[i] = Math.log(Math.max(stats[i]/statAverage,statRatioMin));
+            if (stats[i] > 0) stats[i] *= 2;
+            else if (stats[i] < 0) stats[i] /= 2;
+
+            if (number == Species.shedinja && i == 0) statPowerTotal += 2;
+            else statPowerTotal += stats[i];
+        }
+        statPowerTotal *= 100;
     }
 
     public int bstForPowerLevels() {
@@ -280,6 +715,7 @@ public class Pokemon implements Comparable<Pokemon> {
         return number - o.number;
     }
 
+
     private static final List<Integer> legendaries = Arrays.asList(Species.articuno, Species.zapdos, Species.moltres,
             Species.mewtwo, Species.mew, Species.raikou, Species.entei, Species.suicune, Species.lugia, Species.hoOh,
             Species.celebi, Species.regirock, Species.regice, Species.registeel, Species.latias, Species.latios,
@@ -310,6 +746,96 @@ public class Pokemon implements Comparable<Pokemon> {
         return formeNumber == 0 ? strongLegendaries.contains(this.number) : strongLegendaries.contains(this.baseForme.number);
     }
 
+    public boolean determineBigPoke(double minBST, double maxBST) {
+        double bigThresholdBST = ((maxBST - minBST) * 0.75) + minBST;
+        double bigThresholdStat = (bigThresholdBST/6) * 2;
+
+        isBig = bst() > bigThresholdBST || Collections
+                .max(Arrays.asList(hp, attack, defense, speed, spatk, spdef)) > bigThresholdStat;
+        return isBig;
+    }
+
+    public int determineEvoStageNumber() {
+        if (evolutionsTo.size() == 0)
+            evoStageNumber = 1;
+        else
+            evoStageNumber = evolutionsTo.get(0).from.determineEvoStageNumber() + 1;
+
+        return evoStageNumber;
+    }
+
+    public int findFinalEvoStageNumber() {
+        if (evolutionsFrom.size() == 0)
+            finalStageNumber = evoStageNumber;
+        else {
+            int maxStageNumber = evoStageNumber;
+            for (int i = 0; i < evolutionsFrom.size(); i++){
+                maxStageNumber = Math.max(maxStageNumber, evolutionsFrom.get(i).to.findFinalEvoStageNumber());
+            }
+            finalStageNumber = maxStageNumber;
+        }
+
+        return finalStageNumber;
+    }
+
+    public int findFinalBST() {
+        if (evolutionsFrom.size() == 0)
+            finalBST = bstForPowerLevels();
+        else {
+            int maxBST = bstForPowerLevels();
+            for (int i = 0; i < evolutionsFrom.size(); i++){
+                maxBST = Math.max(maxBST, evolutionsFrom.get(i).to.findFinalBST());
+            }
+            finalBST = maxBST;
+        }
+
+        return finalBST;
+    }
+
+    public double findFinalSPT() {
+        if (evolutionsFrom.size() == 0)
+            finalSPT = statPowerTotal;
+        else {
+            double maxSPT = statPowerTotal;
+            for (int i = 0; i < evolutionsFrom.size(); i++){
+                maxSPT = Math.max(maxSPT, evolutionsFrom.get(i).to.findFinalSPT());
+            }
+            finalSPT = maxSPT;
+        }
+
+        return finalSPT;
+    }
+
+    public int findFinalSPTIndex(List<Pokemon> BSTSort, boolean initial) {
+        if (evolutionsFrom.size() == 0)
+            if (initial) baseFinalSPTIndex = BSTSort.indexOf(this);
+            else updatedFinalSPTIndex = BSTSort.indexOf(this);
+        else {
+            int maxSPTIndex = BSTSort.indexOf(this);
+            for (int i = 0; i < evolutionsFrom.size(); i++){
+                maxSPTIndex = Math.max(maxSPTIndex, evolutionsFrom.get(i).to.findFinalSPTIndex(BSTSort, initial));
+            }
+            if (initial) baseFinalSPTIndex = maxSPTIndex;
+            else updatedFinalSPTIndex = maxSPTIndex;
+        }
+        if (initial) return baseFinalSPTIndex;
+        else return updatedFinalSPTIndex;
+    }
+
+    public boolean isBigPoke() { return isBig; }
+
+    public int hasSplitEvo() {
+        int value = 0;
+        if (evolutionsFrom.size() == 0) value = 0;
+        else if (evolutionsFrom.size() > 1) value = 1;
+        else {
+            for (int i = 0; i < evolutionsFrom.size(); i++) {
+                value = Math.max(value, evolutionsFrom.get(i).to.hasSplitEvo());
+            }
+        }
+        return value;
+    }
+
     // This method can only be used in contexts where alt formes are NOT involved; otherwise, some alt formes
     // will be considered as Ultra Beasts in SM.
     // In contexts where formes are involved, use "if (ultraBeastList.contains(...))" instead,
@@ -322,4 +848,29 @@ public class Pokemon implements Comparable<Pokemon> {
         return realCosmeticFormNumbers.isEmpty() ? num : realCosmeticFormNumbers.get(num);
     }
 
+    public List<Evolution> getEvolutionsFrom() {
+        return evolutionsFrom;
+    }
+
+    public List<Evolution> getFilteredEvolutionsFrom() {
+        // Filter out evolutions with a duplicate names
+        HashSet<String> nameSet = new HashSet<String>();
+        return evolutionsFrom.stream().filter(e -> nameSet.add(e.to.name))
+                .collect(Collectors.toList());
+    }
+
+    public void setEvolutionsFrom(List<Evolution> evolutionsFrom) {
+        this.evolutionsFrom = evolutionsFrom;
+    }
+
+    public List<Evolution> getEvolutionsTo() {
+        return evolutionsTo;
+    }
+
+    public void setEvolutionsTo(List<Evolution> evolutionsTo) {
+        this.evolutionsTo = evolutionsTo;
+    }
+
 }
+
+

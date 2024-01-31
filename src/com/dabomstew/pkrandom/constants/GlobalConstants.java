@@ -173,6 +173,11 @@ public class GlobalConstants {
             case 8:
                 map.put(Species.aegislash,new StatChange(Stat.DEF.val | Stat.SPDEF.val,140,140));
                 break;
+            case 9:
+                map.put(Species.cresselia,new StatChange(Stat.DEF.val | Stat.SPDEF.val, 110,120));
+                map.put(Species.zacian,new StatChange(Stat.ATK.val, 120));
+                map.put(Species.zamazenta,new StatChange(Stat.ATK.val, 120));
+                break;
         }
         return map;
     }
@@ -241,7 +246,7 @@ public class GlobalConstants {
 
     public static final int MIN_DAMAGING_MOVE_POWER = 50;
 
-    public static final int HIGHEST_POKEMON_GEN = 8;
+    public static final int HIGHEST_POKEMON_GEN = 9;
 
     // Eevee has 8 potential evolutions
     public static final int LARGEST_NUMBER_OF_SPLIT_EVOS = 8;

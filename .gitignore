@@ -23,6 +23,7 @@ src/com/dabomstew/pkrandom/localtests
 bin
 *.log
 *.bin
+*.html
 nbproject
 build.xml
 manifest.mf
