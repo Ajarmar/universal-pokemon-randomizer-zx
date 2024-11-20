@@ -4779,12 +4779,20 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
                 while (Gen4Constants.hgssBannedOverworldPokemon.contains(marillReplacement)) {
                     marillReplacement = this.random.nextInt(548) + 297;
                 }
+
                 byte[] fieldOverlay = readOverlay(romEntry.getInt("FieldOvlNumber"));
                 String prefix = Gen4Constants.lyraEthanMarillSpritePrefix;
                 int offset = find(fieldOverlay, prefix);
                 if (offset > 0) {
                     offset += prefix.length() / 2; // because it was a prefix
                     writeWord(fieldOverlay, offset, marillReplacement);
+                    if (Gen4Constants.hgssBigOverworldPokemon.contains(marillReplacement)) {
+                        // Write the constant to indicate it's big (0x208 | (20 << 10))
+                        writeWord(fieldOverlay, offset + 2, 0x5208);
+                    } else {
+                        // Write the constant to indicate it's normal-sized (0x227 | (19 << 10))
+                        writeWord(fieldOverlay, offset + 2, 0x4E27);
+                    }
                 }
                 writeOverlay(romEntry.getInt("FieldOvlNumber"), fieldOverlay);
 

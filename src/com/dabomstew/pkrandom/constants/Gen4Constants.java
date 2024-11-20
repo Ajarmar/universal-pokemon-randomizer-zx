@@ -461,67 +461,87 @@ public class Gen4Constants {
 
     public static final String lyraEthanMarillSpritePrefix = "274E0604C301274E0704E101274E0804";
 
+    public static final List<Integer> hgssBigOverworldPokemon = Arrays.asList(
+            536, // MMODEL_FOLLOWER_MON_STEELIX
+            537, // MMODEL_FOLLOWER_MON_STEELIX_F
+            579, // MMODEL_FOLLOWER_MON_LUGIA
+            580, // MMODEL_FOLLOWER_MON_HO_OH
+            651, // MMODEL_FOLLOWER_MON_WAILORD
+            712, // MMODEL_FOLLOWER_MON_KYOGRE
+            713, // MMODEL_FOLLOWER_MON_GROUDON
+            714, // MMODEL_FOLLOWER_MON_RAYQUAZA
+            833, // MMODEL_FOLLOWER_MON_DIALGA
+            834, // MMODEL_FOLLOWER_MON_PALKIA
+            836, // MMODEL_FOLLOWER_MON_REGIGIGAS
+            837, // MMODEL_FOLLOWER_MON_GIRATINA
+            838, // MMODEL_FOLLOWER_MON_GIRATINA_ORIGIN
+            845, // MMODEL_FOLLOWER_MON_ARCEUS_NORMAL
+            846, // MMODEL_FOLLOWER_MON_ARCEUS_FIGHTING
+            847, // MMODEL_FOLLOWER_MON_ARCEUS_FLYING
+            848, // MMODEL_FOLLOWER_MON_ARCEUS_POISON
+            849, // MMODEL_FOLLOWER_MON_ARCEUS_GROUND
+            850, // MMODEL_FOLLOWER_MON_ARCEUS_ROCK
+            851, // MMODEL_FOLLOWER_MON_ARCEUS_BUG
+            852, // MMODEL_FOLLOWER_MON_ARCEUS_GHOST
+            853, // MMODEL_FOLLOWER_MON_ARCEUS_STEEL
+            854, // MMODEL_FOLLOWER_MON_ARCEUS_MYSTERY
+            855, // MMODEL_FOLLOWER_MON_ARCEUS_FIRE
+            856, // MMODEL_FOLLOWER_MON_ARCEUS_WATER
+            857, // MMODEL_FOLLOWER_MON_ARCEUS_GRASS
+            858, // MMODEL_FOLLOWER_MON_ARCEUS_ELECTRIC
+            859, // MMODEL_FOLLOWER_MON_ARCEUS_PSYCHIC
+            860, // MMODEL_FOLLOWER_MON_ARCEUS_ICE
+            861, // MMODEL_FOLLOWER_MON_ARCEUS_DRAGON
+            862  // MMODEL_FOLLOWER_MON_ARCEUS_DARK
+    );
+
     public static final List<Integer> hgssBannedOverworldPokemon = Arrays.asList(
             // Unown alts (to avoid 28x chance of getting Unown)
-            // Too large Pokemon (box legendaries, Steelix, Wailord, Regigigas and Arceus)
-            502,
-            503,
-            504,
-            505,
-            506,
-            507,
-            508,
-            509,
-            510,
-            511,
-            512,
-            513,
-            514,
-            515,
-            516,
-            517,
-            518,
-            519,
-            520,
-            521,
-            522,
-            523,
-            524,
-            525,
-            526,
-            527,
-            528,
-            536,
-            537,
-            579,
-            580,
-            651,
-            712,
-            713,
-            714,
-            833,
-            834,
-            836,
-            837,
-            838,
-            845,
-            846,
-            847,
-            848,
-            849,
-            850,
-            851,
-            852,
-            853,
-            854,
-            855,
-            856,
-            857,
-            858,
-            859,
-            860,
-            861,
-            862
+            // Arcues alts (to avoid 18x chance of getting Arceus)
+            502, // MMODEL_FOLLOWER_MON_UNOWN_B
+            503, // MMODEL_FOLLOWER_MON_UNOWN_C
+            504, // MMODEL_FOLLOWER_MON_UNOWN_D
+            505, // MMODEL_FOLLOWER_MON_UNOWN_E
+            506, // MMODEL_FOLLOWER_MON_UNOWN_F
+            507, // MMODEL_FOLLOWER_MON_UNOWN_G
+            508, // MMODEL_FOLLOWER_MON_UNOWN_H
+            509, // MMODEL_FOLLOWER_MON_UNOWN_I
+            510, // MMODEL_FOLLOWER_MON_UNOWN_J
+            511, // MMODEL_FOLLOWER_MON_UNOWN_K
+            512, // MMODEL_FOLLOWER_MON_UNOWN_L
+            513, // MMODEL_FOLLOWER_MON_UNOWN_M
+            514, // MMODEL_FOLLOWER_MON_UNOWN_N
+            515, // MMODEL_FOLLOWER_MON_UNOWN_O
+            516, // MMODEL_FOLLOWER_MON_UNOWN_P
+            517, // MMODEL_FOLLOWER_MON_UNOWN_Q
+            518, // MMODEL_FOLLOWER_MON_UNOWN_R
+            519, // MMODEL_FOLLOWER_MON_UNOWN_S
+            520, // MMODEL_FOLLOWER_MON_UNOWN_T
+            521, // MMODEL_FOLLOWER_MON_UNOWN_U
+            522, // MMODEL_FOLLOWER_MON_UNOWN_V
+            523, // MMODEL_FOLLOWER_MON_UNOWN_W
+            524, // MMODEL_FOLLOWER_MON_UNOWN_X
+            525, // MMODEL_FOLLOWER_MON_UNOWN_Y
+            526, // MMODEL_FOLLOWER_MON_UNOWN_Z
+            527, // MMODEL_FOLLOWER_MON_UNOWN_QMARK
+            528, // MMODEL_FOLLOWER_MON_UNOWN_EXCL
+            846, // MMODEL_FOLLOWER_MON_ARCEUS_FIGHTING
+            847, // MMODEL_FOLLOWER_MON_ARCEUS_FLYING
+            848, // MMODEL_FOLLOWER_MON_ARCEUS_POISON
+            849, // MMODEL_FOLLOWER_MON_ARCEUS_GROUND
+            850, // MMODEL_FOLLOWER_MON_ARCEUS_ROCK
+            851, // MMODEL_FOLLOWER_MON_ARCEUS_BUG
+            852, // MMODEL_FOLLOWER_MON_ARCEUS_GHOST
+            853, // MMODEL_FOLLOWER_MON_ARCEUS_STEEL
+            854, // MMODEL_FOLLOWER_MON_ARCEUS_MYSTERY
+            855, // MMODEL_FOLLOWER_MON_ARCEUS_FIRE
+            856, // MMODEL_FOLLOWER_MON_ARCEUS_WATER
+            857, // MMODEL_FOLLOWER_MON_ARCEUS_GRASS
+            858, // MMODEL_FOLLOWER_MON_ARCEUS_ELECTRIC
+            859, // MMODEL_FOLLOWER_MON_ARCEUS_PSYCHIC
+            860, // MMODEL_FOLLOWER_MON_ARCEUS_ICE
+            861, // MMODEL_FOLLOWER_MON_ARCEUS_DRAGON
+            862  // MMODEL_FOLLOWER_MON_ARCEUS_DARK
     );
 
     public static final int convertOverworldSpriteToSpecies(int overworldSpriteID) {
