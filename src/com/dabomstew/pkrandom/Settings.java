@@ -52,6 +52,7 @@ public class Settings {
     public static final int LENGTH_OF_SETTINGS_DATA = 51;
 
     private CustomNamesSet customNames;
+    private BannedPokemonSet bannedPokemon;
 
     private String romName;
     private boolean updatedFromOldVersion = false;
@@ -203,6 +204,10 @@ public class Settings {
     private WildPokemonRestrictionMod wildPokemonRestrictionMod = WildPokemonRestrictionMod.NONE;
     private boolean useTimeBasedEncounters;
     private boolean blockWildLegendaries = true;
+    private boolean onlyRandomizeBannedWild = false;
+    private boolean onlyRandomizeBannedStatic = false;
+    private boolean onlyRandomizeBannedTrades = false;
+    private boolean onlyRandomizeBannedTrainer = false;
     private boolean useMinimumCatchRate;
     private int minimumCatchRateLevel = 1;
     private boolean randomizeWildPokemonHeldItems;
@@ -582,6 +587,11 @@ public class Settings {
         // 50 elite four unique pokemon (3 bits) + catch rate level (3 bits)
         out.write(eliteFourUniquePokemonNumber | ((minimumCatchRateLevel - 1) << 3));
 
+        // 51 Banlist Only Randomization
+        out.write(makeByteSelected(onlyRandomizeBannedWild, onlyRandomizeBannedStatic,
+                onlyRandomizeBannedTrades, onlyRandomizeBannedTrainer)
+        );
+
         try {
             byte[] romName = this.romName.getBytes("US-ASCII");
             out.write(romName.length);
@@ -597,6 +607,7 @@ public class Settings {
         try {
             writeFullInt(out, (int) checksum.getValue());
             writeFullInt(out, FileFunctions.getFileChecksum(SysConstants.customNamesFile));
+            writeFullInt(out, FileFunctions.getFileChecksum(SysConstants.bannedPokemonFile));
         } catch (IOException e) {
             e.printStackTrace(); // better than nothing
         }
@@ -871,6 +882,12 @@ public class Settings {
         settings.setEliteFourUniquePokemonNumber(data[50] & 0x7);
         settings.setMinimumCatchRateLevel(((data[50] & 0x38) >> 3) + 1);
 
+        settings.setOnlyRandomizeBannedWild(restoreState(data[51], 0));
+        settings.setOnlyRandomizeBannedStatic(restoreState(data[51], 1));
+        settings.setOnlyRandomizeBannedTrades(restoreState(data[51], 2));
+        settings.setOnlyRandomizeBannedTrainer(restoreState(data[51], 3));
+
+
         int romNameLength = data[LENGTH_OF_SETTINGS_DATA] & 0xFF;
         String romName = new String(data, LENGTH_OF_SETTINGS_DATA + 1, romNameLength, "US-ASCII");
         settings.setRomName(romName);
@@ -1021,6 +1038,13 @@ public class Settings {
 
     public Settings setCustomNames(CustomNamesSet customNames) {
         this.customNames = customNames;
+        return this;
+    }
+
+    public BannedPokemonSet getBannedPokemon() { return bannedPokemon;}
+
+    public Settings setBannedPokemon(BannedPokemonSet bannedPokemon) {
+        this.bannedPokemon = bannedPokemon;
         return this;
     }
 
@@ -1802,8 +1826,40 @@ public class Settings {
         return blockWildLegendaries;
     }
 
+    public boolean isOnlyRandomizeBannedWild() {
+        return currentRestrictions != null && currentRestrictions.ban_pokemon && onlyRandomizeBannedWild;
+    }
+
+    public boolean isOnlyRandomizeBannedStatic() {
+        return currentRestrictions != null && currentRestrictions.ban_pokemon && onlyRandomizeBannedStatic;
+    }
+
+    public boolean isOnlyRandomizeBannedTrades() {
+        return currentRestrictions != null && currentRestrictions.ban_pokemon && onlyRandomizeBannedTrades;
+    }
+
+    public boolean isOnlyRandomizeBannedTrainer() {
+        return currentRestrictions != null && currentRestrictions.ban_pokemon && onlyRandomizeBannedTrainer;
+    }
+
     public void setBlockWildLegendaries(boolean blockWildLegendaries) {
         this.blockWildLegendaries = blockWildLegendaries;
+    }
+
+    public void setOnlyRandomizeBannedWild(boolean onlyRandomizeBanned) {
+        this.onlyRandomizeBannedWild = onlyRandomizeBanned;
+    }
+
+    public void setOnlyRandomizeBannedTrades(boolean onlyRandomizeBanned) {
+        this.onlyRandomizeBannedTrades = onlyRandomizeBanned;
+    }
+
+    public void setOnlyRandomizeBannedStatic(boolean onlyRandomizeBanned) {
+        this.onlyRandomizeBannedStatic = onlyRandomizeBanned;
+    }
+
+    public void setOnlyRandomizeBannedTrainer(boolean onlyRandomizeBanned) {
+        this.onlyRandomizeBannedTrainer = onlyRandomizeBanned;
     }
 
     public boolean isUseMinimumCatchRate() {
@@ -2374,12 +2430,12 @@ public class Settings {
 
     private static void checkChecksum(byte[] data) {
         // Check the checksum
-        ByteBuffer buf = ByteBuffer.allocate(4).put(data, data.length - 8, 4);
+        ByteBuffer buf = ByteBuffer.allocate(4).put(data, data.length - 12, 4);
         buf.rewind();
         int crc = buf.getInt();
 
         CRC32 checksum = new CRC32();
-        checksum.update(data, 0, data.length - 8);
+        checksum.update(data, 0, data.length - 12);
 
         if ((int) checksum.getValue() != crc) {
             throw new IllegalArgumentException("Malformed input string");

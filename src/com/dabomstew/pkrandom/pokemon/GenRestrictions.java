@@ -32,6 +32,7 @@ public class GenRestrictions {
 
     public boolean allow_gen1, allow_gen2, allow_gen3, allow_gen4, allow_gen5, allow_gen6, allow_gen7;
     public boolean allow_evolutionary_relatives;
+    public boolean ban_pokemon;
 
     public GenRestrictions() {
     }
@@ -45,6 +46,7 @@ public class GenRestrictions {
         allow_gen6 = (state & 32) > 0;
         allow_gen7 = (state & 64) > 0;
         allow_evolutionary_relatives = (state & 128) > 0;
+        ban_pokemon = (state & 266) > 0;
     }
 
     public boolean nothingSelected() {
@@ -53,7 +55,7 @@ public class GenRestrictions {
 
     public int toInt() {
         return makeIntSelected(allow_gen1, allow_gen2, allow_gen3, allow_gen4, allow_gen5, allow_gen6, allow_gen7,
-                allow_evolutionary_relatives);
+                allow_evolutionary_relatives, ban_pokemon);
     }
 
     public void limitToGen(int generation) {

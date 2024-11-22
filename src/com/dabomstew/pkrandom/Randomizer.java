@@ -680,6 +680,9 @@ public class Randomizer {
             romHandler.saveRomFile(filename, seed);
         }
 
+        // Banned Pokemon
+        LogBannedPokemon(log);
+
         // Log tail
         String gameName = romHandler.getROMName();
         if (romHandler.hasGameUpdateLoaded()) {
@@ -1313,6 +1316,24 @@ public class Randomizer {
             log.println();
         }
         log.println();
+    }
+
+    private void LogBannedPokemon(final PrintStream log) {
+        GenRestrictions restrictions = settings.getCurrentRestrictions();
+
+        if (restrictions == null || !restrictions.ban_pokemon) {
+            return;
+        }
+
+        log.println("--Banned Pokemon--");
+        for (int i : settings.getBannedPokemon().getBannedPokemon()) {
+            if (i < romHandler.getPokemon().size()) {
+                Pokemon poke = romHandler.getPokemon().get(i);
+                log.printf("%s (%s)", poke.fullName(), poke.number);
+                log.println();
+            }
+
+        }
     }
 
     private List<String> getTrainerNames() {

@@ -106,6 +106,8 @@ public interface RomHandler {
 
     void setPokemonPool(Settings settings);
 
+    List<Pokemon> getPokemonPool();
+
     void removeEvosForPokemonPool();
 
     // ===============

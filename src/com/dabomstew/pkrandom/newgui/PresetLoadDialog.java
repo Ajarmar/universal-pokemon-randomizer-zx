@@ -60,6 +60,7 @@ public class PresetLoadDialog extends JDialog {
     private String requiredName = null;
     private volatile boolean changeFieldsWithoutCheck = false;
     private CustomNamesSet customNames;
+    private BannedPokemonSet bannedPokemon;
     private java.util.ResourceBundle bundle;
 
     /**
@@ -141,7 +142,7 @@ public class PresetLoadDialog extends JDialog {
         }
 
         try {
-            name = this.parentGUI.getValidRequiredROMName(configString.substring(3), customNames);
+            name = this.parentGUI.getValidRequiredROMName(configString.substring(3), customNames, bannedPokemon);
         } catch (InvalidSupplementFilesException ex) {
             safelyClearFields();
             invalidValues();
@@ -221,6 +222,7 @@ public class PresetLoadDialog extends JDialog {
     public CustomNamesSet getCustomNames() {
         return customNames;
     }
+    public BannedPokemonSet getBannedPokemon() {return bannedPokemon;}
 
     private void presetFileButtonActionPerformed() {// GEN-FIRST:event_presetFileButtonActionPerformed
         presetFileChooser.setSelectedFile(null);
@@ -238,6 +240,7 @@ public class PresetLoadDialog extends JDialog {
                 long seed = dis.readLong();
                 String preset = dis.readUTF();
                 customNames = new CustomNamesSet(dis);
+                bannedPokemon = new BannedPokemonSet(dis);
                 changeFieldsWithoutCheck = true;
                 this.randomSeedField.setText(Long.toString(seed));
                 this.configStringField.setText(checkInt + "" + preset);
@@ -253,6 +256,7 @@ public class PresetLoadDialog extends JDialog {
                     this.configStringField.setEnabled(true);
                     this.presetFileField.setText("");
                     customNames = null;
+                    bannedPokemon = null;
                     JOptionPane.showMessageDialog(this, bundle.getString("PresetLoadDialog.invalidSeedFile"));
                 }
                 dis.close();
@@ -315,6 +319,13 @@ public class PresetLoadDialog extends JDialog {
         if (customNames == null) {
             try {
                 customNames = FileFunctions.getCustomNames();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (bannedPokemon == null) {
+            try {
+                bannedPokemon = FileFunctions.getBannedPokemon();
             } catch (IOException e) {
                 e.printStackTrace();
             }

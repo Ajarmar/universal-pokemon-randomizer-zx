@@ -2988,6 +2988,7 @@ public class Gen2RomHandler extends AbstractGBCRomHandler {
         return bim;
     }
 
+
     @Override
     public void writeCheckValueToROM(int value) {
         if (romEntry.getValue("CheckValueOffset") > 0) {

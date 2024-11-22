@@ -9,7 +9,7 @@
     <children>
       <grid id="16c9a" layout-manager="GridBagLayout">
         <constraints>
-          <grid row="9" column="3" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="10" column="3" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
           <gridbag weightx="0.0" weighty="0.0"/>
         </constraints>
         <properties/>
@@ -106,7 +106,7 @@
       </component>
       <component id="53cac" class="javax.swing.JLabel" binding="xyWarningLabel">
         <constraints>
-          <grid row="11" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="12" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
           <gridbag weightx="0.0" weighty="0.0"/>
         </constraints>
         <properties>
@@ -128,7 +128,7 @@
       </hspacer>
       <vspacer id="efbd">
         <constraints>
-          <grid row="10" column="3" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+          <grid row="11" column="3" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
           <gridbag weightx="0.0" weighty="0.0"/>
         </constraints>
       </vspacer>
@@ -149,6 +149,16 @@
         </constraints>
         <properties>
           <text value="Allow Evolutionary Relatives"/>
+        </properties>
+      </component>
+      <component id="16237" class="javax.swing.JCheckBox" binding="banPokemonCheckBox">
+        <constraints>
+          <grid row="9" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <gridbag weightx="0.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <text value="Ban Pokemon By ID's"/>
+          <toolTipText value="Ban included Pokemon by Pokedex ID by providing list of excluded mons."/>
         </properties>
       </component>
     </children>

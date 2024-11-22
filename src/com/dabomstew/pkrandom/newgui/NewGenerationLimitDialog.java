@@ -43,6 +43,7 @@ public class NewGenerationLimitDialog extends javax.swing.JDialog {
     private JPanel mainPanel;
     private JLabel xyWarningLabel;
     private JCheckBox allowEvolutionaryRelativesCheckBox;
+    private JCheckBox banPokemonCheckBox;
 
     private boolean pressedOk;
     private boolean isXY;
@@ -77,6 +78,7 @@ public class NewGenerationLimitDialog extends javax.swing.JDialog {
         gr.allow_gen6 = gen6CheckBox.isSelected();
         gr.allow_gen7 = gen7CheckBox.isSelected();
         gr.allow_evolutionary_relatives = allowEvolutionaryRelativesCheckBox.isSelected();
+        gr.ban_pokemon = banPokemonCheckBox.isSelected();
         return gr;
     }
 
@@ -102,6 +104,9 @@ public class NewGenerationLimitDialog extends javax.swing.JDialog {
 
         allowEvolutionaryRelativesCheckBox.setEnabled(false);
         allowEvolutionaryRelativesCheckBox.setSelected(false);
+
+        banPokemonCheckBox.setEnabled(false);
+        banPokemonCheckBox.setSelected(false);
     }
 
     private void restoreFrom(GenRestrictions restrict) {
@@ -113,6 +118,7 @@ public class NewGenerationLimitDialog extends javax.swing.JDialog {
         gen6CheckBox.setSelected(restrict.allow_gen6);
         gen7CheckBox.setSelected(restrict.allow_gen7);
         allowEvolutionaryRelativesCheckBox.setSelected(restrict.allow_evolutionary_relatives);
+        banPokemonCheckBox.setSelected(restrict.ban_pokemon);
     }
 
     private void initComponents() {
@@ -127,6 +133,7 @@ public class NewGenerationLimitDialog extends javax.swing.JDialog {
         gen6CheckBox.addActionListener(ev -> enableAndDisableBoxes());
         gen7CheckBox.addActionListener(ev -> enableAndDisableBoxes());
         allowEvolutionaryRelativesCheckBox.addActionListener(ev -> enableAndDisableBoxes());
+        banPokemonCheckBox.addActionListener(ev -> enableAndDisableBoxes());
         okButton.addActionListener(evt -> okButtonActionPerformed());
         cancelButton.addActionListener(evt -> cancelButtonActionPerformed());
         xyWarningLabel.setVisible(isXY);
@@ -140,7 +147,8 @@ public class NewGenerationLimitDialog extends javax.swing.JDialog {
         // To prevent softlocks on the Successor Korrina fight, only turn
         // on the OK button for XY if at least one of Gens 1-4 is selected.
         if (isXY) {
-            if (gen1CheckBox.isSelected() || gen2CheckBox.isSelected() || gen3CheckBox.isSelected() || gen4CheckBox.isSelected()) {
+            if (gen1CheckBox.isSelected() || gen2CheckBox.isSelected() || gen3CheckBox.isSelected()
+                    || gen4CheckBox.isSelected()) {
                 okButton.setEnabled(true);
             } else {
                 okButton.setEnabled(false);
@@ -151,9 +159,12 @@ public class NewGenerationLimitDialog extends javax.swing.JDialog {
                 gen4CheckBox.isSelected() || gen5CheckBox.isSelected() || gen6CheckBox.isSelected() ||
                 gen7CheckBox.isSelected()) {
             allowEvolutionaryRelativesCheckBox.setEnabled(true);
+            banPokemonCheckBox.setEnabled(true);
         } else {
             allowEvolutionaryRelativesCheckBox.setEnabled(false);
             allowEvolutionaryRelativesCheckBox.setSelected(false);
+            banPokemonCheckBox.setEnabled(false);
+            banPokemonCheckBox.setSelected(false);
         }
     }
 

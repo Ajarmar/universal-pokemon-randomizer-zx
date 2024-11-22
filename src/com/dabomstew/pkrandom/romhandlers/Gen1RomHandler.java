@@ -2915,5 +2915,4 @@ public class Gen1RomHandler extends AbstractGBCRomHandler {
 
         return bim;
     }
-
 }

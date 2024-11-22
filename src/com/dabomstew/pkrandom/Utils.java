@@ -88,7 +88,7 @@ public class Utils {
         }
     }
 
-    public static void validatePresetSupplementFiles(String config, CustomNamesSet customNames)
+    public static void validatePresetSupplementFiles(String config, CustomNamesSet customNames, BannedPokemonSet bannedPokemon)
             throws InvalidSupplementFilesException {
         byte[] data = Base64.getDecoder().decode(config);
 
@@ -98,20 +98,25 @@ public class Utils {
         }
 
         // Check the checksum
-        ByteBuffer buf = ByteBuffer.allocate(4).put(data, data.length - 8, 4);
+        ByteBuffer buf = ByteBuffer.allocate(4).put(data, data.length - 12, 4);
         buf.rewind();
         int crc = buf.getInt();
 
         CRC32 checksum = new CRC32();
-        checksum.update(data, 0, data.length - 8);
+        checksum.update(data, 0, data.length - 12);
         if ((int) checksum.getValue() != crc) {
             throw new IllegalArgumentException("Checksum failure.");
         }
 
         // Check the trainerclass & trainernames & nicknames crc
-        if (customNames == null && !FileFunctions.checkOtherCRC(data, 16, 4, SysConstants.customNamesFile, data.length - 4)) {
+        if (customNames == null && !FileFunctions.checkOtherCRC(data, 16, 4, SysConstants.customNamesFile, data.length - 8)) {
             throw new InvalidSupplementFilesException(InvalidSupplementFilesException.Type.CUSTOM_NAMES,
                     "Can't use this preset because you have a different set " + "of custom names to the creator.");
+        }
+
+        if (bannedPokemon == null && !FileFunctions.checkOtherCRC(data, 16, 4, SysConstants.bannedPokemonFile, data.length - 4)) {
+            throw new InvalidSupplementFilesException(InvalidSupplementFilesException.Type.BANNED_POKEMON,
+                    "Can't use this preset because you have a different set " + "of banned Pokemon to the creator.");
         }
     }
 

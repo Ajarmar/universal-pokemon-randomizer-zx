@@ -39,6 +39,7 @@ public class SysConstants {
     public static final String ROOT_PATH = getRootPath();
     public static final String LINE_SEP = System.getProperty("line.separator");
     public static final String customNamesFile = "customnames.rncn";
+    public static final String bannedPokemonFile = "bannedpokemon.rnbp";
 
     // OLD custom names files
     public static final String tnamesFile = "trainernames.txt";
