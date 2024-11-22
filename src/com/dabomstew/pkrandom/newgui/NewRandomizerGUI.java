@@ -40,6 +40,10 @@ import com.dabomstew.pkrandom.romhandlers.*;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetAdapter;
+import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -411,6 +415,25 @@ public class NewRandomizerGUI {
         frame.setTitle(String.format(bundle.getString("GUI.windowTitle"),Version.VERSION_STRING));
 
         openROMButton.addActionListener(e -> loadROM());
+        new DropTarget(openROMButton, new DropTargetAdapter() {
+            @Override
+            public void drop(DropTargetDropEvent e) {
+                e.acceptDrop(DnDConstants.ACTION_COPY);
+                try {
+                    //noinspection unchecked: guaranteed by the DataFlavor
+                    List<File> droppedFiles = (List<File>) e.getTransferable().getTransferData(java.awt.datatransfer.DataFlavor.javaFileListFlavor);
+                    if (droppedFiles.isEmpty()) return;
+
+                    File file = droppedFiles.get(0);
+                    if (!new ROMFilter().accept(file)) return;
+
+                    romOpenChooser.setSelectedFile(file);
+                    loadROM();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
         pbsUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         pbsShuffleRadioButton.addActionListener(e -> enableOrDisableSubControls());
         pbsRandomRadioButton.addActionListener(e -> enableOrDisableSubControls());
@@ -499,6 +522,25 @@ public class NewRandomizerGUI {
         randomizeSaveButton.addActionListener(e -> saveROM());
         premadeSeedButton.addActionListener(e -> presetLoader());
         loadSettingsButton.addActionListener(e -> loadQS());
+        new DropTarget(loadSettingsButton, new DropTargetAdapter() {
+            @Override
+            public void drop(DropTargetDropEvent e) {
+                e.acceptDrop(DnDConstants.ACTION_COPY);
+                try {
+                    //noinspection unchecked: guaranteed by the DataFlavor
+                    List<File> droppedFiles = (List<File>) e.getTransferable().getTransferData(java.awt.datatransfer.DataFlavor.javaFileListFlavor);
+                    if (droppedFiles.isEmpty()) return;
+
+                    File file = droppedFiles.get(0);
+                    if (!new QSFileFilter().accept(file)) return;
+
+                    qsOpenChooser.setSelectedFile(file);
+                    loadQS();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
         saveSettingsButton.addActionListener(e -> saveQS());
         settingsButton.addActionListener(e -> settingsMenu.show(settingsButton,0,settingsButton.getHeight()));
         customNamesEditorMenuItem.addActionListener(e -> new CustomNamesEditorDialog(frame));
