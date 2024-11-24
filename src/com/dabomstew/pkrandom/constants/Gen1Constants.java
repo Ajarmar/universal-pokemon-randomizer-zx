@@ -26,6 +26,7 @@ package com.dabomstew.pkrandom.constants;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import com.dabomstew.pkrandom.pokemon.ItemList;
@@ -335,6 +336,25 @@ public class Gen1Constants {
         tbc(trs, 31, 0, "GYM8");
         tbc(trs, 31, 8, "GYM8");
         tbc(trs, 31, 9, "GYM8");
+    }
+
+    public static final HashMap<String, Type> gymAndEliteThemes = setupGymAndEliteThemes();
+
+    private static HashMap<String, Type> setupGymAndEliteThemes() {
+        HashMap<String, Type> themeMap = new HashMap<>();
+        themeMap.put("ELITE1", Type.ICE); //Lorelei
+        themeMap.put("ELITE2", Type.FIGHTING); //Bruno
+        themeMap.put("ELITE3", Type.GHOST); //Agatha
+        themeMap.put("ELITE4", Type.DRAGON); //Lance
+        themeMap.put("GYM1", Type.ROCK); //Brock
+        themeMap.put("GYM2", Type.WATER); //Misty
+        themeMap.put("GYM3", Type.ELECTRIC); //Lt. Surge
+        themeMap.put("GYM4", Type.GRASS); //Erika
+        themeMap.put("GYM5", Type.POISON); //Koga
+        themeMap.put("GYM6", Type.PSYCHIC); //Sabrina
+        themeMap.put("GYM7", Type.FIRE); //Blaine
+        themeMap.put("GYM8", Type.GROUND); //Giovanni
+        return themeMap;
     }
 
     private static void tbc(List<Trainer> allTrainers, int classNum, int number, String tag) {

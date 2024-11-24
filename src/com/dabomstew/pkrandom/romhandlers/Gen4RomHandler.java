@@ -2901,6 +2901,15 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
     }
 
     @Override
+    protected Map<String, Type> getGymAndEliteTypeThemes() {
+        if(romEntry.romType == Gen4Constants.Type_HGSS) {
+            return Gen4Constants.gymAndEliteThemesHGSS;
+        } else {
+            return Gen4Constants.gymAndEliteThemesDPPt;
+        }
+    }
+
+    @Override
     public List<Integer> getEvolutionItems() {
         return Gen4Constants.evolutionItems;
     }

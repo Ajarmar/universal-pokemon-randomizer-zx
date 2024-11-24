@@ -2004,6 +2004,54 @@ public class Gen4Constants {
 
     }
 
+    public static final HashMap<String, Type> gymAndEliteThemesDPPt = setupGymAndEliteThemesDPPt();
+
+    private static HashMap<String, Type> setupGymAndEliteThemesDPPt() {
+        HashMap<String, Type> themeMap = new HashMap<>();
+        //no theme for Cynthia
+        themeMap.put("ELITE1", Type.BUG); //Aaron
+        themeMap.put("ELITE2", Type.GROUND); //Bertha
+        themeMap.put("ELITE3", Type.FIRE); //Flint
+        themeMap.put("ELITE4", Type.PSYCHIC); //Lucian
+        themeMap.put("GYM1", Type.ROCK); //Roark
+        themeMap.put("GYM2", Type.GRASS); //Gardenia
+        themeMap.put("GYM3", Type.FIGHTING); //Maylene
+        themeMap.put("GYM4", Type.WATER); //Wake
+        themeMap.put("GYM5", Type.GHOST); //Fantina
+        themeMap.put("GYM6", Type.STEEL); //Byron
+        themeMap.put("GYM7", Type.ICE); //Candice
+        themeMap.put("GYM8", Type.ELECTRIC); //Volkner
+        return themeMap;
+    }
+
+    public static final HashMap<String, Type> gymAndEliteThemesHGSS = setupGymAndEliteThemesHGSS();
+
+    private static HashMap<String, Type> setupGymAndEliteThemesHGSS() {
+        HashMap<String, Type> themeMap = new HashMap<>();
+        themeMap.put("CHAMPION", Type.DRAGON); //Lance
+        themeMap.put("ELITE1", Type.PSYCHIC); //Will
+        themeMap.put("ELITE2", Type.POISON); //Koga
+        themeMap.put("ELITE3", Type.FIGHTING); //Bruno
+        themeMap.put("ELITE4", Type.DARK); //Karen
+        themeMap.put("GYM1", Type.FLYING); //Falkner
+        themeMap.put("GYM2", Type.BUG); //Bugsy
+        themeMap.put("GYM3", Type.NORMAL); //Whitney
+        themeMap.put("GYM4", Type.GHOST); //Morty
+        themeMap.put("GYM5", Type.FIGHTING); //Chuck
+        themeMap.put("GYM6", Type.STEEL); //Jasmine
+        themeMap.put("GYM7", Type.ICE); //Pryce
+        themeMap.put("GYM8", Type.DRAGON); //Clair
+        themeMap.put("GYM9", Type.ROCK); //Brock
+        themeMap.put("GYM10", Type.WATER); //Misty
+        themeMap.put("GYM11", Type.ELECTRIC); //Lt. Surge
+        themeMap.put("GYM12", Type.GRASS); //Erika
+        themeMap.put("GYM13", Type.POISON); //Janine
+        themeMap.put("GYM14", Type.PSYCHIC); //Sabrina
+        themeMap.put("GYM15", Type.FIRE); //Blaine
+        //Blue has no specialty and thus is not included.
+        return themeMap;
+    }
+
     public static void setMultiBattleStatusDP(List<Trainer> trs) {
         // 407 + 528: Commander Mars and Commander Jupiter Multi Battle on Spear Pillar
         // 414 + 415: Galactic Grunts in Jubilife City

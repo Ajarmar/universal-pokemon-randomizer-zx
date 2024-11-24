@@ -26,6 +26,7 @@ package com.dabomstew.pkrandom.constants;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import com.dabomstew.pkrandom.pokemon.ItemList;
@@ -413,6 +414,34 @@ public class Gen2Constants {
         tbc(allTrainers, 57, 6, "GYM14");
         tbc(allTrainers, 52, 1, "GYM14");
         tbc(allTrainers, 52, 10, "GYM14");
+    }
+
+    public static final HashMap<String, Type> gymAndEliteThemes = setupGymAndEliteThemes();
+
+    private static HashMap<String, Type> setupGymAndEliteThemes() {
+        HashMap<String, Type> themeMap = new HashMap<>();
+        themeMap.put("CHAMPION", Type.DRAGON); //Lance
+        themeMap.put("ELITE1", Type.PSYCHIC); //Will
+        themeMap.put("ELITE2", Type.POISON); //Koga
+        themeMap.put("ELITE3", Type.FIGHTING); //Bruno
+        themeMap.put("ELITE4", Type.DARK); //Karen
+        themeMap.put("GYM1", Type.FLYING); //Falkner
+        themeMap.put("GYM2", Type.BUG); //Bugsy
+        themeMap.put("GYM3", Type.NORMAL); //Whitney
+        themeMap.put("GYM4", Type.GHOST); //Morty
+        themeMap.put("GYM5", Type.FIGHTING); //Chuck
+        themeMap.put("GYM6", Type.STEEL); //Jasmine
+        themeMap.put("GYM7", Type.ICE); //Pryce
+        themeMap.put("GYM8", Type.DRAGON); //Clair
+        themeMap.put("GYM9", Type.ROCK); //Brock
+        themeMap.put("GYM10", Type.WATER); //Misty
+        themeMap.put("GYM11", Type.ELECTRIC); //Lt. Surge
+        themeMap.put("GYM12", Type.GRASS); //Erika
+        themeMap.put("GYM13", Type.POISON); //Janine
+        themeMap.put("GYM14", Type.PSYCHIC); //Sabrina
+        themeMap.put("GYM15", Type.FIRE); //Blaine
+        //Blue has no specialty and thus is not included.
+        return themeMap;
     }
 
     private static void tbc(List<Trainer> allTrainers, int classNum, int number, String tag) {

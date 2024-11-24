@@ -814,6 +814,65 @@ public class Gen3Constants {
         }
     }
 
+    public static final HashMap<String, Type> gymAndEliteThemesRS = setupGymAndEliteThemesRS();
+
+    private static HashMap<String, Type> setupGymAndEliteThemesRS() {
+        HashMap<String, Type> themeMap = new HashMap<>();
+        themeMap.put("CHAMPION", Type.STEEL); //Steven
+        themeMap.put("ELITE1", Type.DARK); //Sidney
+        themeMap.put("ELITE2", Type.GHOST); //Phoebe
+        themeMap.put("ELITE3", Type.ICE); //Glacia
+        themeMap.put("ELITE4", Type.DRAGON); //Drake
+        themeMap.put("GYM1", Type.ROCK); //Roxanne
+        themeMap.put("GYM2", Type.FIGHTING); //Brawly
+        themeMap.put("GYM3", Type.ELECTRIC); //Wattson
+        themeMap.put("GYM4", Type.FIRE); //Flannery
+        themeMap.put("GYM5", Type.NORMAL); //Norman
+        themeMap.put("GYM6", Type.FLYING); //Winona
+        themeMap.put("GYM7", Type.PSYCHIC); //Tate & Liza
+        themeMap.put("GYM8", Type.WATER); //Wallace
+        return themeMap;
+    }
+
+    public static final HashMap<String, Type> gymAndEliteThemesEm = setupGymAndEliteThemesEm();
+
+    private static HashMap<String, Type> setupGymAndEliteThemesEm() {
+        HashMap<String, Type> themeMap = new HashMap<>();
+        themeMap.put("CHAMPION", Type.WATER); //Wallace
+        themeMap.put("ELITE1", Type.DARK); //Sidney
+        themeMap.put("ELITE2", Type.GHOST); //Phoebe
+        themeMap.put("ELITE3", Type.ICE); //Glacia
+        themeMap.put("ELITE4", Type.DRAGON); //Drake
+        themeMap.put("GYM1", Type.ROCK); //Roxanne
+        themeMap.put("GYM2", Type.FIGHTING); //Brawly
+        themeMap.put("GYM3", Type.ELECTRIC); //Wattson
+        themeMap.put("GYM4", Type.FIRE); //Flannery
+        themeMap.put("GYM5", Type.NORMAL); //Norman
+        themeMap.put("GYM6", Type.FLYING); //Winona
+        themeMap.put("GYM7", Type.PSYCHIC); //Tate & Liza
+        themeMap.put("GYM8", Type.WATER); //Juan
+        return themeMap;
+    }
+
+    public static final HashMap<String, Type> gymAndEliteThemesFRLG = setupGymAndEliteThemesFRLG();
+
+    private static HashMap<String, Type> setupGymAndEliteThemesFRLG() {
+        HashMap<String, Type> themeMap = new HashMap<>();
+        themeMap.put("ELITE1", Type.ICE); //Lorelei
+        themeMap.put("ELITE2", Type.FIGHTING); //Bruno
+        themeMap.put("ELITE3", Type.GHOST); //Agatha
+        themeMap.put("ELITE4", Type.DRAGON); //Lance
+        themeMap.put("GYM1", Type.ROCK); //Brock
+        themeMap.put("GYM2", Type.WATER); //Misty
+        themeMap.put("GYM3", Type.ELECTRIC); //Lt. Surge
+        themeMap.put("GYM4", Type.GRASS); //Erika
+        themeMap.put("GYM5", Type.POISON); //Koga
+        themeMap.put("GYM6", Type.PSYCHIC); //Sabrina
+        themeMap.put("GYM7", Type.FIRE); //Blaine
+        themeMap.put("GYM8", Type.GROUND); //Giovanni
+        return themeMap;
+    }
+
     public static void setMultiBattleStatusEm(List<Trainer> trs) {
         // 25 + 569: Double Battle with Team Aqua Grunts on Mt. Pyre
         // 105 + 237: Double Battle with Hex Maniac Patricia and Psychic Joshua

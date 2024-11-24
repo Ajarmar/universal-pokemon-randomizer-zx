@@ -1949,6 +1949,16 @@ public class Gen3RomHandler extends AbstractGBRomHandler {
         return Arrays.stream(romEntry.arrayEntries.get("EliteFourIndices")).boxed().collect(Collectors.toList());
     }
 
+    @Override
+    protected Map<String, Type> getGymAndEliteTypeThemes() {
+        if(romEntry.romType == Gen3Constants.RomType_FRLG) {
+            return Gen3Constants.gymAndEliteThemesFRLG;
+        } else if(romEntry.romType == Gen3Constants.RomType_Em) {
+            return Gen3Constants.gymAndEliteThemesEm;
+        } else {
+            return Gen3Constants.gymAndEliteThemesRS;
+        }
+    }
 
     @Override
     public void setTrainers(List<Trainer> trainerData, boolean doubleBattleMode) {

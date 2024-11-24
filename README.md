@@ -1,35 +1,30 @@
-Universal Pokemon Randomizer ZX by Ajarmar
+FORK README (do not merge)
 
-With significant contributions from darkeye, cleartonic
+A fork of the Universal Pokemon Randomizer intending to add the following features:
 
-Based on the Universal Pokemon Randomizer by Dabomstew
+ * "Preserve Primary Type" (wild)
+     for wild pokemon, ensures the original pokemon's primary type is present in the randomized pokemon. This preserves most type theming, including "soft" theming like forests have Bug and Grass types, while still allowing variety.  
 
-# Info
+ * "Preserve Type Themed Areas" (wild)
+     for wild pokemon. this is a fairly simple check:  
+     if *all* wild pokemon in an area share a single type (whether primary, secondary, or mixed), then randomized pokemon will all have that type.  
+     (for this purpose, "an area" means only a single type of encounter, so fishing, surfing, and tall grass would all be different areas.)  
+     this would override "preserve primary type" if they are used together.  
+     if they share a pair of types, chosen pokemon will have both (?).  
+     *will* trigger if there is only one pokemon in the area.  
+     usable with area 1-to-1, and maybe with random.  
+     this is a checkbox that overrides other type theming.
 
-This fork was originally made to make some minor tweaks and fixes, but became a bit more ambitious since 2020. There are several new features and supported games (including 3DS games) compared to the original Universal Pokemon Randomizer.
+ * "Preserve Primary Type" (trainer)
+     functions exactly the same as for wild pokemon
 
-Have a look at the [release page](https://github.com/Ajarmar/universal-pokemon-randomizer-zx/releases) for changelogs and downloads.
+ * "Preserve Type Themed Trainers" (trainer)
+     functions the same as "Preserve Type Themed Areas", except the "area" is a single trainer.  
+     also, if all the pokemon share a pair of types, it will choose the primary type of the trainer's first pokemon - unless it's Normal, in which case it chooses the secondary.
+     always triggers if the trainer has only one pokemon.  
+     if the trainer is a gym or league trainer, they will be forced to their original theme even if they did not originally strictly follow it (e.g. Pryce using a Seel (Water-type) despite being an Ice trainer)  
+     here, it's an option on the trainers dropdown.
 
-# Contributing
-
-If you want to contribute something to the codebase, we'd recommend creating an issue for it first (using the`Contribution Idea` template). This way, we can discuss whether or not it's a good fit for the randomizer before you put in the work to implement it. This is just to save you time in the event that we don't think it's something we want to accept.
-
-See [the Wiki Page](https://github.com/Ajarmar/universal-pokemon-randomizer-zx/wiki/Building-Universal-Pokemon-Randomizer-ZX) for setting up to build/test locally.
-
-### What is a good fit for the randomizer?
-
-In general, we try to make settings as universal as possible. This means that it preferably should work in as many games as possible, and also that it's something that many people will find useful. If the setting is very niche, it will mostly just bloat the GUI.
-
-If your idea is a change to an existing setting rather than a new setting, it needs to be well motivated.
-
-# Feature requests
-
-We do not take feature requests.
-
-# Bug reports
-
-If you encounter something that seems to be a bug, submit an issue using the `Bug Report` issue template.
-
-# Other problems
-
-If you have problems using the randomizer, it could be because of some problem with Java or your operating system. **If you have problems with starting the randomizer specifically, [read this page first before creating an issue.](https://github.com/Ajarmar/universal-pokemon-randomizer-zx/wiki/About-Java)** If that page does not solve your problem, submit an issue using the `Need Help` issue template.
+ * "Local pokemon only"
+     restricts trainers to only using pokemon that can be caught in the wild, or their evolutionary relatives
+     can be used together with type restrictions

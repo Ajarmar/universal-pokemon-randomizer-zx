@@ -1895,6 +1895,51 @@ public class Gen5Constants {
         }
     }
 
+    public static final HashMap<String, Type> gymAndEliteThemesBW = setupGymAndEliteThemesBW();
+
+    private static HashMap<String, Type> setupGymAndEliteThemesBW() {
+        HashMap<String, Type> themeMap = new HashMap<>();
+        //Alder has no theme
+        themeMap.put("ELITE1", Type.GHOST); //Shauntal
+        themeMap.put("ELITE2", Type.DARK); //Grimsley
+        themeMap.put("ELITE3", Type.PSYCHIC); //Caitlin
+        themeMap.put("ELITE4", Type.FIGHTING); //Marshal
+        themeMap.put("GYM1", Type.GRASS); //Cilan
+        themeMap.put("GYM2", Type.NORMAL); //Lenora
+        themeMap.put("GYM3", Type.BUG); //Burgh
+        themeMap.put("GYM4", Type.ELECTRIC); //Elesa
+        themeMap.put("GYM5", Type.GROUND); //Clay
+        themeMap.put("GYM6", Type.FLYING); //Skyla
+        themeMap.put("GYM7", Type.ICE); //Brycen
+        themeMap.put("GYM8", Type.DRAGON); //Iris
+        themeMap.put("GYM9", Type.FIRE); //Chili
+        themeMap.put("GYM10", Type.WATER); //Cress
+        themeMap.put("GYM11", Type.NORMAL); //Trio gym trainers
+        return themeMap;
+    }
+
+    public static final HashMap<String, Type> gymAndEliteThemesBW2 = setupGymAndEliteThemesBW2();
+
+    private static HashMap<String, Type> setupGymAndEliteThemesBW2() {
+        HashMap<String, Type> themeMap = new HashMap<>();
+        themeMap.put("CHAMPION", Type.DRAGON); //Iris
+        themeMap.put("ELITE1", Type.GHOST); //Shauntal
+        themeMap.put("ELITE2", Type.DARK); //Grimsley
+        themeMap.put("ELITE3", Type.PSYCHIC); //Caitlin
+        themeMap.put("ELITE4", Type.FIGHTING); //Marshal
+        themeMap.put("GYM1", Type.NORMAL); //Cheren
+        themeMap.put("GYM2", Type.POISON); //Roxie
+        themeMap.put("GYM3", Type.BUG); //Burgh
+        themeMap.put("GYM4", Type.ELECTRIC); //Elesa
+        themeMap.put("GYM5", Type.GROUND); //Clay
+        themeMap.put("GYM6", Type.FLYING); //Skyla
+        themeMap.put("GYM7", Type.DRAGON); //Drayden
+        themeMap.put("GYM8", Type.WATER); //Marlon
+        //The trio gym is no longer an official League gym, so I'm not including it.
+        //(Besides, their theming works as-is.)
+        return themeMap;
+    }
+
     public static void setMultiBattleStatusBW(List<Trainer> trs) {
         // 62 + 63: Multi Battle with Team Plasma Grunts in Wellspring Cave w/ Cheren
         // 401 + 402: Double Battle with Preschooler Sarah and Preschooler Billy

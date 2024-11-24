@@ -1190,6 +1190,33 @@ public class Gen7Constants {
         }
     }
 
+    public static final HashMap<String, Type> gymAndEliteThemesSM = setupGymAndEliteThemesSM();
+
+    private static HashMap<String, Type> setupGymAndEliteThemesSM() {
+        HashMap<String, Type> themeMap = new HashMap<>();
+        themeMap.put("ELITE1", Type.FIGHTING); //Hala
+        themeMap.put("ELITE2", Type.ROCK); //Olivia
+        themeMap.put("ELITE3", Type.DARK); //Nanu
+        themeMap.put("ELITE4", Type.GROUND); //Hapu
+        themeMap.put("ELITE5", Type.GHOST); //Acerola
+        themeMap.put("ELITE6", Type.FLYING); //Kahili
+        return themeMap;
+    }
+
+    public static final HashMap<String, Type> gymAndEliteThemesUSUM = setupGymAndEliteThemesUSUM();
+
+    private static HashMap<String, Type> setupGymAndEliteThemesUSUM() {
+        HashMap<String, Type> themeMap = new HashMap<>();
+        themeMap.put("ELITE1", Type.FIGHTING); //Hala
+        themeMap.put("ELITE2", Type.ROCK); //Olivia
+        themeMap.put("ELITE3", Type.DARK); //Nanu
+        themeMap.put("ELITE4", Type.GROUND); //Hapu
+        themeMap.put("ELITE5", Type.STEEL); //Molayne
+        themeMap.put("ELITE6", Type.GHOST); //Acerola
+        themeMap.put("ELITE7", Type.FLYING); //Kahili
+        return themeMap;
+    }
+
     public static void setMultiBattleStatusSM(List<Trainer> trs) {
         // All Double Battles in Gen 7 are internally treated as a Multi Battle
         // 92 + 93: Rising Star Duo Justin and Lauren

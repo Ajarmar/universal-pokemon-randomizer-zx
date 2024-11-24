@@ -1216,6 +1216,47 @@ public class Gen6Constants {
         }
     }
 
+    public static final HashMap<String, Type> gymAndEliteThemesXY = setupGymAndEliteThemesXY();
+
+    private static HashMap<String, Type> setupGymAndEliteThemesXY() {
+        HashMap<String, Type> themeMap = new HashMap<>();
+        //Diantha has no theme
+        themeMap.put("ELITE1", Type.FIRE); //Malva
+        themeMap.put("ELITE2", Type.WATER); //Siebold
+        themeMap.put("ELITE3", Type.STEEL); //Wikstrom
+        themeMap.put("ELITE4", Type.DRAGON); //Drasna
+        themeMap.put("GYM1", Type.BUG); //Viola
+        themeMap.put("GYM2", Type.ROCK); //Grant
+        themeMap.put("GYM3", Type.FIGHTING); //Korrina
+        themeMap.put("GYM4", Type.GRASS); //Ramos
+        themeMap.put("GYM5", Type.ELECTRIC); //Clemont
+        themeMap.put("GYM6", Type.FAIRY); //Valerie
+        themeMap.put("GYM7", Type.PSYCHIC); //Olympia
+        themeMap.put("GYM8", Type.ICE); //Wulfric
+        return themeMap;
+
+    }
+
+    public static final HashMap<String, Type> gymAndEliteThemesORAS = setupGymAndEliteThemesORAS();
+
+    private static HashMap<String, Type> setupGymAndEliteThemesORAS() {
+        HashMap<String, Type> themeMap = new HashMap<>();
+        themeMap.put("CHAMPION", Type.STEEL); //Steven
+        themeMap.put("ELITE1", Type.DARK); //Sidney
+        themeMap.put("ELITE2", Type.GHOST); //Phoebe
+        themeMap.put("ELITE3", Type.ICE); //Glacia
+        themeMap.put("ELITE4", Type.DRAGON); //Drake
+        themeMap.put("GYM1", Type.ROCK); //Roxanne
+        themeMap.put("GYM2", Type.FIGHTING); //Brawly
+        themeMap.put("GYM3", Type.ELECTRIC); //Wattson
+        themeMap.put("GYM4", Type.FIRE); //Flannery
+        themeMap.put("GYM5", Type.NORMAL); //Norman
+        themeMap.put("GYM6", Type.FLYING); //Winona
+        themeMap.put("GYM7", Type.PSYCHIC); //Tate & Liza
+        themeMap.put("GYM8", Type.WATER); //Wallace
+        return themeMap;
+    }
+
     public static void setMultiBattleStatusXY(List<Trainer> trs) {
         // 108 + 111: Team Flare Grunts in Glittering Cave
         // 348 + 350: Team Flare Celosia and Bryony fight in Poké Ball Factory

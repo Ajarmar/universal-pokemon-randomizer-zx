@@ -2002,6 +2002,15 @@ public class Gen6RomHandler extends Abstract3DSRomHandler {
     }
 
     @Override
+    protected Map<String, Type> getGymAndEliteTypeThemes() {
+        if(romEntry.romType == Gen6Constants.Type_XY) {
+            return Gen6Constants.gymAndEliteThemesXY;
+        } else {
+            return Gen6Constants.gymAndEliteThemesORAS;
+        }
+    }
+
+    @Override
     public List<Integer> getEvolutionItems() {
         return Gen6Constants.evolutionItems;
     }
