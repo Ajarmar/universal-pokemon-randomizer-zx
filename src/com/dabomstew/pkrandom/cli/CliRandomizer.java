@@ -4,6 +4,8 @@ import com.dabomstew.pkrandom.FileFunctions;
 import com.dabomstew.pkrandom.RandomSource;
 import com.dabomstew.pkrandom.Randomizer;
 import com.dabomstew.pkrandom.Settings;
+import com.dabomstew.pkrandom.SettingsUpdater;
+import com.dabomstew.pkrandom.Version;
 import com.dabomstew.pkrandom.romhandlers.*;
 
 import java.io.*;
@@ -16,32 +18,24 @@ public class CliRandomizer {
 
     private final static ResourceBundle bundle = java.util.ResourceBundle.getBundle("com/dabomstew/pkrandom/newgui/Bundle");
 
-    private static boolean performDirectRandomization(String settingsFilePath, String sourceRomFilePath,
-                                                      String destinationRomFilePath, boolean saveAsDirectory,
-                                                      String updateFilePath, boolean saveLog) {
+    private static String performDirectRandomization(
+        Settings settings,
+        String sourceRomFilePath,
+        String destinationRomFilePath,
+        boolean saveAsDirectory,
+        String updateFilePath,
+        boolean saveLog
+    ) {
         // borrowed directly from NewRandomizerGUI()
         RomHandler.Factory[] checkHandlers = new RomHandler.Factory[] {
-                new Gen1RomHandler.Factory(),
-                new Gen2RomHandler.Factory(),
-                new Gen3RomHandler.Factory(),
-                new Gen4RomHandler.Factory(),
-                new Gen5RomHandler.Factory(),
-                new Gen6RomHandler.Factory(),
-                new Gen7RomHandler.Factory()
+            new Gen1RomHandler.Factory(),
+            new Gen2RomHandler.Factory(), 
+            new Gen3RomHandler.Factory(),
+            new Gen4RomHandler.Factory(), 
+            new Gen5RomHandler.Factory(),
+            new Gen6RomHandler.Factory(), 
+            new Gen7RomHandler.Factory()
         };
-
-        Settings settings;
-        try {
-            File fh = new File(settingsFilePath);
-            FileInputStream fis = new FileInputStream(fh);
-            settings = Settings.read(fis);
-            // taken from com.dabomstew.pkrandom.newgui.NewRandomizerGUI.saveROM, set distinctly from all other settings
-            settings.setCustomNames(FileFunctions.getCustomNames());
-            fis.close();
-        } catch (UnsupportedOperationException | IllegalArgumentException | IOException ex) {
-            ex.printStackTrace();
-            return false;
-        }
 
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream log;
@@ -85,7 +79,8 @@ public class CliRandomizer {
                             String currentFN = romHandler.loadedFilename();
                             if (currentFN.equals(fh.getAbsolutePath())) {
                                 printError(bundle.getString("GUI.cantOverwriteDS"));
-                                return false;
+                                log.close();
+                                return null;
                             }
                         }
                     }
@@ -109,8 +104,9 @@ public class CliRandomizer {
                         }
                     }
                     System.out.println("Randomized successfully!");
-                    // this is the only successful exit, everything else will return false at the end of the function
-                    return true;
+                    // this is the only successful exit, everything else will return false at the
+                    // end of the function
+                    return filename;
                 }
             }
             // if we get here it means no rom handlers matched the ROM file
@@ -118,7 +114,8 @@ public class CliRandomizer {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return false;
+
+        return null;
     }
 
     private static void displaySettingsWarnings(Settings settings, RomHandler romHandler) {
@@ -131,18 +128,61 @@ public class CliRandomizer {
         }
     }
 
+    private static Settings loadSettingsFromFile(String settingsFilePath) {
+        try {
+            File settingsFile = new File(settingsFilePath);
+            FileInputStream fis = new FileInputStream(settingsFile);
+            Settings settings = Settings.read(fis);
+
+            // taken from com.dabomstew.pkrandom.newgui.NewRandomizerGUI.saveROM, set
+            // distinctly from all other settings
+            settings.setCustomNames(FileFunctions.getCustomNames());
+            
+            fis.close();
+            return settings;
+        } catch (IOException e) {
+            printError("Could not read settings file");
+            return null;
+        }
+    }
+
+    private static Settings loadSettingsFromString(String settingsString) {
+        settingsString = settingsString.trim();
+
+        try {
+            int stringVersion = Integer.parseInt(settingsString.substring(0, 3));
+            settingsString = settingsString.substring(3);
+            if (stringVersion < Version.VERSION) {
+                settingsString = new SettingsUpdater().update(stringVersion, settingsString);
+            }
+
+            Settings settings = Settings.fromString(settingsString);
+            
+            // taken from com.dabomstew.pkrandom.newgui.NewRandomizerGUI.saveROM, set
+            // distinctly from all other settings
+            settings.setCustomNames(FileFunctions.getCustomNames());
+            
+            return settings;
+        } catch (IllegalArgumentException | IOException e) {
+            printError("Could not parse settings string");
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public static int invoke(String[] args) {
         String settingsFilePath = null;
+        String settingsString = null;
         String sourceRomFilePath = null;
         String outputRomFilePath = null;
         boolean saveAsDirectory = false;
         String updateFilePath = null;
         boolean saveLog = false;
 
-        List<String> allowedFlags = Arrays.asList("-i", "-o", "-s", "-d", "-u", "-l", "--help");
+        List<String> allowedFlags = Arrays.asList("-i", "-o", "-s", "-c", "-d", "-u", "-l", "--help");
         for (int i = 0; i < args.length; i++) {
             if (allowedFlags.contains(args[i])) {
-                switch(args[i]) {
+                switch (args[i]) {
                     case "-i":
                         sourceRomFilePath = args[i + 1];
                         break;
@@ -152,11 +192,14 @@ public class CliRandomizer {
                     case "-s":
                         settingsFilePath = args[i + 1];
                         break;
+                    case "-c":
+                        settingsString = args[i + 1];
+                        break;
                     case "-d":
                         saveAsDirectory = true;
                         break;
                     case "-u":
-                        updateFilePath = args[i+1];
+                        updateFilePath = args[i + 1];
                         break;
                     case "-l":
                         saveLog = true;
@@ -170,7 +213,7 @@ public class CliRandomizer {
             }
         }
 
-        if (settingsFilePath == null || sourceRomFilePath == null || outputRomFilePath == null) {
+        if ((settingsFilePath == null && settingsString == null) || sourceRomFilePath == null || outputRomFilePath == null) {
             printError("Missing required argument");
             CliRandomizer.printUsage();
             return 1;
@@ -178,8 +221,14 @@ public class CliRandomizer {
         }
 
         // now we know we have the right number of args...
-        if (!new File(settingsFilePath).exists()) {
-            printError("Could not read settings file");
+        Settings settings;
+        if (settingsFilePath != null) {
+            settings = CliRandomizer.loadSettingsFromFile(settingsFilePath);
+        } else {
+            settings = CliRandomizer.loadSettingsFromString(settingsString);
+        }
+
+        if (settings == null) {
             CliRandomizer.printUsage();
             return 1;
         }
@@ -198,19 +247,21 @@ public class CliRandomizer {
             return 1;
         }
 
-        boolean processResult = CliRandomizer.performDirectRandomization(
-                settingsFilePath,
-                sourceRomFilePath,
-                outputRomFilePath,
-                saveAsDirectory,
-                updateFilePath,
-                saveLog
+        String processResult = CliRandomizer.performDirectRandomization(
+            settings, 
+            sourceRomFilePath,
+            outputRomFilePath, 
+            saveAsDirectory, 
+            updateFilePath, 
+            saveLog
         );
-        if (!processResult) {
+        if (processResult == null) {
             printError("Randomization failed");
             CliRandomizer.printUsage();
             return 1;
         }
+
+        System.out.println("Saved to " + processResult);
         return 0;
     }
 
@@ -223,8 +274,10 @@ public class CliRandomizer {
     }
 
     private static void printUsage() {
-        System.err.println("Usage: java [-Xmx4096M] -jar PokeRandoZX.jar cli -s <path to settings file> " +
-                "-i <path to source ROM> -o <path for new ROM> [-d][-u <path to 3DS game update>][-l]");
+        System.err.println(
+            "Usage: java [-Xmx4096M] -jar PokeRandoZX.jar cli [-s <path to settings file> | -c <settings string>] " + 
+            "-i <path to source ROM> -o <path for new ROM (without extension)> [-d][-u <path to 3DS game update>][-l]"
+        );
         System.err.println("-d: Save 3DS game as directory (LayeredFS)");
     }
 }
