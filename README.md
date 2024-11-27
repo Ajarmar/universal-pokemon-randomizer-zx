@@ -1,8 +1,6 @@
-Universal Pokemon Randomizer ZX by Ajarmar
+Universal Pokemon Randomizer Star by Stratos
 
-With significant contributions from darkeye, cleartonic
-
-Based on the Universal Pokemon Randomizer by Dabomstew
+Based on the Universal Pokemon Randomizer ZX by Ajarmar
 
 # Info
 
