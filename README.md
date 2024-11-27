@@ -6,7 +6,7 @@ Based on the Universal Pokemon Randomizer ZX by Ajarmar
 
 This fork was originally made to make some minor tweaks and fixes, but became a bit more ambitious since 2020. There are several new features and supported games (including 3DS games) compared to the original Universal Pokemon Randomizer.
 
-Have a look at the [release page](https://github.com/Ajarmar/universal-pokemon-randomizer-zx/releases) for changelogs and downloads.
+Have a look at the [release page](https://github.com/srvachet94/universal-pokemon-randomizer-star) for changelogs and downloads.
 
 # Contributing
 

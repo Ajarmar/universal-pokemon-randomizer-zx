@@ -418,8 +418,9 @@ public class NewRandomizerGUI {
         }
 
         new Thread(() -> {
-            String latestVersionString = "???";
+            String latestVersionString = Version.VERSION_STRING;
 
+            /*
             try {
 
                 URL url = new URL(SysConstants.API_URL_ZX);
@@ -444,6 +445,8 @@ public class NewRandomizerGUI {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
+            */
 
             // If the release version is newer than this version, bold it to make it more obvious.
             if (Version.isReleaseVersionNewer(latestVersionString)) {
@@ -538,7 +541,7 @@ public class NewRandomizerGUI {
             public void mouseClicked(MouseEvent e) {
                 Desktop desktop = java.awt.Desktop.getDesktop();
                 try {
-                    desktop.browse(new URI(SysConstants.WEBSITE_URL_ZX));
+                    desktop.browse(new URI(SysConstants.WEBSITE_URL_STAR));
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -643,7 +646,11 @@ public class NewRandomizerGUI {
         }
         if (initialPopup) {
             String message = String.format(bundle.getString("GUI.firstStart"),Version.VERSION_STRING);
-            JLabel label = new JLabel("<html><a href=\"https://github.com/Ajarmar/universal-pokemon-randomizer-zx/wiki/Important-Information\">Checking out the \"Important Information\" page on the Wiki is highly recommended.</a>");
+            JLabel label = new JLabel(
+                    "<html>" +
+                            "The Star branch of the Universal Pokemon Randomizer has an underdeveloped gethub page.<br />" +
+                            "<a href=\"https://github.com/Ajarmar/universal-pokemon-randomizer-zx/wiki/Important-Information\">Checking out PokeRandoZX's \"Important Information\" page on it's whiki might useful to you." +
+                            "</a>");
             label.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {

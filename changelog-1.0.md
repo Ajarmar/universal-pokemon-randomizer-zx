@@ -7,6 +7,8 @@
   - This is a randomizer built off a basis of the universal-pokemon-randomizer-zx v4.5.1
     - https://github.com/Ajarmar/universal-pokemon-randomizer-zx
       - with many elements from https://github.com/brentspector/universal-pokemon-randomizer
+      - This also includes some features from ZX 4.6.1
+        - Namely bug fixes
   - This changelog is to express the additions/modifications made from that project to this one
   - Bugs which existed in that version of universal-pokemon-randomizer-zx likely remain
     - This project does not aim for optimization, polish, or professional presentation

@@ -33,8 +33,10 @@ public class SysConstants {
     public static final String AUTOUPDATE_URL = "http://pokehacks.dabomstew.com/randomizer/autoupdate/";
     public static final String WEBSITE_URL = "http://pokehacks.dabomstew.com/randomizer/";
     public static final String WEBSITE_URL_ZX = "https://github.com/Ajarmar/universal-pokemon-randomizer-zx/releases";
+    public static final String WEBSITE_URL_STAR = "https://github.com/srvachet94/universal-pokemon-randomizer-star";
     public static final String WIKI_URL_ZX = "https://github.com/Ajarmar/universal-pokemon-randomizer-zx/wiki";
     public static final String API_URL_ZX = "https://api.github.com/repos/ajarmar/universal-pokemon-randomizer-zx/releases/latest";
+    public static final String VERSION_STAR = "1.0";
     public static final int UPDATE_VERSION = 1721;
     public static final String ROOT_PATH = getRootPath();
     public static final String LINE_SEP = System.getProperty("line.separator");
