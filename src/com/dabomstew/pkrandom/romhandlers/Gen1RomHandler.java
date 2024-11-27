@@ -43,7 +43,10 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.dabomstew.pkrandom.*;
+import com.dabomstew.pkrandom.FileFunctions;
+import com.dabomstew.pkrandom.GFXFunctions;
+import com.dabomstew.pkrandom.MiscTweak;
+import com.dabomstew.pkrandom.Settings;
 import com.dabomstew.pkrandom.constants.*;
 import com.dabomstew.pkrandom.exceptions.RandomizationException;
 import com.dabomstew.pkrandom.exceptions.RandomizerIOException;
@@ -1486,6 +1489,7 @@ public class Gen1RomHandler extends AbstractGBCRomHandler {
         return typeEffectivenessTable;
     }
 
+
     private void writeTypeEffectivenessTable(List<TypeRelationship> typeEffectivenessTable) {
         int currentOffset = romEntry.getValue("TypeEffectivenessOffset");
         for (TypeRelationship relationship : typeEffectivenessTable) {
@@ -2106,7 +2110,6 @@ public class Gen1RomHandler extends AbstractGBCRomHandler {
         if (romEntry.getValue("CatchingTutorialMonOffset") != 0) {
             available |= MiscTweak.RANDOMIZE_CATCHING_TUTORIAL.getValue();
         }
-
         return available;
     }
 

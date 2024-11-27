@@ -1278,6 +1278,7 @@ public class Gen3RomHandler extends AbstractGBRomHandler {
             pkmn.secondaryType = null;
         }
         pkmn.catchRate = rom[offset + Gen3Constants.bsCatchRateOffset] & 0xFF;
+        pkmn.expYield = rom[offset + Gen3Constants.bsExpYieldOffset] & 0xFF;
         pkmn.growthCurve = ExpCurve.fromByte(rom[offset + Gen3Constants.bsGrowthCurveOffset]);
         // Abilities
         pkmn.ability1 = rom[offset + Gen3Constants.bsAbility1Offset] & 0xFF;
@@ -1316,6 +1317,7 @@ public class Gen3RomHandler extends AbstractGBRomHandler {
             rom[offset + Gen3Constants.bsSecondaryTypeOffset] = Gen3Constants.typeToByte(pkmn.secondaryType);
         }
         rom[offset + Gen3Constants.bsCatchRateOffset] = (byte) pkmn.catchRate;
+        rom[offset + Gen3Constants.bsExpYieldOffset] = (byte) pkmn.expYield;
         rom[offset + Gen3Constants.bsGrowthCurveOffset] = pkmn.growthCurve.toByte();
 
         rom[offset + Gen3Constants.bsAbility1Offset] = (byte) pkmn.ability1;
@@ -3243,7 +3245,8 @@ public class Gen3RomHandler extends AbstractGBRomHandler {
         if (offset > 0) {
             // Amount of required happiness for HAPPINESS evolutions.
             if (rom[offset] == (byte)219) {
-                rom[offset] = (byte)159;
+                //rom[offset] = (byte)159;
+                rom[offset] = (byte)69;
             }
             // FRLG doesn't have code to handle time-based evolutions.
             if (romEntry.romType != Gen3Constants.RomType_FRLG) {
@@ -3254,6 +3257,21 @@ public class Gen3RomHandler extends AbstractGBRomHandler {
                 // Amount of required happiness for HAPPINESS_NIGHT evolutions.
                 if (rom[offset + 66] == (byte)219) {
                     rom[offset + 66] = (byte)159;
+                }
+            }
+        }
+
+        for (Pokemon pkmn : pokes) {
+            if (pkmn != null) {
+                for (Evolution evo : pkmn.evolutionsFrom) {
+                    if (evo.type == EvolutionType.HAPPINESS ||
+                            evo.type == EvolutionType.HAPPINESS_DAY ||
+                            evo.type == EvolutionType.HAPPINESS_NIGHT) {
+                        // Replace w/ level 35
+                        evo.type = EvolutionType.LEVEL_ITEM_DAY;
+                        evo.extraInfo = Items.rareCandy;
+                        addEvoUpdateCondensed(easierEvolutionUpdates, evo, false);
+                    }
                 }
             }
         }

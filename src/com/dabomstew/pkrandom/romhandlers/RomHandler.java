@@ -27,10 +27,7 @@ package com.dabomstew.pkrandom.romhandlers;
 
 import java.awt.image.BufferedImage;
 import java.io.PrintStream;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 import com.dabomstew.pkrandom.MiscTweak;
 import com.dabomstew.pkrandom.Settings;
@@ -92,6 +89,9 @@ public interface RomHandler {
 
     List<Pokemon> getPokemonInclFormes();
 
+    List<Pokemon> getBasePokemon();
+    List<Pokemon> getEvolvingPokemon();
+
     List<Pokemon> getAltFormes();
 
     List<MegaEvolution> getMegaEvolutions();
@@ -124,7 +124,8 @@ public interface RomHandler {
 
     void randomizeStarters(Settings settings);
 
-    void randomizeBasicTwoEvosStarters(Settings settings);
+    // Method obsolete
+//    void randomizeBasicTwoEvosStarters(Settings settings);
 
     List<Pokemon> getPickedStarters();
 
@@ -147,10 +148,24 @@ public interface RomHandler {
     // tooltips)
     void randomizePokemonStats(Settings settings);
 
+    void randomizePokemonBSTs(Settings settings);
+
+    void shufflePokemonBSTs(Settings settings);
+
     // Update base stats to specified generation
     void updatePokemonStats(Settings settings);
 
+    // Scale Pokemon stats based on Minimum/Maximum
+    void scalePokemonStats(Settings settings);
+
+    void roundPokemonStats(Settings settings);
+
+    // Find Pokemon in various evolvution states
+    void findBigPokemon();
+
     Map<Integer,StatChange> getUpdatedPokemonStats(int generation);
+
+    void adjustExpYield(Settings settings);
 
     void standardizeEXPCurves(Settings settings);
 
@@ -170,6 +185,12 @@ public interface RomHandler {
     // Give a random legendary Pokemon who's in this game
     // Business rules for who's legendary are in Pokemon class
     Pokemon randomLegendaryPokemon();
+
+    // Give a random non-Big Pokemon who's in this game
+    Pokemon randomNonBigPokemon();
+
+    // Give a random Big Pokemon who's in this game
+    Pokemon randomBigPokemon();
 
     // Give a random Pokemon who has 2 evolution stages
     // Should make a good starter Pokemon
@@ -223,6 +244,8 @@ public interface RomHandler {
 
     void game1to1Encounters(Settings settings);
 
+    Map<Pokemon, Pokemon> getGlobalWildPokemonTranslateMap();
+
     void onlyChangeWildLevels(Settings settings);
 
     boolean hasTimeBasedEncounters();
@@ -232,6 +255,8 @@ public interface RomHandler {
     List<Pokemon> bannedForWildEncounters();
 
     void randomizeWildHeldItems(Settings settings);
+
+    void scaleCatchRates();
 
     void changeCatchRates(Settings settings);
 
@@ -253,6 +278,8 @@ public interface RomHandler {
 
     void randomizeTrainerPokes(Settings settings);
 
+    int[] getPokemonLevelMoves(TrainerPokemon tpk);
+
     void randomizeTrainerHeldItems(Settings settings);
 
     List<Integer> getSensibleHeldItemsFor(TrainerPokemon tp, boolean consumableOnly, List<Move> moves, int[] pokeMoves);
@@ -262,6 +289,7 @@ public interface RomHandler {
     List<Integer> getAllHeldItems();
 
     void rivalCarriesStarter();
+    void rivalCarriesTeam();
 
     boolean hasRivalFinalBattle();
 
@@ -280,18 +308,21 @@ public interface RomHandler {
     // =========
     // Move Data
     // =========
+    public void findMoveEfficacies();
 
     void randomizeMovePowers();
 
     void randomizeMovePPs();
 
-    void randomizeMoveAccuracies();
+    void changeMoveAccuracies(Settings settings);
 
     void randomizeMoveTypes();
 
     boolean hasPhysicalSpecialSplit();
 
     void randomizeMoveCategory();
+
+    int getPerfectAccuracy();
 
     void updateMoves(Settings settings);
 
@@ -386,10 +417,10 @@ public interface RomHandler {
     /**
      * Get TM/HM compatibility data from this rom. The result should contain a
      * boolean array for each Pokemon indexed as such:
-     * 
+     *
      * 0: blank (false) / 1 - (getTMCount()) : TM compatibility /
      * (getTMCount()+1) - (getTMCount()+getHMCount()) - HM compatibility
-     * 
+     *
      * @return Map of TM/HM compatibility
      */
 
@@ -571,7 +602,9 @@ public interface RomHandler {
 
     void removeImpossibleEvolutions(Settings settings);
 
-    void condenseLevelEvolutions(int maxLevel, int maxIntermediateLevel);
+    void condenseLevelEvolutions(int maxLevel);
+
+    void spaceLevelEvolutions(Settings settings);
 
     void makeEvolutionsEasier(Settings settings);
 
@@ -591,6 +624,26 @@ public interface RomHandler {
     // In later games, this was changed so that alt formes can have unique evolutions
     // compared to the base forme.
     boolean altFormesCanHaveDifferentEvolutions();
+
+    void findInitialBSTRange();
+
+    void findRandomizedBSTRange();
+
+    void findBasePokemon();
+
+    void findEvolvingPokemon();
+
+    void findFinalEvolutionPokemon();
+
+    void findEvoPowerLevels(boolean initial);
+
+    void organizeBSTs(boolean initial);
+
+    List<Pokemon> getBaseSPTSort();
+
+    List<Pokemon> getUpdatedSPTSort();
+
+    boolean getStartersFailed();
 
     // ==================================
     // (Mostly) unchanging lists of moves

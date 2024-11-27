@@ -25,6 +25,7 @@ package com.dabomstew.pkrandom.pokemon;
 /*----------------------------------------------------------------------------*/
 
 import com.dabomstew.pkrandom.constants.GlobalConstants;
+import org.json.JSONObject;
 
 public class Move {
     public class StatChange {
@@ -46,6 +47,11 @@ public class Move {
     public int power;
     public int pp;
     public double hitratio;
+    public double learnRate;
+    public double levelLearnRate;
+    public double efficacy;
+    public int efficacyTier;
+
     public Type type;
     public MoveCategory category;
     public StatChangeMoveType statChangeMoveType = StatChangeMoveType.NONE_OR_UNKNOWN;
@@ -91,14 +97,64 @@ public class Move {
                 statChangeMoveType == StatChangeMoveType.DAMAGE_USER && statChanges[0].stages > 0;
     }
 
-    public boolean isGoodDamaging(int perfectAccuracy) {
-        return (power * hitCount) >= 2 * GlobalConstants.MIN_DAMAGING_MOVE_POWER
-                || ((power * hitCount) >= GlobalConstants.MIN_DAMAGING_MOVE_POWER && (hitratio >= 90 || hitratio == perfectAccuracy));
+    public boolean isDamaging(int effT) {
+        return power > 0 && effT - efficacyTier >= 0;
     }
+
+    public boolean isGoodDamaging(int effT) {
+        return power > 0 && Math.abs(effT - efficacyTier) <= 1;
+    }
+
 
     public String toString() {
         return "#" + number + " " + name + " - Power: " + power + ", Base PP: " + pp + ", Type: " + type + ", Hit%: "
-                + (hitratio) + ", Effect: " + effectIndex + ", Priority: " + priority;
+                + (hitratio) + ", Effect: " + effectIndex + ", Priority: " + priority + ", Efficacy Tier: " + efficacyTier;
+    }
+
+    public JSONObject toJSON() {
+
+        JSONObject move = new JSONObject();
+
+        move.put("name",name);
+        move.put("number",number);
+        move.put("internalId",internalId);
+
+        String mvType = (type == null) ? "???" : type.toString();
+        move.put("type",mvType);
+        move.put("power",power);
+        move.put("pp",pp);
+        move.put("hitratio",hitratio);
+        move.put("category",category.toString());
+
+        move.put("learnRate",learnRate);
+        move.put("levelLearnRate",levelLearnRate);
+        move.put("efficacy",efficacy);
+        move.put("efficacyTier",efficacyTier);
+
+        /*
+        StatChangeMoveType statChangeMoveType = StatChangeMoveType.NONE_OR_UNKNOWN;
+        StatChange[] statChanges = new StatChange[3];
+        StatusMoveType statusMoveType = StatusMoveType.NONE_OR_UNKNOWN;
+        StatusType statusType = StatusType.NONE;
+        CriticalChance criticalChance = CriticalChance.NORMAL;
+
+        statusPercentChance;
+        flinchPercentChance;
+        recoilPercent;
+        absorbPercent;
+        priority;
+        makesContact;
+        isChargeMove;
+        isRechargeMove;
+        isPunchMove;
+        isSoundMove;
+        isTrapMove; // True for both binding moves (like Wrap) and trapping moves (like Mean Look)
+        effectIndex;
+        target;
+        hitCount = 1; // not saved, only used in randomized move powers.
+         */
+
+        return move;
     }
 
 }

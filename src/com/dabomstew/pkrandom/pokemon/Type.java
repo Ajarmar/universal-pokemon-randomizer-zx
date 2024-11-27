@@ -67,6 +67,8 @@ public enum Type {
         }
     }
 
+
+
     public static Type randomType(Random random) {
         return VALUES.get(random.nextInt(SIZE));
     }

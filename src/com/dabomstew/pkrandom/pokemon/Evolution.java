@@ -24,6 +24,8 @@ package com.dabomstew.pkrandom.pokemon;
 /*--  along with this program. If not, see <http://www.gnu.org/licenses/>.  --*/
 /*----------------------------------------------------------------------------*/
 
+import com.dabomstew.pkrandom.romhandlers.RomHandler;
+
 public class Evolution implements Comparable<Evolution> {
 
     public Pokemon from;
@@ -80,5 +82,63 @@ public class Evolution implements Comparable<Evolution> {
 
     public String toFullName() {
         return to.name + formeSuffix;
+    }
+
+    public String methodString(RomHandler romHandler) {
+        String evoText = "";
+        switch (type) {
+            case LEVEL:
+            case LEVEL_ATK_DEF_SAME:
+            case LEVEL_ATTACK_HIGHER:
+            case LEVEL_DEFENSE_HIGHER:
+                evoText = type + " " + extraInfo;
+                break;
+            case LEVEL_HIGH_PV:
+                evoText = ("LEVEL " + extraInfo + " when HIGH PERSONALITY VALUE");
+                break;
+            case LEVEL_LOW_PV:
+                evoText = ("LEVEL " + extraInfo + " when LOW PERSONALITY VALUE");
+                break;
+            case LEVEL_MALE_ONLY:
+                evoText = ("LEVEL " + extraInfo + " when MALE");
+                break;
+            case LEVEL_FEMALE_ONLY:
+                evoText = ("LEVEL " + extraInfo + " when FEMALE");
+                break;
+            case LEVEL_WITH_OTHER:
+                evoText = ("LEVEL with " + romHandler.getPokemon().get(extraInfo).name + " in party");
+                break;
+            case LEVEL_ITEM_DAY:
+                evoText = ("LEVEL holding " + romHandler.getItemNames()[extraInfo] + " during DAY");
+                break;
+            case LEVEL_ITEM_NIGHT:
+                evoText = ("LEVEL holding " + romHandler.getItemNames()[extraInfo] + " during NIGHT");
+                break;
+            case LEVEL_WITH_MOVE:
+                evoText = ("LEVEL while knowing " + romHandler.getMoves().get(extraInfo).name);
+                break;
+            case STONE:
+                evoText = (romHandler.getItemNames()[extraInfo]);
+                break;
+            case STONE_MALE_ONLY:
+                evoText = (romHandler.getItemNames()[extraInfo] + " when MALE");
+                break;
+            case STONE_FEMALE_ONLY:
+                evoText = (romHandler.getItemNames()[extraInfo] + " when FEMALE");
+                break;
+            case TRADE_ITEM:
+                evoText = ("TRADE holding " + romHandler.getItemNames()[extraInfo]);
+                break;
+            // case MEGA_EVOLVE:
+            // MEGA EVOLVE holding ${romHandler.getItemNames()[evoFm.extraInfo]}
+            //break;
+            case FAIRY_AFFECTION:
+                evoText = ("HAPPINESS with FAIRY-type move");
+                break;
+            default:
+                evoText = type.toString();
+                break;
+        }
+        return evoText;
     }
 }

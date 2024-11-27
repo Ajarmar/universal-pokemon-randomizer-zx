@@ -755,6 +755,7 @@ public class Gen2RomHandler extends AbstractGBCRomHandler {
             pkmn.secondaryType = null;
         }
         pkmn.catchRate = rom[offset + Gen2Constants.bsCatchRateOffset] & 0xFF;
+        pkmn.expYield = rom[offset + Gen2Constants.bsExpYieldOffset] & 0xFF;
         pkmn.guaranteedHeldItem = -1;
         pkmn.commonHeldItem = rom[offset + Gen2Constants.bsCommonHeldItemOffset] & 0xFF;
         pkmn.rareHeldItem = rom[offset + Gen2Constants.bsRareHeldItemOffset] & 0xFF;
@@ -1937,7 +1938,23 @@ public class Gen2RomHandler extends AbstractGBCRomHandler {
 
             // Amount of required happiness for all happiness evolutions.
             if (rom[offset] == (byte)220) {
-                rom[offset] = (byte)160;
+                //rom[offset] = (byte)160;
+                rom[offset] = (byte)70;
+            }
+        }
+
+        for (Pokemon pkmn : pokes) {
+            if (pkmn != null) {
+                for (Evolution evo : pkmn.evolutionsFrom) {
+                    if (evo.type == EvolutionType.HAPPINESS ||
+                            evo.type == EvolutionType.HAPPINESS_DAY ||
+                            evo.type == EvolutionType.HAPPINESS_NIGHT) {
+                        // Replace w/ level 35
+                        evo.type = EvolutionType.LEVEL_ITEM_DAY;
+                        evo.extraInfo = Items.rareCandy;
+                        addEvoUpdateCondensed(easierEvolutionUpdates, evo, false);
+                    }
+                }
             }
         }
     }
@@ -2314,6 +2331,8 @@ public class Gen2RomHandler extends AbstractGBCRomHandler {
         writeTypeEffectivenessTable(typeEffectivenessTable);
         effectivenessUpdated = true;
     }
+
+
 
     private List<TypeRelationship> readTypeEffectivenessTable() {
         List<TypeRelationship> typeEffectivenessTable = new ArrayList<>();

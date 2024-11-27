@@ -40,7 +40,7 @@ public class Launcher {
 
     public static void main(String[] args) {
         try {
-            ProcessBuilder pb = new ProcessBuilder("java", "-Xmx4096M", "-jar", "./PokeRandoZX.jar", "please-use-the-launcher");
+            ProcessBuilder pb = new ProcessBuilder("java", "-Xmx4096M", "-jar", "../../PokeRandoStar.jar", "please-use-the-launcher");
             File log = new File(SysConstants.ROOT_PATH + "launcher-log.txt");
             if (!log.exists()) {
                 log.createNewFile();

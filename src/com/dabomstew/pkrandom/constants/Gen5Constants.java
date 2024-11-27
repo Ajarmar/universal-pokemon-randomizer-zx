@@ -197,7 +197,7 @@ public class Gen5Constants {
     );
 
     public static final List<Integer> emptyPlaythroughTrainers = Arrays.asList(new Integer[] { });
-    
+
     public static final List<Integer> bw1MainPlaythroughTrainers = Arrays.asList(
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
             20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
@@ -263,7 +263,7 @@ public class Gen5Constants {
             71, 72, 73, 74, 75, 76, 77);
 
     public static final int normalTrainerNameLength = 813, normalTrainerClassLength = 236;
-    
+
 //    public static final Map<Integer, String> bw1ShopIndex = new HashMap<Integer, String>() {1:"Check"};
 
     public static final List<Integer> bw1MainGameShops = Arrays.asList(
@@ -301,7 +301,7 @@ public class Gen5Constants {
     public static final List<Integer> bw2MainGameShops = Arrays.asList(
             9, 11, 14, 15, 16, 18, 20, 21, 22, 23, 25, 26, 27, 28, 29, 30, 31
     );
-    
+
     public static final List<String> bw2ShopNames = Arrays.asList(
             "Primary 0 Badges",
             "Primary 1 Badges",
@@ -342,7 +342,7 @@ public class Gen5Constants {
             Items.ovalStone, Items.kingsRock, Items.deepSeaTooth, Items.deepSeaScale, Items.metalCoat, Items.dragonScale,
             Items.upgrade, Items.protector, Items.electirizer, Items.magmarizer, Items.dubiousDisc, Items.reaperCloth,
             Items.razorClaw, Items.razorFang, Items.prismScale);
-    
+
     public static final List<Integer> bw1RequiredFieldTMs = Arrays.asList(2, 3, 5, 6, 9, 12, 13, 19,
             22, 24, 26, 29, 30, 35, 36, 39, 41, 46, 47, 50, 52, 53, 55, 58, 61, 63, 65, 66, 71, 80, 81, 84, 85, 86, 90,
             91, 92, 93);
@@ -359,8 +359,10 @@ public class Gen5Constants {
             Moves.cut, Moves.fly, Moves.surf, Moves.strength, Moves.flash, Moves.dig, Moves.teleport,
             Moves.waterfall, Moves.sweetScent, Moves.dive);
 
+    public static final String shedinjaFunctionLocator = "F8B582B0061C30680F1C";
     public static final String shedinjaSpeciesLocator = "24010000";
 
+    private static final int bw1FieldOverlayNumber = 21, bw2FieldOverlayNumber = 36;
     public static final String runningShoesPrefix = "01D0012008BD002008BD63";
 
     public static final String introGraphicPrefix = "5A0000010000001700000001000000", bw1IntroCryPrefix = "0021009101910291", bw2IntroCryLocator = "3D020000F8B51C1C";
@@ -819,6 +821,14 @@ public class Gen5Constants {
         Map<Integer,Integer> m = new HashMap<>();
         m.put(255,0);
         return m;
+    }
+
+    public static int getFieldOverlayNumber(int romType) {
+        if (romType == Gen5Constants.Type_BW) {
+            return Gen5Constants.bw1FieldOverlayNumber;
+        } else {
+            return Gen5Constants.bw2FieldOverlayNumber;
+        }
     }
 
     public static ItemList allowedItems, nonBadItemsBW1, nonBadItemsBW2;
@@ -1647,7 +1657,7 @@ public class Gen5Constants {
         12,
         54,
     };
-    
+
     private static final int[] bw2WildFileToAreaMap = {
         2,
         4,
@@ -1718,38 +1728,38 @@ public class Gen5Constants {
 
         // Gym Trainers
         tag(trs, "GYM11", 0x09, 0x0A);
-        tag(trs, "GYM2", 0x56, 0x57, 0x58);
-        tag(trs, "GYM3", 0xC4, 0xC6, 0xC7, 0xC8);
-        tag(trs, "GYM4", 0x42, 0x43, 0x44, 0x45);
-        tag(trs, "GYM5", 0xC9, 0xCA, 0xCB, 0x5F, 0xA8);
-        tag(trs, "GYM6", 0x7D, 0x7F, 0x80, 0x46, 0x47);
-        tag(trs, "GYM7", 0xD7, 0xD8, 0xD9, 0xD4, 0xD5, 0xD6);
-        tag(trs, "GYM8", 0x109, 0x10A, 0x10F, 0x10E, 0x110, 0x10B, 0x113, 0x112);
+        tag(trs, "GYM2", Type.NORMAL, 0x56, 0x57, 0x58);
+        tag(trs, "GYM3", Type.BUG, 0xC4, 0xC6, 0xC7, 0xC8);
+        tag(trs, "GYM4", Type.ELECTRIC, 0x42, 0x43, 0x44, 0x45);
+        tag(trs, "GYM5", Type.GROUND, 0xC9, 0xCA, 0xCB, 0x5F, 0xA8);
+        tag(trs, "GYM6", Type.FLYING, 0x7D, 0x7F, 0x80, 0x46, 0x47);
+        tag(trs, "GYM7", Type.ICE, 0xD7, 0xD8, 0xD9, 0xD4, 0xD5, 0xD6);
+        tag(trs, "GYM8", Type.DRAGON, 0x109, 0x10A, 0x10F, 0x10E, 0x110, 0x10B, 0x113, 0x112);
 
         // Gym Leaders
-        tag(trs, 0x0C, "GYM1-LEADER"); // Cilan
-        tag(trs, 0x0B, "GYM9-LEADER"); // Chili
-        tag(trs, 0x0D, "GYM10-LEADER"); // Cress
-        tag(trs, 0x15, "GYM2-LEADER"); // Lenora
-        tag(trs, 0x16, "GYM3-LEADER"); // Burgh
-        tag(trs, 0x17, "GYM4-LEADER"); // Elesa
-        tag(trs, 0x18, "GYM5-LEADER"); // Clay
-        tag(trs, 0x19, "GYM6-LEADER"); // Skyla
-        tag(trs, 0x83, "GYM7-LEADER"); // Brycen
-        tag(trs, 0x84, "GYM8-LEADER"); // Iris or Drayden
-        tag(trs, 0x85, "GYM8-LEADER"); // Iris or Drayden
+        tag(trs, 0x0C, "GYM1-LEADER", Type.GRASS); // Cilan
+        tag(trs, 0x0B, "GYM9-LEADER", Type.FIRE); // Chili
+        tag(trs, 0x0D, "GYM10-LEADER", Type.WATER); // Cress
+        tag(trs, 0x15, "GYM2-LEADER", Type.NORMAL); // Lenora
+        tag(trs, 0x16, "GYM3-LEADER", Type.BUG); // Burgh
+        tag(trs, 0x17, "GYM4-LEADER", Type.ELECTRIC); // Elesa
+        tag(trs, 0x18, "GYM5-LEADER", Type.GROUND); // Clay
+        tag(trs, 0x19, "GYM6-LEADER", Type.FLYING); // Skyla
+        tag(trs, 0x83, "GYM7-LEADER", Type.ICE); // Brycen
+        tag(trs, 0x84, "GYM8-LEADER", Type.DRAGON); // Iris or Drayden
+        tag(trs, 0x85, "GYM8-LEADER", Type.DRAGON); // Iris or Drayden
 
         // Elite 4
-        tag(trs, 0xE4, "ELITE1"); // Shauntal
-        tag(trs, 0xE6, "ELITE2"); // Grimsley
-        tag(trs, 0xE7, "ELITE3"); // Caitlin
-        tag(trs, 0xE5, "ELITE4"); // Marshal
+        tag(trs, 0xE4, "ELITE1", Type.GHOST); // Shauntal
+        tag(trs, 0xE6, "ELITE2", Type.DARK); // Grimsley
+        tag(trs, 0xE7, "ELITE3", Type.PSYCHIC); // Caitlin
+        tag(trs, 0xE5, "ELITE4", Type.FIGHTING); // Marshal
 
         // Elite 4 R2
-        tag(trs, 0x233, "ELITE1"); // Shauntal
-        tag(trs, 0x235, "ELITE2"); // Grimsley
-        tag(trs, 0x236, "ELITE3"); // Caitlin
-        tag(trs, 0x234, "ELITE4"); // Marshal
+        tag(trs, 0x233, "ELITE1", Type.GHOST); // Shauntal
+        tag(trs, 0x235, "ELITE2", Type.DARK); // Grimsley
+        tag(trs, 0x236, "ELITE3", Type.PSYCHIC); // Caitlin
+        tag(trs, 0x234, "ELITE4", Type.FIGHTING); // Marshal
         tag(trs, 0x197, "CHAMPION"); // Alder
 
         // Ubers?
@@ -1793,35 +1803,35 @@ public class Gen5Constants {
         // but have the normal boost applied too.
 
         // Gym Trainers
-        tag(trs, "GYM1", 0xab, 0xac);
-        tag(trs, "GYM2", 0xb2, 0xb3);
-        tag(trs, "GYM3", 0x2de, 0x2df, 0x2e0, 0x2e1);
+        tag(trs, "GYM1", Type.NORMAL, 0xab, 0xac);
+        tag(trs, "GYM2", Type.POISON, 0xb2, 0xb3);
+        tag(trs, "GYM3", Type.BUG, 0x2de, 0x2df, 0x2e0, 0x2e1);
         // GYM4: old gym site included to give the city a theme
-        tag(trs, "GYM4", 0x26d, 0x94, 0xcf, 0xd0, 0xd1); // 0x94 might be 0x324
-        tag(trs, "GYM5", 0x13f, 0x140, 0x141, 0x142, 0x143, 0x144, 0x145);
-        tag(trs, "GYM6", 0x95, 0x96, 0x97, 0x98, 0x14c);
-        tag(trs, "GYM7", 0x17d, 0x17e, 0x17f, 0x180, 0x181);
-        tag(trs, "GYM8", 0x15e, 0x15f, 0x160, 0x161, 0x162, 0x163);
+        tag(trs, "GYM4", Type.ELECTRIC, 0x26d, 0x94, 0xcf, 0xd0, 0xd1); // 0x94 might be 0x324
+        tag(trs, "GYM5", Type.GROUND, 0x13f, 0x140, 0x141, 0x142, 0x143, 0x144, 0x145);
+        tag(trs, "GYM6", Type.FLYING, 0x95, 0x96, 0x97, 0x98, 0x14c);
+        tag(trs, "GYM7", Type.DRAGON, 0x17d, 0x17e, 0x17f, 0x180, 0x181);
+        tag(trs, "GYM8", Type.WATER, 0x15e, 0x15f, 0x160, 0x161, 0x162, 0x163);
 
         // Gym Leaders
         // Order: Normal, Challenge Mode
         // All the challenge mode teams are near the end of the ROM
         // which makes things a bit easier.
-        tag(trs, "GYM1-LEADER", 0x9c, 0x2fc); // Cheren
-        tag(trs, "GYM2-LEADER", 0x9d, 0x2fd); // Roxie
-        tag(trs, "GYM3-LEADER", 0x9a, 0x2fe); // Burgh
-        tag(trs, "GYM4-LEADER", 0x99, 0x2ff); // Elesa
-        tag(trs, "GYM5-LEADER", 0x9e, 0x300); // Clay
-        tag(trs, "GYM6-LEADER", 0x9b, 0x301); // Skyla
-        tag(trs, "GYM7-LEADER", 0x9f, 0x302); // Drayden
-        tag(trs, "GYM8-LEADER", 0xa0, 0x303); // Marlon
+        tag(trs, "GYM1-LEADER", Type.NORMAL, 0x9c, 0x2fc); // Cheren
+        tag(trs, "GYM2-LEADER", Type.POISON, 0x9d, 0x2fd); // Roxie
+        tag(trs, "GYM3-LEADER", Type.BUG, 0x9a, 0x2fe); // Burgh
+        tag(trs, "GYM4-LEADER", Type.ELECTRIC, 0x99, 0x2ff); // Elesa
+        tag(trs, "GYM5-LEADER", Type.GROUND, 0x9e, 0x300); // Clay
+        tag(trs, "GYM6-LEADER", Type.FLYING, 0x9b, 0x301); // Skyla
+        tag(trs, "GYM7-LEADER", Type.DRAGON, 0x9f, 0x302); // Drayden
+        tag(trs, "GYM8-LEADER", Type.WATER, 0xa0, 0x303); // Marlon
 
         // Elite 4 / Champion
         // Order: Normal, Challenge Mode, Rematch, Rematch Challenge Mode
-        tag(trs, "ELITE1", 0x26, 0x304, 0x8f, 0x309);
-        tag(trs, "ELITE2", 0x28, 0x305, 0x91, 0x30a);
-        tag(trs, "ELITE3", 0x29, 0x307, 0x92, 0x30c);
-        tag(trs, "ELITE4", 0x27, 0x306, 0x90, 0x30b);
+        tag(trs, "ELITE1", Type.GHOST, 0x26, 0x304, 0x8f, 0x309);
+        tag(trs, "ELITE2", Type.DARK, 0x28, 0x305, 0x91, 0x30a);
+        tag(trs, "ELITE3", Type.PSYCHIC, 0x29, 0x307, 0x92, 0x30c);
+        tag(trs, "ELITE4", Type.FIGHTING, 0x27, 0x306, 0x90, 0x30b);
         tag(trs, "CHAMPION", 0x155, 0x308, 0x218, 0x30d);
 
         // Rival - Hugh
@@ -1841,12 +1851,12 @@ public class Gen5Constants {
         tagRivalBW(trs, "FRIEND1", 0x16b);
 
         // Tag/PWT Battles with Cheren
-        tag(trs, "GYM1", 0x173, 0x278, 0x32E);
+        tag(trs, "GYM1", Type.NORMAL, 0x173, 0x278, 0x32E);
 
         // The Restaurant Brothers
-        tag(trs, "GYM9-LEADER", 0x1f0); // Cilan
-        tag(trs, "GYM10-LEADER", 0x1ee); // Chili
-        tag(trs, "GYM11-LEADER", 0x1ef); // Cress
+        tag(trs, "GYM9-LEADER", Type.GRASS, 0x1f0); // Cilan
+        tag(trs, "GYM10-LEADER", Type.FIRE, 0x1ee); // Chili
+        tag(trs, "GYM11-LEADER", Type.WATER, 0x1ef); // Cress
 
         // Themed Trainers
         tag(trs, "THEMED:ZINZOLIN-STRONG", 0x2c0, 0x248, 0x15b, 0x1f1);
@@ -1858,19 +1868,19 @@ public class Gen5Constants {
         // Uber-Trainers
         // There are *fourteen* ubers of 17 allowed (incl. the champion)
         // It's a rather stacked game...
-        tag(trs, 0x246, "UBER"); // Alder
-        tag(trs, 0x1c8, "UBER"); // Cynthia
-        tag(trs, 0xca, "UBER"); // Benga/BlackTower
-        tag(trs, 0xc9, "UBER"); // Benga/WhiteTreehollow
-        tag(trs, 0x5, "UBER"); // N/Zekrom
-        tag(trs, 0x6, "UBER"); // N/Reshiram
-        tag(trs, 0x30e, "UBER"); // N/Spring
-        tag(trs, 0x30f, "UBER"); // N/Summer
-        tag(trs, 0x310, "UBER"); // N/Autumn
-        tag(trs, 0x311, "UBER"); // N/Winter
-        tag(trs, 0x159, "UBER"); // Ghetsis
-        tag(trs, 0x8c, "UBER"); // Game Freak Guy
-        tag(trs, 0x24f, "UBER"); // Game Freak Leftovers Guy
+        tag(trs, 0x246, "UBER1"); // Alder
+        tag(trs, 0x1c8, "UBER2"); // Cynthia
+        tag(trs, 0xca, "UBER3"); // Benga/BlackTower
+        tag(trs, 0xc9, "UBER4"); // Benga/WhiteTreehollow
+        tag(trs, 0x5, "UBER5"); // N/Zekrom
+        tag(trs, 0x6, "UBER6"); // N/Reshiram
+        tag(trs, 0x30e, "UBER7"); // N/Spring
+        tag(trs, 0x30f, "UBER8"); // N/Summer
+        tag(trs, 0x310, "UBER9"); // N/Autumn
+        tag(trs, 0x311, "UBER10"); // N/Winter
+        tag(trs, 0x159, "UBER11"); // Ghetsis
+        tag(trs, 0x8c, "UBER12"); // Game Freak Guy
+        tag(trs, 0x24f, "UBER13"); // Game Freak Leftovers Guy
 
     }
 
@@ -1891,6 +1901,22 @@ public class Gen5Constants {
         for (int num : numbers) {
             if (allTrainers.size() > (num - 1)) {
                 allTrainers.get(num - 1).tag = tag;
+            }
+        }
+    }
+
+    private static void tag(List<Trainer> allTrainers, int number, String tag, Type typeTheme) {
+        if (allTrainers.size() > (number - 1)) {
+            allTrainers.get(number - 1).tag = tag;
+            allTrainers.get(number - 1).typeTheme = typeTheme;
+        }
+    }
+
+    private static void tag(List<Trainer> allTrainers, String tag, Type typeTheme, int... numbers) {
+        for (int num : numbers) {
+            if (allTrainers.size() > (num - 1)) {
+                allTrainers.get(num - 1).tag = tag;
+                allTrainers.get(num - 1).typeTheme = typeTheme;
             }
         }
     }

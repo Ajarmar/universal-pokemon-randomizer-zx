@@ -1071,6 +1071,11 @@ public class Gen6RomHandler extends Abstract3DSRomHandler {
                 se.pkmn = pokemon;
                 se.forme = forme;
                 se.level = staticCRO[offset+i*size + 5];
+                int heldItem = FileFunctions.readFullInt(staticCRO,offset+i*size + 12);
+                if (heldItem < 0) {
+                    heldItem = 0;
+                }
+                se.heldItem = heldItem;
                 starters.add(se);
             }
         } catch (IOException e) {
@@ -1118,6 +1123,11 @@ public class Gen6RomHandler extends Abstract3DSRomHandler {
                 writeWord(staticCRO,offset+i*size,newStatic.pkmn.number);
                 staticCRO[offset+i*size + 4] = (byte)newStatic.forme;
 //                staticCRO[offset+i*size + 5] = (byte)newStatic.level;
+                if (newStatic.heldItem == 0) {
+                    writeWord(staticCRO,offset+i*size + 12,-1);
+                } else {
+                    writeWord(staticCRO,offset+i*size + 12,newStatic.heldItem);
+                }
                 writeWord(displayCRO,displayOffset+displayIndex*0x54,newStatic.pkmn.number);
                 displayCRO[displayOffset+displayIndex*0x54+2] = (byte)newStatic.forme;
                 if (displayIndex < 3) {
@@ -3180,6 +3190,7 @@ public class Gen6RomHandler extends Abstract3DSRomHandler {
         if (offset > 0) {
             // Amount of required happiness for HAPPINESS evolutions.
             if (code[offset] == (byte)220) {
+                //code[offset] = (byte)160;
                 code[offset] = (byte)160;
             }
             // Amount of required happiness for HAPPINESS_DAY evolutions.
@@ -3189,6 +3200,21 @@ public class Gen6RomHandler extends Abstract3DSRomHandler {
             // Amount of required happiness for HAPPINESS_NIGHT evolutions.
             if (code[offset + 36] == (byte)220) {
                 code[offset + 36] = (byte)160;
+            }
+        }
+
+        for (Pokemon pkmn : pokes) {
+            if (pkmn != null) {
+                for (Evolution evo : pkmn.evolutionsFrom) {
+                    if (evo.type == EvolutionType.HAPPINESS ||
+                            evo.type == EvolutionType.HAPPINESS_DAY ||
+                            evo.type == EvolutionType.HAPPINESS_NIGHT) {
+                        // Replace w/ level 35
+                        evo.type = EvolutionType.LEVEL_ITEM_DAY;
+                        evo.extraInfo = Items.rareCandy;
+                        addEvoUpdateCondensed(easierEvolutionUpdates, evo, false);
+                    }
+                }
             }
         }
 

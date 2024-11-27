@@ -84,7 +84,7 @@ public class Gen3Constants {
 
     public static final int bsHPOffset = 0, bsAttackOffset = 1, bsDefenseOffset = 2, bsSpeedOffset = 3,
             bsSpAtkOffset = 4, bsSpDefOffset = 5, bsPrimaryTypeOffset = 6, bsSecondaryTypeOffset = 7,
-            bsCatchRateOffset = 8, bsCommonHeldItemOffset = 12, bsRareHeldItemOffset = 14, bsGenderRatioOffset = 16,
+            bsCatchRateOffset = 8, bsExpYieldOffset = 9, bsCommonHeldItemOffset = 12, bsRareHeldItemOffset = 14, bsGenderRatioOffset = 16,
             bsGrowthCurveOffset = 19, bsAbility1Offset = 22, bsAbility2Offset = 23;
 
     public static final int textTerminator = 0xFF, textVariable = 0xFD;
@@ -561,29 +561,29 @@ public class Gen3Constants {
 
     public static void trainerTagsRS(List<Trainer> trs, int romType) {
         // Gym Trainers
-        tag(trs, "GYM1", 0x140, 0x141);
-        tag(trs, "GYM2", 0x1AA, 0x1A9, 0xB3);
-        tag(trs, "GYM3", 0xBF, 0x143, 0xC2, 0x289);
-        tag(trs, "GYM4", 0xC9, 0x288, 0xCB, 0x28A, 0xCD);
-        tag(trs, "GYM5", 0x47, 0x59, 0x49, 0x5A, 0x48, 0x5B, 0x4A);
-        tag(trs, "GYM6", 0x191, 0x28F, 0x28E, 0x194);
-        tag(trs, "GYM7", 0xE9, 0xEA, 0xEB, 0xF4, 0xF5, 0xF6);
-        tag(trs, "GYM8", 0x82, 0x266, 0x83, 0x12D, 0x81, 0x74, 0x80, 0x265);
+        tag(trs, "GYM1", Type.ROCK, 0x140, 0x141);
+        tag(trs, "GYM2", Type.FIGHTING, 0x1AA, 0x1A9, 0xB3);
+        tag(trs, "GYM3", Type.ELECTRIC, 0xBF, 0x143, 0xC2, 0x289);
+        tag(trs, "GYM4", Type.FIRE, 0xC9, 0x288, 0xCB, 0x28A, 0xCD);
+        tag(trs, "GYM5", Type.NORMAL, 0x47, 0x59, 0x49, 0x5A, 0x48, 0x5B, 0x4A);
+        tag(trs, "GYM6", Type.FLYING, 0x191, 0x28F, 0x28E, 0x194);
+        tag(trs, "GYM7", Type.PSYCHIC, 0xE9, 0xEA, 0xEB, 0xF4, 0xF5, 0xF6);
+        tag(trs, "GYM8", Type.WATER, 0x82, 0x266, 0x83, 0x12D, 0x81, 0x74, 0x80, 0x265);
 
         // Gym Leaders
-        tag(trs, 0x109, "GYM1-LEADER");
-        tag(trs, 0x10A, "GYM2-LEADER");
-        tag(trs, 0x10B, "GYM3-LEADER");
-        tag(trs, 0x10C, "GYM4-LEADER");
-        tag(trs, 0x10D, "GYM5-LEADER");
-        tag(trs, 0x10E, "GYM6-LEADER");
-        tag(trs, 0x10F, "GYM7-LEADER");
-        tag(trs, 0x110, "GYM8-LEADER");
+        tag(trs, 0x109, "GYM1-LEADER", Type.ROCK);
+        tag(trs, 0x10A, "GYM2-LEADER", Type.FIGHTING);
+        tag(trs, 0x10B, "GYM3-LEADER", Type.ELECTRIC);
+        tag(trs, 0x10C, "GYM4-LEADER", Type.FIRE);
+        tag(trs, 0x10D, "GYM5-LEADER", Type.NORMAL);
+        tag(trs, 0x10E, "GYM6-LEADER", Type.FLYING);
+        tag(trs, 0x10F, "GYM7-LEADER", Type.PSYCHIC);
+        tag(trs, 0x110, "GYM8-LEADER", Type.WATER);
         // Elite 4
-        tag(trs, 0x105, "ELITE1");
-        tag(trs, 0x106, "ELITE2");
-        tag(trs, 0x107, "ELITE3");
-        tag(trs, 0x108, "ELITE4");
+        tag(trs, 0x105, "ELITE1", Type.DARK);
+        tag(trs, 0x106, "ELITE2", Type.GHOST);
+        tag(trs, 0x107, "ELITE3", Type.ICE);
+        tag(trs, 0x108, "ELITE4", Type.DRAGON);
         tag(trs, 0x14F, "CHAMPION");
         // Brendan
         tag(trs, 0x208, "RIVAL1-2");
@@ -636,30 +636,30 @@ public class Gen3Constants {
 
     public static void trainerTagsE(List<Trainer> trs) {
         // Gym Trainers
-        tag(trs, "GYM1", 0x140, 0x141, 0x23B);
-        tag(trs, "GYM2", 0x1AA, 0x1A9, 0xB3, 0x23C, 0x23D, 0x23E);
-        tag(trs, "GYM3", 0xBF, 0x143, 0xC2, 0x289, 0x322);
-        tag(trs, "GYM4", 0x288, 0xC9, 0xCB, 0x28A, 0xCA, 0xCC, 0x1F5, 0xCD);
-        tag(trs, "GYM5", 0x47, 0x59, 0x49, 0x5A, 0x48, 0x5B, 0x4A);
-        tag(trs, "GYM6", 0x192, 0x28F, 0x191, 0x28E, 0x194, 0x323);
-        tag(trs, "GYM7", 0xE9, 0xEA, 0xEB, 0xF4, 0xF5, 0xF6, 0x24F, 0x248, 0x247, 0x249, 0x246, 0x23F);
-        tag(trs, "GYM8", 0x265, 0x80, 0x1F6, 0x73, 0x81, 0x76, 0x82, 0x12D, 0x83, 0x266);
+        tag(trs, "GYM1", Type.ROCK, 0x140, 0x141, 0x23B);
+        tag(trs, "GYM2", Type.FIGHTING, 0x1AA, 0x1A9, 0xB3, 0x23C, 0x23D, 0x23E);
+        tag(trs, "GYM3", Type.ELECTRIC, 0xBF, 0x143, 0xC2, 0x289, 0x322);
+        tag(trs, "GYM4", Type.FIRE, 0x288, 0xC9, 0xCB, 0x28A, 0xCA, 0xCC, 0x1F5, 0xCD);
+        tag(trs, "GYM5", Type.NORMAL, 0x47, 0x59, 0x49, 0x5A, 0x48, 0x5B, 0x4A);
+        tag(trs, "GYM6", Type.FLYING, 0x192, 0x28F, 0x191, 0x28E, 0x194, 0x323);
+        tag(trs, "GYM7", Type.PSYCHIC, 0xE9, 0xEA, 0xEB, 0xF4, 0xF5, 0xF6, 0x24F, 0x248, 0x247, 0x249, 0x246, 0x23F);
+        tag(trs, "GYM8", Type.WATER, 0x265, 0x80, 0x1F6, 0x73, 0x81, 0x76, 0x82, 0x12D, 0x83, 0x266);
 
         // Gym Leaders + Emerald Rematches!
-        tag(trs, "GYM1-LEADER", 0x109, 0x302, 0x303, 0x304, 0x305);
-        tag(trs, "GYM2-LEADER", 0x10A, 0x306, 0x307, 0x308, 0x309);
-        tag(trs, "GYM3-LEADER", 0x10B, 0x30A, 0x30B, 0x30C, 0x30D);
-        tag(trs, "GYM4-LEADER", 0x10C, 0x30E, 0x30F, 0x310, 0x311);
-        tag(trs, "GYM5-LEADER", 0x10D, 0x312, 0x313, 0x314, 0x315);
-        tag(trs, "GYM6-LEADER", 0x10E, 0x316, 0x317, 0x318, 0x319);
-        tag(trs, "GYM7-LEADER", 0x10F, 0x31A, 0x31B, 0x31C, 0x31D);
-        tag(trs, "GYM8-LEADER", 0x110, 0x31E, 0x31F, 0x320, 0x321);
+        tag(trs, "GYM1-LEADER", Type.ROCK, 0x109, 0x302, 0x303, 0x304, 0x305);
+        tag(trs, "GYM2-LEADER", Type.FIGHTING, 0x10A, 0x306, 0x307, 0x308, 0x309);
+        tag(trs, "GYM3-LEADER", Type.ELECTRIC, 0x10B, 0x30A, 0x30B, 0x30C, 0x30D);
+        tag(trs, "GYM4-LEADER", Type.FIRE, 0x10C, 0x30E, 0x30F, 0x310, 0x311);
+        tag(trs, "GYM5-LEADER", Type.NORMAL, 0x10D, 0x312, 0x313, 0x314, 0x315);
+        tag(trs, "GYM6-LEADER", Type.FLYING, 0x10E, 0x316, 0x317, 0x318, 0x319);
+        tag(trs, "GYM7-LEADER", Type.PSYCHIC, 0x10F, 0x31A, 0x31B, 0x31C, 0x31D);
+        tag(trs, "GYM8-LEADER", Type.WATER, 0x110, 0x31E, 0x31F, 0x320, 0x321);
 
         // Elite 4
-        tag(trs, 0x105, "ELITE1");
-        tag(trs, 0x106, "ELITE2");
-        tag(trs, 0x107, "ELITE3");
-        tag(trs, 0x108, "ELITE4");
+        tag(trs, 0x105, "ELITE1",  Type.DARK);
+        tag(trs, 0x106, "ELITE2",  Type.GHOST);
+        tag(trs, 0x107, "ELITE3",  Type.ICE);
+        tag(trs, 0x108, "ELITE4",  Type.DRAGON);
         tag(trs, 0x14F, "CHAMPION");
 
         // Brendan
@@ -720,40 +720,40 @@ public class Gen3Constants {
     public static void trainerTagsFRLG(List<Trainer> trs) {
 
         // Gym Trainers
-        tag(trs, "GYM1", 0x8E);
-        tag(trs, "GYM2", 0xEA, 0x96);
-        tag(trs, "GYM3", 0xDC, 0x8D, 0x1A7);
-        tag(trs, "GYM4", 0x10A, 0x84, 0x109, 0xA0, 0x192, 0x10B, 0x85);
-        tag(trs, "GYM5", 0x125, 0x124, 0x120, 0x127, 0x126, 0x121);
-        tag(trs, "GYM6", 0x11A, 0x119, 0x1CF, 0x11B, 0x1CE, 0x1D0, 0x118);
-        tag(trs, "GYM7", 0xD5, 0xB1, 0xB2, 0xD6, 0xB3, 0xD7, 0xB4);
-        tag(trs, "GYM8", 0x129, 0x143, 0x188, 0x190, 0x142, 0x128, 0x191, 0x144);
+        tag(trs, "GYM1", Type.ROCK, 0x8E);
+        tag(trs, "GYM2", Type.WATER, 0xEA, 0x96);
+        tag(trs, "GYM3", Type.ELECTRIC, 0xDC, 0x8D, 0x1A7);
+        tag(trs, "GYM4", Type.GRASS, 0x10A, 0x84, 0x109, 0xA0, 0x192, 0x10B, 0x85);
+        tag(trs, "GYM5", Type.POISON,0x125, 0x124, 0x120, 0x127, 0x126, 0x121);
+        tag(trs, "GYM6", Type.PSYCHIC,0x11A, 0x119, 0x1CF, 0x11B, 0x1CE, 0x1D0, 0x118);
+        tag(trs, "GYM7", Type.FIRE,0xD5, 0xB1, 0xB2, 0xD6, 0xB3, 0xD7, 0xB4);
+        tag(trs, "GYM8", Type.GROUND,0x129, 0x143, 0x188, 0x190, 0x142, 0x128, 0x191, 0x144);
 
         // Gym Leaders
-        tag(trs, 0x19E, "GYM1-LEADER");
-        tag(trs, 0x19F, "GYM2-LEADER");
-        tag(trs, 0x1A0, "GYM3-LEADER");
-        tag(trs, 0x1A1, "GYM4-LEADER");
-        tag(trs, 0x1A2, "GYM5-LEADER");
-        tag(trs, 0x1A4, "GYM6-LEADER");
-        tag(trs, 0x1A3, "GYM7-LEADER");
-        tag(trs, 0x15E, "GYM8-LEADER");
+        tag(trs, 0x19E, "GYM1-LEADER", Type.ROCK);
+        tag(trs, 0x19F, "GYM2-LEADER", Type.WATER);
+        tag(trs, 0x1A0, "GYM3-LEADER", Type.ELECTRIC);
+        tag(trs, 0x1A1, "GYM4-LEADER", Type.GRASS);
+        tag(trs, 0x1A2, "GYM5-LEADER", Type.POISON);
+        tag(trs, 0x1A4, "GYM6-LEADER", Type.PSYCHIC);
+        tag(trs, 0x1A3, "GYM7-LEADER", Type.FIRE);
+        tag(trs, 0x15E, "GYM8-LEADER", Type.GROUND);
 
         // Giovanni
-        tag(trs, 0x15C, "GIO1-LEADER");
-        tag(trs, 0x15D, "GIO2-LEADER");
+        tag(trs, 0x15C, "GIO1-LEADER", Type.GROUND);
+        tag(trs, 0x15D, "GIO2-LEADER", Type.GROUND);
 
         // E4 Round 1
-        tag(trs, 0x19A, "ELITE1-1");
-        tag(trs, 0x19B, "ELITE2-1");
-        tag(trs, 0x19C, "ELITE3-1");
-        tag(trs, 0x19D, "ELITE4-1");
+        tag(trs, 0x19A, "ELITE1-1", Type.ICE);
+        tag(trs, 0x19B, "ELITE2-1", Type.FIGHTING);
+        tag(trs, 0x19C, "ELITE3-1", Type.GHOST);
+        tag(trs, 0x19D, "ELITE4-1", Type.DRAGON);
 
         // E4 Round 2
-        tag(trs, 0x2DF, "ELITE1-2");
-        tag(trs, 0x2E0, "ELITE2-2");
-        tag(trs, 0x2E1, "ELITE3-2");
-        tag(trs, 0x2E2, "ELITE4-2");
+        tag(trs, 0x2DF, "ELITE1-2", Type.ICE);
+        tag(trs, 0x2E0, "ELITE2-2", Type.FIGHTING);
+        tag(trs, 0x2E1, "ELITE3-2", Type.GHOST);
+        tag(trs, 0x2E2, "ELITE4-2", Type.DRAGON);
 
         // Rival Battles
 
@@ -808,9 +808,21 @@ public class Gen3Constants {
         trainers.get(trainerNum - 1).tag = tag;
     }
 
+    private static void tag(List<Trainer> trainers, int trainerNum, String tag, Type typeTheme) {
+        trainers.get(trainerNum - 1).tag = tag;
+        trainers.get(trainerNum - 1).typeTheme = typeTheme;
+    }
+
     private static void tag(List<Trainer> allTrainers, String tag, int... numbers) {
         for (int num : numbers) {
             allTrainers.get(num - 1).tag = tag;
+        }
+    }
+
+    private static void tag(List<Trainer> allTrainers, String tag, Type typeTheme, int... numbers) {
+        for (int num : numbers) {
+            allTrainers.get(num - 1).tag = tag;
+            allTrainers.get(num - 1).typeTheme = typeTheme;
         }
     }
 

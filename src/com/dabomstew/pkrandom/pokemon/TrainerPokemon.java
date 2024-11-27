@@ -24,10 +24,17 @@ package com.dabomstew.pkrandom.pokemon;
 /*--  along with this program. If not, see <http://www.gnu.org/licenses/>.  --*/
 /*----------------------------------------------------------------------------*/
 
+import com.dabomstew.pkrandom.romhandlers.RomHandler;
+import org.json.JSONObject;
+
 public class TrainerPokemon {
 
     public Pokemon pokemon;
     public int level;
+
+    // Nickname is not actually supported by any mainline games
+    // This just assists with internal testing
+    private String nickname;
 
     public int[] moves = {0, 0, 0, 0};
 
@@ -35,6 +42,7 @@ public class TrainerPokemon {
     public boolean hasMegaStone;
     public boolean hasZCrystal;
     public int abilitySlot;
+    public int AILevel;
     public int forme;
     public String formeSuffix = "";
 
@@ -54,8 +62,28 @@ public class TrainerPokemon {
     // we store the whole "strength byte" so we can
     // write it unchanged when randomizing trainer pokemon.
     public int strength;
-    
+
     public boolean resetMoves = false;
+
+    public TrainerPokemon(){};
+
+    public TrainerPokemon(TrainerPokemon tp) {
+        this.pokemon = tp.pokemon;
+        this.level = tp.level;
+        this.nickname = tp.getNickname();
+        this.moves = tp.moves;
+        this.AILevel = tp.AILevel;
+        this.heldItem = tp.heldItem;
+        this.abilitySlot = tp.abilitySlot;
+    }
+
+    public String getNickname() {
+        return this.nickname;
+    }
+
+    public int getLevel() {
+        return this.level;
+    }
 
     public String toString() {
         String s = pokemon.name + formeSuffix;
@@ -106,5 +134,29 @@ public class TrainerPokemon {
         tpk.resetMoves = resetMoves;
 
         return tpk;
+    }
+
+    public JSONObject toJSON(RomHandler romHandler){
+        JSONObject pokemonObject = new JSONObject();
+
+        pokemonObject.put("id", pokemon.getJSONId());
+        pokemonObject.put("level", level);
+
+        pokemonObject.put("moves",moves);
+        pokemonObject.put("ability",romHandler.abilityName(romHandler.getAbilityForTrainerPokemon(this)));
+
+        pokemonObject.put("heldItem",heldItem);
+        pokemonObject.put("hasMegaStone",hasMegaStone);
+        pokemonObject.put("hasZCrystal",hasZCrystal);
+
+        pokemonObject.put("strength",strength);
+        pokemonObject.put("forme",forme);
+        pokemonObject.put("formeSuffix",formeSuffix);
+
+        pokemonObject.put("moves",moves);
+
+        pokemonObject.put("heldItem", heldItem);
+
+        return pokemonObject;
     }
 }

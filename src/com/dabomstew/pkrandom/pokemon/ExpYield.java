@@ -1,7 +1,7 @@
 package com.dabomstew.pkrandom.pokemon;
 
 /*----------------------------------------------------------------------------*/
-/*--  IngameTrade.java - stores Pokemon trades with in-game NPCs.           --*/
+/*--  ExpCurve.java - represents the EXP curves that a Pokemon can have.    --*/
 /*--                                                                        --*/
 /*--  Part of "Universal Pokemon Randomizer ZX" by the UPR-ZX team          --*/
 /*--  Originally part of "Universal Pokemon Randomizer" by Dabomstew        --*/
@@ -24,18 +24,63 @@ package com.dabomstew.pkrandom.pokemon;
 /*--  along with this program. If not, see <http://www.gnu.org/licenses/>.  --*/
 /*----------------------------------------------------------------------------*/
 
-public class IngameTrade {
+public enum ExpYield {
 
-    public int id;
+    MINIMAL, AVERAGE, MAXIMAL, HITPOINTS, HIGHESTSTAT, STATAVERAGE;
 
-    public Pokemon requestedPokemon, givenPokemon;
+    public static ExpYield fromByte(byte curve) {
+        switch (curve) {
+        case 0:
+            return MINIMAL;
+        case 1:
+            return AVERAGE;
+        case 2:
+            return MAXIMAL;
+        case 3:
+            return HITPOINTS;
+        case 4:
+            return HIGHESTSTAT;
+        case 5:
+            return STATAVERAGE;
+        }
+        return null;
+    }
 
-    public String nickname, otName;
+    public byte toByte() {
+        switch (this) {
+        case MINIMAL:
+            return 0;
+        case AVERAGE:
+            return 1;
+        case MAXIMAL:
+            return 2;
+        case HITPOINTS:
+            return 3;
+        case HIGHESTSTAT:
+            return 4;
+        case STATAVERAGE:
+            return 5;
+        }
+        return 0; // default
+    }
 
-    public int otId;
-
-    public int[] ivs = new int[0];
-
-    public int item = 0;
+    @Override
+    public String toString() {
+        switch (this) {
+        case MINIMAL:
+            return "Minimal";
+        case AVERAGE:
+            return "Average";
+        case MAXIMAL:
+            return "Maximal";
+        case HITPOINTS:
+            return "Hit Points";
+        case HIGHESTSTAT:
+            return "Highest Stat";
+        case STATAVERAGE:
+            return "Stat Average";
+        }
+        return null;
+    }
 
 }

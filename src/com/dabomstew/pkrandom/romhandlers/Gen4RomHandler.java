@@ -1047,6 +1047,7 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
             pkmn.secondaryType = null;
         }
         pkmn.catchRate = stats[Gen4Constants.bsCatchRateOffset] & 0xFF;
+        pkmn.expYield = stats[Gen4Constants.bsExpYieldOffset] & 0xFF;
         pkmn.growthCurve = ExpCurve.fromByte(stats[Gen4Constants.bsGrowthCurveOffset]);
 
         // Abilities
@@ -1192,6 +1193,7 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
             stats[Gen4Constants.bsSecondaryTypeOffset] = Gen4Constants.typeToByte(pkmn.secondaryType);
         }
         stats[Gen4Constants.bsCatchRateOffset] = (byte) pkmn.catchRate;
+        stats[Gen4Constants.bsExpYieldOffset] = (byte) pkmn.expYield;
         stats[Gen4Constants.bsGrowthCurveOffset] = pkmn.growthCurve.toByte();
 
         stats[Gen4Constants.bsAbility1Offset] = (byte) pkmn.ability1;
@@ -4385,7 +4387,8 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
         if (offset > 0) {
             // Amount of required happiness for HAPPINESS evolutions.
             if (arm9[offset] == (byte)220) {
-                arm9[offset] = (byte)160;
+                //arm9[offset] = (byte)160;
+                arm9[offset] = (byte)70;
             }
             // Amount of required happiness for HAPPINESS_DAY evolutions.
             if (arm9[offset + 22] == (byte)220) {
@@ -4394,6 +4397,21 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
             // Amount of required happiness for HAPPINESS_NIGHT evolutions.
             if (arm9[offset + 44] == (byte)220) {
                 arm9[offset + 44] = (byte)160;
+            }
+        }
+
+        for (Pokemon pkmn : pokes) {
+            if (pkmn != null) {
+                for (Evolution evo : pkmn.evolutionsFrom) {
+                    if (evo.type == EvolutionType.HAPPINESS ||
+                            evo.type == EvolutionType.HAPPINESS_DAY ||
+                            evo.type == EvolutionType.HAPPINESS_NIGHT) {
+                        // Replace w/ level 35
+                        evo.type = EvolutionType.LEVEL_ITEM_DAY;
+                        evo.extraInfo = Items.rareCandy;
+                        addEvoUpdateCondensed(easierEvolutionUpdates, evo, false);
+                    }
+                }
             }
         }
 
@@ -4779,7 +4797,6 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
                 while (Gen4Constants.hgssBannedOverworldPokemon.contains(marillReplacement)) {
                     marillReplacement = this.random.nextInt(548) + 297;
                 }
-
                 byte[] fieldOverlay = readOverlay(romEntry.getInt("FieldOvlNumber"));
                 String prefix = Gen4Constants.lyraEthanMarillSpritePrefix;
                 int offset = find(fieldOverlay, prefix);
@@ -4890,7 +4907,8 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
             return pkmn.ability1;
         } else {
             // In HGSS, Trainer Pokemon can specify which ability they want to use.
-            return tp.abilitySlot == 2 ? pkmn.ability2 : pkmn.ability1;
+            if (tp.abilitySlot == 2 && pkmn.ability2 != 0) return pkmn.ability2;
+            else return pkmn.ability1;
         }
     }
 

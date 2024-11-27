@@ -1,7 +1,7 @@
 package com.dabomstew.pkrandom.pokemon;
 
 /*----------------------------------------------------------------------------*/
-/*--  IngameTrade.java - stores Pokemon trades with in-game NPCs.           --*/
+/*--  ExpCurve.java - represents the EXP curves that a Pokemon can have.    --*/
 /*--                                                                        --*/
 /*--  Part of "Universal Pokemon Randomizer ZX" by the UPR-ZX team          --*/
 /*--  Originally part of "Universal Pokemon Randomizer" by Dabomstew        --*/
@@ -24,18 +24,56 @@ package com.dabomstew.pkrandom.pokemon;
 /*--  along with this program. If not, see <http://www.gnu.org/licenses/>.  --*/
 /*----------------------------------------------------------------------------*/
 
-public class IngameTrade {
+public enum StarterStrength {
 
-    public int id;
+    ORIGINAL, EACHOTHER, WEAKEST, STRONGEST, MODERATE;
 
-    public Pokemon requestedPokemon, givenPokemon;
+    public static StarterStrength fromByte(byte curve) {
+        switch (curve) {
+            case 0:
+                return ORIGINAL;
+            case 1:
+                return EACHOTHER;
+            case 2:
+                return WEAKEST;
+            case 3:
+                return STRONGEST;
+            case 4:
+                return MODERATE;
+        }
+        return null;
+    }
 
-    public String nickname, otName;
+    public byte toByte() {
+        switch (this) {
+            case ORIGINAL:
+                return 0;
+            case EACHOTHER:
+                return 1;
+            case WEAKEST:
+                return 2;
+            case STRONGEST:
+                return 3;
+            case MODERATE:
+                return 4;
+        }
+        return 0; // default
+    }
 
-    public int otId;
-
-    public int[] ivs = new int[0];
-
-    public int item = 0;
-
+    @Override
+    public String toString() {
+        switch (this) {
+            case ORIGINAL:
+                return "Original";
+            case EACHOTHER:
+                return "Each Other";
+            case WEAKEST:
+                return "Weakest";
+            case STRONGEST:
+                return "Strongest";
+            case MODERATE:
+                return "Moderate";
+        }
+        return null;
+    }
 }

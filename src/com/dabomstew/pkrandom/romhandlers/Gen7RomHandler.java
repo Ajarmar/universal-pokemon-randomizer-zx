@@ -1151,6 +1151,7 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
                 se.pkmn = pokemon;
                 se.forme = forme;
                 se.level = giftsFile[offset + 3];
+                se.heldItem = FileFunctions.read2ByteInt(giftsFile, offset + 8);
                 starters.add(se);
             }
         } catch (IOException e) {
@@ -2817,6 +2818,7 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
         if (offset > 0) {
             // Amount of required happiness for HAPPINESS evolutions.
             if (code[offset] == (byte)220) {
+                //code[offset] = (byte)160;
                 code[offset] = (byte)160;
             }
             // Amount of required happiness for HAPPINESS_DAY evolutions.
@@ -2833,6 +2835,14 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
             if (pkmn != null) {
                 Evolution extraEntry = null;
                 for (Evolution evo : pkmn.evolutionsFrom) {
+                    if (evo.type == EvolutionType.HAPPINESS ||
+                            evo.type == EvolutionType.HAPPINESS_DAY ||
+                            evo.type == EvolutionType.HAPPINESS_NIGHT) {
+                        // Replace w/ level 35
+                        evo.type = EvolutionType.LEVEL_ITEM_DAY;
+                        evo.extraInfo = Items.rareCandy;
+                        addEvoUpdateCondensed(easierEvolutionUpdates, evo, false);
+                    }
                     if (wildsRandomized) {
                         if (evo.type == EvolutionType.LEVEL_WITH_OTHER) {
                             // Replace w/ level 35

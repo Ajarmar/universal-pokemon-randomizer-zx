@@ -29,13 +29,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 
 import com.dabomstew.pkrandom.FileFunctions;
 import com.dabomstew.pkrandom.constants.GBConstants;
+import com.dabomstew.pkrandom.pokemon.TypeRelationship;
 
 public abstract class AbstractGBCRomHandler extends AbstractGBRomHandler {
 
@@ -221,5 +219,4 @@ public abstract class AbstractGBCRomHandler extends AbstractGBRomHandler {
         }
 
     }
-
 }

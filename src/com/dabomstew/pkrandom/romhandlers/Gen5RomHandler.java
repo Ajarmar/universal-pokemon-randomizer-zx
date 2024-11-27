@@ -67,6 +67,32 @@ public class Gen5RomHandler extends AbstractDSRomHandler {
         super(random, logStream);
     }
 
+    @Override
+    public void changeCatchRates(Settings settings) {
+        int minimumCatchRateLevel = settings.getMinimumCatchRateLevel();
+
+        int normalMin, bigMin;
+        switch (minimumCatchRateLevel) {
+            case 1:
+            default:
+                normalMin = 50;
+                bigMin = 25;
+                break;
+            case 2:
+                normalMin = 100;
+                bigMin = 45;
+                break;
+            case 3:
+                normalMin = 180;
+                bigMin = 75;
+                break;
+            case 4:
+                normalMin = bigMin = 255;
+                break;
+        }
+        minimumCatchRate(normalMin, bigMin);
+    }
+
     private static class OffsetWithinEntry {
         private int entry;
         private int offset;
@@ -96,7 +122,7 @@ public class Gen5RomHandler extends AbstractDSRomHandler {
         private List<StaticPokemon> staticPokemonFakeBall = new ArrayList<>();
         private List<RoamingPokemon> roamingPokemon = new ArrayList<>();
         private List<TradeScript> tradeScripts = new ArrayList<>();
-        
+
 
         private int getInt(String key) {
             if (!numbers.containsKey(key)) {
@@ -400,7 +426,7 @@ public class Gen5RomHandler extends AbstractDSRomHandler {
     private long actualArm9CRC32;
     private Map<Integer, Long> actualOverlayCRC32s;
     private Map<String, Long> actualFileCRC32s;
-    
+
     private NARCArchive pokeNarc, moveNarc, stringsNarc, storyTextNarc, scriptNarc, shopNarc;
 
     @Override
@@ -465,7 +491,7 @@ public class Gen5RomHandler extends AbstractDSRomHandler {
         else if (romEntry.romType == Gen5Constants.Type_BW2) {
             shopNames = Gen5Constants.bw2ShopNames;
         }
-        
+
         loadedWildMapNames = false;
 
         allowedItems = Gen5Constants.allowedItems.copy();
@@ -1984,7 +2010,8 @@ public class Gen5RomHandler extends AbstractDSRomHandler {
             e.printStackTrace();
         }
 
-        // Relies on arm9 already being extended, which it *should* have been in loadedROM
+        int extendBy = romEntry.getInt("NewIndexToMusicSize");
+        arm9 = extendARM9(arm9, extendBy, romEntry.getString("TCMCopyingPrefix"), Gen5Constants.arm9Offset);
         genericIPSPatch(arm9, "NewIndexToMusicTweak");
 
         String newIndexToMusicPrefix = romEntry.getString("NewIndexToMusicPrefix");
@@ -3092,7 +3119,6 @@ public class Gen5RomHandler extends AbstractDSRomHandler {
         if (nincada.evolutionsFrom.size() < 2) {
             return;
         }
-
         Pokemon extraEvolution = nincada.evolutionsFrom.get(1).to;
 
         // Update the evolution overlay to point towards our custom code in the expanded arm9.
@@ -3199,7 +3225,8 @@ public class Gen5RomHandler extends AbstractDSRomHandler {
         if (offset > 0) {
             // Amount of required happiness for HAPPINESS evolutions.
             if (arm9[offset] == (byte)220) {
-                arm9[offset] = (byte)160;
+                //arm9[offset] = (byte)160;
+                arm9[offset] = (byte)70;
             }
             // Amount of required happiness for HAPPINESS_DAY evolutions.
             if (arm9[offset + 20] == (byte)220) {
@@ -3208,6 +3235,21 @@ public class Gen5RomHandler extends AbstractDSRomHandler {
             // Amount of required happiness for HAPPINESS_NIGHT evolutions.
             if (arm9[offset + 38] == (byte)220) {
                 arm9[offset + 38] = (byte)160;
+            }
+        }
+
+        for (Pokemon pkmn : pokes) {
+            if (pkmn != null) {
+                for (Evolution evo : pkmn.evolutionsFrom) {
+                    if (evo.type == EvolutionType.HAPPINESS ||
+                            evo.type == EvolutionType.HAPPINESS_DAY ||
+                            evo.type == EvolutionType.HAPPINESS_NIGHT) {
+                        // Replace w/ level 35
+                        evo.type = EvolutionType.LEVEL_ITEM_DAY;
+                        evo.extraInfo = Items.rareCandy;
+                        addEvoUpdateCondensed(easierEvolutionUpdates, evo, false);
+                    }
+                }
             }
         }
 
@@ -3538,7 +3580,7 @@ public class Gen5RomHandler extends AbstractDSRomHandler {
     public String[] getItemNames() {
         return itemNames.toArray(new String[0]);
     }
-    
+
     @Override
     public String abilityName(int number) {
         return abilityNames.get(number);

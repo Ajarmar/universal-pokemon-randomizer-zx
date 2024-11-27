@@ -27,11 +27,15 @@ package com.dabomstew.pkrandom.pokemon;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.dabomstew.pkrandom.romhandlers.RomHandler;
+import org.json.JSONObject;
+
 public class Trainer implements Comparable<Trainer> {
     public int offset;
     public int index;
     public List<TrainerPokemon> pokemon = new ArrayList<>();
     public String tag;
+    public Type typeTheme;
     public boolean importantTrainer;
     // This value has some flags about the trainer's pokemon (e.g. if they have items or custom moves)
     public int poketype;
@@ -42,6 +46,27 @@ public class Trainer implements Comparable<Trainer> {
     public int forceStarterPosition = -1;
     // Certain trainers (e.g., trainers in the PWT in BW2) require unique held items for all of their Pokemon to prevent a game crash.
     public boolean requiresUniqueHeldItems;
+    public int originalTeamSize;
+
+    public Trainer(){};
+
+    public Trainer(Trainer t) {
+        this.offset = t.offset;
+        this.tag = t.tag;
+        this.typeTheme = t.typeTheme;
+        this.multiBattleStatus = t.multiBattleStatus;
+        this.importantTrainer = t.importantTrainer;
+        this.poketype = t.poketype;
+        this.name = t.name;
+        this.trainerclass = t.trainerclass;
+        this.fullDisplayName = t.fullDisplayName;
+
+        for(TrainerPokemon tpk : t.pokemon) {
+            if (tpk != null)
+                pokemon.add(new TrainerPokemon(tpk));
+        }
+        this.originalTeamSize = t.pokemon.size();
+    }
 
     public String toString() {
         StringBuilder sb = new StringBuilder("[");
@@ -80,6 +105,10 @@ public class Trainer implements Comparable<Trainer> {
         return result;
     }
 
+    public String stringOffset() {
+        return String.format("%X", this.offset);
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -97,6 +126,10 @@ public class Trainer implements Comparable<Trainer> {
         return index - o.index;
     }
 
+    public boolean isElite() {
+        return tag != null && (tag.startsWith("ELITE") || tag.startsWith("CHAMPION") || tag.startsWith("UBER"));
+    }
+
     public boolean isBoss() {
         return tag != null && (tag.startsWith("ELITE") || tag.startsWith("CHAMPION")
                 || tag.startsWith("UBER") || tag.endsWith("LEADER"));
@@ -108,6 +141,10 @@ public class Trainer implements Comparable<Trainer> {
 
     public boolean skipImportant() {
         return ((tag != null) && (tag.startsWith("RIVAL1-") || tag.startsWith("FRIEND1-") || tag.endsWith("NOTSTRONG")));
+    }
+
+    public void setOriginalTeamSize(int size) {
+        this.originalTeamSize = size;
     }
 
     public void setPokemonHaveItems(boolean haveItems) {
@@ -149,6 +186,40 @@ public class Trainer implements Comparable<Trainer> {
             }
         }
         return true;
+    }
+
+    public String getLogName() {
+        if (this.fullDisplayName != null) {
+            return this.fullDisplayName;
+        }
+        if (this.name != null) {
+            return this.name;
+        }
+        return "No_Name_Found";
+    }
+
+    public JSONObject toJSON(RomHandler romHandler) {
+        JSONObject trainer = new JSONObject();
+
+        trainer.put("name", getLogName());
+        trainer.put("offset", stringOffset());
+
+        JSONObject team = new JSONObject();
+        int slot = 0;
+        for (TrainerPokemon tpk : pokemon) {
+            if (tpk == null) continue;
+
+            String slotText = String.valueOf(slot);
+
+            JSONObject pokemon = tpk.toJSON(romHandler);
+            team.put(slotText, pokemon);
+
+            slot++;
+        }
+
+        trainer.put("team",team);
+
+        return trainer;
     }
 
     public enum MultiBattleStatus {

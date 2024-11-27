@@ -45,7 +45,7 @@ public class Gen4Constants {
 
     public static final int bsHPOffset = 0, bsAttackOffset = 1, bsDefenseOffset = 2, bsSpeedOffset = 3,
             bsSpAtkOffset = 4, bsSpDefOffset = 5, bsPrimaryTypeOffset = 6, bsSecondaryTypeOffset = 7,
-            bsCatchRateOffset = 8, bsCommonHeldItemOffset = 12, bsRareHeldItemOffset = 14, bsGenderRatioOffset = 16,
+            bsCatchRateOffset = 8, bsExpYieldOffset = 9, bsCommonHeldItemOffset = 12, bsRareHeldItemOffset = 14, bsGenderRatioOffset = 16,
             bsGrowthCurveOffset = 19, bsAbility1Offset = 22, bsAbility2Offset = 23, bsTMHMCompatOffset = 28;
 
     public static final String starterCriesPrefix = "0004000C10BD0000000000000000000000E000000000000000E0000000000200";
@@ -1724,30 +1724,30 @@ public class Gen4Constants {
 
     public static void tagTrainersDP(List<Trainer> trs) {
         // Gym Trainers
-        tag(trs, "GYM1", 0xf4, 0xf5);
-        tag(trs, "GYM2", 0x144, 0x103, 0x104, 0x15C);
-        tag(trs, "GYM3", 0x135, 0x136, 0x137, 0x138);
-        tag(trs, "GYM4", 0x1f1, 0x1f2, 0x191, 0x153, 0x125, 0x1E3);
-        tag(trs, "GYM5", 0x165, 0x145, 0x10a, 0x14a, 0x154, 0x157, 0x118, 0x11c);
-        tag(trs, "GYM6", 0x13a, 0x100, 0x101, 0x117, 0x16f, 0xe8, 0x11b);
-        tag(trs, "GYM7", 0x10c, 0x10d, 0x10e, 0x10f, 0x33b, 0x33c);
-        tag(trs, "GYM8", 0x158, 0x155, 0x12d, 0x12e, 0x12f, 0x11d, 0x119);
+        tag(trs, "GYM1", Type.ROCK, 0xf4, 0xf5);
+        tag(trs, "GYM2", Type.GRASS, 0x144, 0x103, 0x104, 0x15C);
+        tag(trs, "GYM3", Type.FIGHTING, 0x135, 0x136, 0x137, 0x138);
+        tag(trs, "GYM4", Type.WATER, 0x1f1, 0x1f2, 0x191, 0x153, 0x125, 0x1E3);
+        tag(trs, "GYM5", Type.GHOST, 0x165, 0x145, 0x10a, 0x14a, 0x154, 0x157, 0x118, 0x11c);
+        tag(trs, "GYM6", Type.STEEL, 0x13a, 0x100, 0x101, 0x117, 0x16f, 0xe8, 0x11b);
+        tag(trs, "GYM7", Type.ICE, 0x10c, 0x10d, 0x10e, 0x10f, 0x33b, 0x33c);
+        tag(trs, "GYM8", Type.ELECTRIC, 0x158, 0x155, 0x12d, 0x12e, 0x12f, 0x11d, 0x119);
 
         // Gym Leaders
-        tag(trs, 0xf6, "GYM1-LEADER");
-        tag(trs, 0x13b, "GYM2-LEADER");
-        tag(trs, 0x13d, "GYM3-LEADER"); // Maylene
-        tag(trs, 0x13c, "GYM4-LEADER"); // Wake
-        tag(trs, 0x13e, "GYM5-LEADER"); // Fantina
-        tag(trs, 0xfa, "GYM6-LEADER"); // Byron
-        tag(trs, 0x13f, "GYM7-LEADER"); // Candice
-        tag(trs, 0x140, "GYM8-LEADER"); // Volkner
+        tag(trs, 0xf6, "GYM1-LEADER", Type.ROCK);
+        tag(trs, 0x13b, "GYM2-LEADER", Type.GRASS);
+        tag(trs, 0x13d, "GYM3-LEADER", Type.FIGHTING); // Maylene
+        tag(trs, 0x13c, "GYM4-LEADER", Type.WATER); // Wake
+        tag(trs, 0x13e, "GYM5-LEADER", Type.GHOST); // Fantina
+        tag(trs, 0xfa, "GYM6-LEADER", Type.STEEL); // Byron
+        tag(trs, 0x13f, "GYM7-LEADER", Type.ICE); // Candice
+        tag(trs, 0x140, "GYM8-LEADER", Type.ELECTRIC); // Volkner
 
         // Elite 4
-        tag(trs, 0x105, "ELITE1");
-        tag(trs, 0x106, "ELITE2");
-        tag(trs, 0x107, "ELITE3");
-        tag(trs, 0x108, "ELITE4");
+        tag(trs, 0x105, "ELITE1", Type.BUG);
+        tag(trs, 0x106, "ELITE2", Type.GROUND);
+        tag(trs, 0x107, "ELITE3", Type.FIRE);
+        tag(trs, 0x108, "ELITE4", Type.PSYCHIC);
         tag(trs, 0x10b, "CHAMPION");
 
         // Rival battles (8)
@@ -1780,30 +1780,30 @@ public class Gen4Constants {
 
     public static void tagTrainersPt(List<Trainer> trs) {
         // Gym Trainers
-        tag(trs, "GYM1", 0xf4, 0xf5);
-        tag(trs, "GYM2", 0x144, 0x103, 0x104, 0x15C);
-        tag(trs, "GYM3", 0x165, 0x145, 0x154, 0x157, 0x118, 0x11c);
-        tag(trs, "GYM4", 0x135, 0x136, 0x137, 0x138);
-        tag(trs, "GYM5", 0x1f1, 0x1f2, 0x191, 0x153, 0x125, 0x1E3);
-        tag(trs, "GYM6", 0x13a, 0x100, 0x101, 0x117, 0x16f, 0xe8, 0x11b);
-        tag(trs, "GYM7", 0x10c, 0x10d, 0x10e, 0x10f, 0x33b, 0x33c);
-        tag(trs, "GYM8", 0x158, 0x155, 0x12d, 0x12e, 0x12f, 0x11d, 0x119, 0x14b);
+        tag(trs, "GYM1", Type.ROCK, 0xf4, 0xf5);
+        tag(trs, "GYM2", Type.GRASS, 0x144, 0x103, 0x104, 0x15C);
+        tag(trs, "GYM3", Type.GHOST, 0x165, 0x145, 0x154, 0x157, 0x118, 0x11c);
+        tag(trs, "GYM4", Type.FIGHTING, 0x135, 0x136, 0x137, 0x138);
+        tag(trs, "GYM5", Type.WATER, 0x1f1, 0x1f2, 0x191, 0x153, 0x125, 0x1E3);
+        tag(trs, "GYM6", Type.STEEL, 0x13a, 0x100, 0x101, 0x117, 0x16f, 0xe8, 0x11b);
+        tag(trs, "GYM7", Type.ICE, 0x10c, 0x10d, 0x10e, 0x10f, 0x33b, 0x33c);
+        tag(trs, "GYM8", Type.ELECTRIC, 0x158, 0x155, 0x12d, 0x12e, 0x12f, 0x11d, 0x119, 0x14b);
 
         // Gym Leaders
-        tag(trs, 0xf6, "GYM1-LEADER");
-        tag(trs, 0x13b, "GYM2-LEADER");
-        tag(trs, 0x13e, "GYM3-LEADER"); // Fantina
-        tag(trs, 0x13d, "GYM4-LEADER"); // Maylene
-        tag(trs, 0x13c, "GYM5-LEADER"); // Wake
-        tag(trs, 0xfa, "GYM6-LEADER"); // Byron
-        tag(trs, 0x13f, "GYM7-LEADER"); // Candice
-        tag(trs, 0x140, "GYM8-LEADER"); // Volkner
+        tag(trs, 0xf6, "GYM1-LEADER", Type.ROCK);
+        tag(trs, 0x13b, "GYM2-LEADER", Type.GRASS);
+        tag(trs, 0x13e, "GYM3-LEADER", Type.GHOST); // Fantina
+        tag(trs, 0x13d, "GYM4-LEADER", Type.FIGHTING); // Maylene
+        tag(trs, 0x13c, "GYM5-LEADER", Type.WATER); // Wake
+        tag(trs, 0xfa, "GYM6-LEADER", Type.STEEL); // Byron
+        tag(trs, 0x13f, "GYM7-LEADER", Type.ICE); // Candice
+        tag(trs, 0x140, "GYM8-LEADER", Type.ELECTRIC); // Volkner
 
         // Elite 4
-        tag(trs, 0x105, "ELITE1");
-        tag(trs, 0x106, "ELITE2");
-        tag(trs, 0x107, "ELITE3");
-        tag(trs, 0x108, "ELITE4");
+        tag(trs, 0x105, "ELITE1", Type.BUG);
+        tag(trs, 0x106, "ELITE2", Type.GROUND);
+        tag(trs, 0x107, "ELITE3", Type.FIRE);
+        tag(trs, 0x108, "ELITE4", Type.PSYCHIC);
         tag(trs, 0x10b, "CHAMPION");
 
         // Rival battles (10)
@@ -1823,24 +1823,24 @@ public class Gen4Constants {
         tagRivalConsecutive(trs, "RIVAL10", 0x368);
 
         // Battleground Gym Leaders
-        tag(trs, 0x35A, "GYM1");
-        tag(trs, 0x359, "GYM2");
-        tag(trs, 0x35C, "GYM3");
-        tag(trs, 0x356, "GYM4");
-        tag(trs, 0x35B, "GYM5");
-        tag(trs, 0x358, "GYM6");
-        tag(trs, 0x355, "GYM7");
-        tag(trs, 0x357, "GYM8");
+        tag(trs, 0x35A, "GYM1", Type.ROCK);
+        tag(trs, 0x359, "GYM2", Type.GRASS);
+        tag(trs, 0x35C, "GYM3", Type.GHOST);
+        tag(trs, 0x356, "GYM4", Type.FIGHTING);
+        tag(trs, 0x35B, "GYM5", Type.WATER);
+        tag(trs, 0x358, "GYM6", Type.STEEL);
+        tag(trs, 0x355, "GYM7", Type.ICE);
+        tag(trs, 0x357, "GYM8", Type.ELECTRIC);
 
         // Match vs Volkner and Flint in Battle Frontier
-        tag(trs, 0x399, "GYM8");
-        tag(trs, 0x39A, "ELITE3");
+        tag(trs, 0x399, "GYM8", Type.ELECTRIC);
+        tag(trs, 0x39A, "ELITE3", Type.FIRE);
 
         // E4 rematch
-        tag(trs, 0x362, "ELITE1");
-        tag(trs, 0x363, "ELITE2");
-        tag(trs, 0x364, "ELITE3");
-        tag(trs, 0x365, "ELITE4");
+        tag(trs, 0x362, "ELITE1", Type.BUG);
+        tag(trs, 0x363, "ELITE2", Type.GROUND);
+        tag(trs, 0x364, "ELITE3", Type.FIRE);
+        tag(trs, 0x365, "ELITE4", Type.PSYCHIC);
         tag(trs, 0x366, "CHAMPION");
 
         // Themed
@@ -1859,76 +1859,76 @@ public class Gen4Constants {
 
     public static void tagTrainersHGSS(List<Trainer> trs) {
         // Gym Trainers
-        tag(trs, "GYM1", 0x32, 0x1D);
-        tag(trs, "GYM2", 0x43, 0x44, 0x45, 0x0a);
-        tag(trs, "GYM3", 0x05, 0x46, 0x47, 0x16);
-        tag(trs, "GYM4", 0x1ed, 0x1ee, 0x59, 0x2e);
-        tag(trs, "GYM5", 0x9c, 0x9d, 0x9f, 0xfb);
-        tag(trs, "GYM7", 0x1e0, 0x1e1, 0x1e2, 0x1e3, 0x1e4);
-        tag(trs, "GYM8", 0x6e, 0x6f, 0x70, 0x75, 0x77);
+        tag(trs, "GYM1", Type.FLYING, 0x32, 0x1D);
+        tag(trs, "GYM2", Type.BUG, 0x43, 0x44, 0x45, 0x0a);
+        tag(trs, "GYM3", Type.NORMAL, 0x05, 0x46, 0x47, 0x16);
+        tag(trs, "GYM4", Type.GHOST, 0x1ed, 0x1ee, 0x59, 0x2e);
+        tag(trs, "GYM5", Type.FIGHTING, 0x9c, 0x9d, 0x9f, 0xfb);
+        tag(trs, "GYM7", Type.ICE, 0x1e0, 0x1e1, 0x1e2, 0x1e3, 0x1e4);
+        tag(trs, "GYM8", Type.DRAGON, 0x6e, 0x6f, 0x70, 0x75, 0x77);
 
-        tag(trs, "GYM9", 0x134, 0x2ad);
-        tag(trs, "GYM10", 0x2a4, 0x2a5, 0x2a6, 0x129, 0x12a);
-        tag(trs, "GYM11", 0x18c, 0xe8, 0x151);
-        tag(trs, "GYM12", 0x150, 0x146, 0x164, 0x15a);
-        tag(trs, "GYM13", 0x53, 0x54, 0xb7, 0x88);
-        tag(trs, "GYM14", 0x170, 0x171, 0xe6, 0x19f);
-        tag(trs, "GYM15", 0x2b1, 0x2b2, 0x2b3, 0x2b4, 0x2b5, 0x2b6);
+        tag(trs, "GYM9", Type.ROCK, 0x134, 0x2ad);
+        tag(trs, "GYM10", Type.WATER, 0x2a4, 0x2a5, 0x2a6, 0x129, 0x12a);
+        tag(trs, "GYM11", Type.ELECTRIC, 0x18c, 0xe8, 0x151);
+        tag(trs, "GYM12", Type.GRASS, 0x150, 0x146, 0x164, 0x15a);
+        tag(trs, "GYM13", Type.POISON, 0x53, 0x54, 0xb7, 0x88);
+        tag(trs, "GYM14", Type.PSYCHIC, 0x170, 0x171, 0xe6, 0x19f);
+        tag(trs, "GYM15", Type.FIRE, 0x2b1, 0x2b2, 0x2b3, 0x2b4, 0x2b5, 0x2b6);
         tag(trs, "GYM16", 0x2a9, 0x2aa, 0x2ab, 0x2ac);
 
         // Gym Leaders
-        tag(trs, 0x14, "GYM1-LEADER");
-        tag(trs, 0x15, "GYM2-LEADER");
-        tag(trs, 0x1e, "GYM3-LEADER");
-        tag(trs, 0x1f, "GYM4-LEADER");
-        tag(trs, 0x22, "GYM5-LEADER");
-        tag(trs, 0x21, "GYM6-LEADER");
-        tag(trs, 0x20, "GYM7-LEADER");
-        tag(trs, 0x23, "GYM8-LEADER");
+        tag(trs, 0x14, "GYM1-LEADER", Type.FLYING);
+        tag(trs, 0x15, "GYM2-LEADER", Type.BUG);
+        tag(trs, 0x1e, "GYM3-LEADER", Type.NORMAL);
+        tag(trs, 0x1f, "GYM4-LEADER", Type.GHOST);
+        tag(trs, 0x22, "GYM5-LEADER", Type.FIGHTING);
+        tag(trs, 0x21, "GYM6-LEADER", Type.STEEL);
+        tag(trs, 0x20, "GYM7-LEADER", Type.ICE);
+        tag(trs, 0x23, "GYM8-LEADER", Type.DRAGON);
 
-        tag(trs, 0xFD, "GYM9-LEADER");
-        tag(trs, 0xFE, "GYM10-LEADER");
-        tag(trs, 0xFF, "GYM11-LEADER");
-        tag(trs, 0x100, "GYM12-LEADER");
-        tag(trs, 0x101, "GYM13-LEADER");
-        tag(trs, 0x102, "GYM14-LEADER");
-        tag(trs, 0x103, "GYM15-LEADER");
+        tag(trs, 0xFD, "GYM9-LEADER", Type.ROCK);
+        tag(trs, 0xFE, "GYM10-LEADER", Type.WATER);
+        tag(trs, 0xFF, "GYM11-LEADER", Type.ELECTRIC);
+        tag(trs, 0x100, "GYM12-LEADER", Type.GRASS);
+        tag(trs, 0x101, "GYM13-LEADER", Type.POISON);
+        tag(trs, 0x102, "GYM14-LEADER", Type.PSYCHIC);
+        tag(trs, 0x103, "GYM15-LEADER", Type.FIRE);
         tag(trs, 0x105, "GYM16-LEADER");
 
         // Elite 4
-        tag(trs, 0xf5, "ELITE1");
-        tag(trs, 0xf7, "ELITE2");
-        tag(trs, 0x1a2, "ELITE3");
-        tag(trs, 0xf6, "ELITE4");
+        tag(trs, 0xf5, "ELITE1", Type.PSYCHIC);
+        tag(trs, 0xf7, "ELITE2", Type.POISON);
+        tag(trs, 0x1a2, "ELITE3", Type.FIGHTING);
+        tag(trs, 0xf6, "ELITE4", Type.DARK);
         tag(trs, 0xf4, "CHAMPION");
 
         // Red
         tag(trs, 0x104, "UBER");
 
         // Gym Rematches
-        tag(trs, 0x2c8, "GYM1-LEADER");
-        tag(trs, 0x2c9, "GYM2-LEADER");
-        tag(trs, 0x2ca, "GYM3-LEADER");
-        tag(trs, 0x2cb, "GYM4-LEADER");
-        tag(trs, 0x2ce, "GYM5-LEADER");
-        tag(trs, 0x2cd, "GYM6-LEADER");
-        tag(trs, 0x2cc, "GYM7-LEADER");
-        tag(trs, 0x2cf, "GYM8-LEADER");
+        tag(trs, 0x2c8, "GYM1-LEADER", Type.FLYING);
+        tag(trs, 0x2c9, "GYM2-LEADER", Type.BUG);
+        tag(trs, 0x2ca, "GYM3-LEADER", Type.NORMAL);
+        tag(trs, 0x2cb, "GYM4-LEADER", Type.GHOST);
+        tag(trs, 0x2ce, "GYM5-LEADER", Type.FIGHTING);
+        tag(trs, 0x2cd, "GYM6-LEADER", Type.STEEL);
+        tag(trs, 0x2cc, "GYM7-LEADER", Type.ICE);
+        tag(trs, 0x2cf, "GYM8-LEADER", Type.DRAGON);
 
-        tag(trs, 0x2d0, "GYM9-LEADER");
-        tag(trs, 0x2d1, "GYM10-LEADER");
-        tag(trs, 0x2d2, "GYM11-LEADER");
-        tag(trs, 0x2d3, "GYM12-LEADER");
-        tag(trs, 0x2d4, "GYM13-LEADER");
-        tag(trs, 0x2d5, "GYM14-LEADER");
-        tag(trs, 0x2d6, "GYM15-LEADER");
+        tag(trs, 0x2d0, "GYM9-LEADER", Type.ROCK);
+        tag(trs, 0x2d1, "GYM10-LEADER", Type.WATER);
+        tag(trs, 0x2d2, "GYM11-LEADER", Type.ELECTRIC);
+        tag(trs, 0x2d3, "GYM12-LEADER", Type.GRASS);
+        tag(trs, 0x2d4, "GYM13-LEADER", Type.POISON);
+        tag(trs, 0x2d5, "GYM14-LEADER", Type.PSYCHIC);
+        tag(trs, 0x2d6, "GYM15-LEADER", Type.FIRE);
         tag(trs, 0x2d7, "GYM16-LEADER");
 
         // Elite 4 Rematch
-        tag(trs, 0x2be, "ELITE1");
-        tag(trs, 0x2bf, "ELITE2");
-        tag(trs, 0x2c0, "ELITE3");
-        tag(trs, 0x2c1, "ELITE4");
+        tag(trs, 0x2be, "ELITE1", Type.PSYCHIC);
+        tag(trs, 0x2bf, "ELITE2", Type.POISON);
+        tag(trs, 0x2c0, "ELITE3", Type.FIGHTING);
+        tag(trs, 0x2c1, "ELITE4", Type.DARK);
         tag(trs, 0x2bd, "CHAMPION");
 
         // Rival Battles
@@ -1955,8 +1955,8 @@ public class Gen4Constants {
         tagRivalConsecutive(trs, "RIVAL8", 0x1EA);
 
         // Clair & Lance match in Dragons Den
-        tag(trs, 0x2DE, "GYM8");
-        tag(trs, 0x2DD, "CHAMPION");
+        tag(trs, 0x2DE, "GYM8", Type.DRAGON);
+        tag(trs, 0x2DD, "CHAMPION", Type.DRAGON);
 
         tag(trs, 0xa0, "KIMONO1-STRONG");
         tag(trs, 0xa1, "KIMONO2-STRONG");
@@ -1980,6 +1980,18 @@ public class Gen4Constants {
     private static void tag(List<Trainer> allTrainers, String tag, int... numbers) {
         for (int num : numbers) {
             allTrainers.get(num - 1).tag = tag;
+        }
+    }
+
+    private static void tag(List<Trainer> allTrainers, int number, String tag, Type typeTheme) {
+        allTrainers.get(number - 1).tag = tag;
+        allTrainers.get(number - 1).typeTheme = typeTheme;
+    }
+
+    private static void tag(List<Trainer> allTrainers, String tag, Type typeTheme, int... numbers) {
+        for (int num : numbers) {
+            allTrainers.get(num - 1).tag = tag;
+            allTrainers.get(num - 1).typeTheme = typeTheme;
         }
     }
 
